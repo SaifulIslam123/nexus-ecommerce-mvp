@@ -1,0 +1,37 @@
+package com.ecommerce.mvp.modules.order.model.entity
+
+import com.practice.ecommerce.ecommerce.common.entity.audit.BaseEntityAudit
+import com.practice.ecommerce.ecommerce.modules.user.model.entity.User
+import jakarta.persistence.*
+import java.math.BigDecimal
+import java.util.*
+
+
+@Entity
+@Table(name = "Orders")
+class Order : BaseEntityAudit() {
+
+    @field:Temporal(TemporalType.TIMESTAMP)
+    @field:Column(nullable = false)
+    var orderDate: Date = Date()
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    var totalAmount: BigDecimal = BigDecimal.ZERO
+
+    @Column(nullable = false)
+    var status: String = "PENDING"
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    var user: User? = null
+
+    @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    var orderItems: MutableSet<OrderItem> = mutableSetOf()
+
+    @OneToOne(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    var payment: Payment? = null
+
+    @OneToOne(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    var shipment: Shipment? = null
+
+}
