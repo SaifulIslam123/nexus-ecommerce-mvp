@@ -1,0 +1,50 @@
+package com.ecommerce.mvp
+
+import com.ecommerce.mvp.modules.order.service.OrderService
+import com.ecommerce.mvp.modules.product.service.ProductService
+import com.ecommerce.mvp.modules.role.service.RoleService
+import com.ecommerce.mvp.modules.user.service.UserService
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.CommandLineRunner
+import org.springframework.stereotype.Component
+
+@Component
+class AppCommandLineRunner : CommandLineRunner {
+
+    @Autowired
+    private lateinit var productService: ProductService
+
+    @Autowired
+    private lateinit var userService: UserService
+
+    @Autowired
+    private lateinit var orderService: OrderService
+
+    @Autowired
+    private lateinit var roleService: RoleService
+
+
+
+    override fun run(vararg args: String?) {
+
+        // Step 1: Populate default roles first (USER, ADMIN, MODERATOR)
+         //roleService.populateDefaultRoles()
+
+        // Alternative: Insert roles only if empty
+        // roleService.insertRolesIfEmpty()
+
+        // Step 2: Insert products (if needed)
+        // productService.insertSampleProduct()
+
+        // Step 3: Insert users (depends on roles being present)
+        // userService.insertDummyUsers()
+
+        // Step 4: Insert orders (depends on users being present)
+         //orderService.insertDummyOrders()
+
+        //orderService.testOrder()
+
+        //userService.findOrderTestOrphan()
+
+    }
+}

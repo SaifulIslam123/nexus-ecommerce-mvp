@@ -1,0 +1,61 @@
+package com.ecommerce.mvp.modules.category.service
+
+import com.practice.ecommerce.ecommerce.modules.category.dto.CategoryDto
+import com.practice.ecommerce.ecommerce.modules.category.dto.toEntity
+import com.practice.ecommerce.ecommerce.modules.category.dto.updateFrom
+import com.practice.ecommerce.ecommerce.modules.category.entity.Category
+import com.practice.ecommerce.ecommerce.modules.category.repository.CategoryRepository
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+
+@Service
+class CategoryService(
+    private val categoryRepository: CategoryRepository
+) {
+
+    fun findAll(): List<Category> {
+        return categoryRepository.findAll()
+    }
+
+    fun findByName(name: String): Category? {
+        return categoryRepository.findByName(name).orElse(null)
+    }
+
+    fun findById(id: Long): Category? {
+        return categoryRepository.findById(id).orElse(null)
+    }
+
+    @Transactional
+    fun createCategory(categoryDto: CategoryDto): Category {
+        // Check if category with same name already exists
+        if (categoryRepository.existsByName(categoryDto.name)) {
+            throw IllegalArgumentException("Category with name '${categoryDto.name}' already exists")
+        }
+
+        val category = categoryDto.toEntity()
+        return categoryRepository.save(category)
+    }
+
+    @Transactional
+    fun updateCategory(id: Long, categoryDto: CategoryDto): Category {
+        val existingCategory = categoryRepository.findById(id).orElse(null)
+            ?: throw IllegalArgumentException("Category with id $id not found")
+
+        // Check if updating to a name that already exists (excluding current category)
+        if (categoryDto.name != existingCategory.name && categoryRepository.existsByName(categoryDto.name)) {
+            throw IllegalArgumentException("Category with name '${categoryDto.name}' already exists")
+        }
+
+        existingCategory.updateFrom(categoryDto)
+        return categoryRepository.save(existingCategory)
+    }
+
+    @Transactional
+    fun deleteById(id: Long) {
+        if (!categoryRepository.existsById(id)) {
+            throw IllegalArgumentException("Category with id $id not found")
+        }
+        categoryRepository.deleteById(id)
+    }
+
+}
