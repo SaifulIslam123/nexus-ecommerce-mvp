@@ -1,10 +1,10 @@
 package com.ecommerce.mvp.modules.category.service
 
-import com.practice.ecommerce.ecommerce.modules.category.dto.CategoryDto
-import com.practice.ecommerce.ecommerce.modules.category.dto.toEntity
-import com.practice.ecommerce.ecommerce.modules.category.dto.updateFrom
-import com.practice.ecommerce.ecommerce.modules.category.entity.Category
-import com.practice.ecommerce.ecommerce.modules.category.repository.CategoryRepository
+import com.ecommerce.mvp.modules.category.dto.CategoryDto
+import com.ecommerce.mvp.modules.category.dto.toEntity
+import com.ecommerce.mvp.modules.category.dto.updateFrom
+import com.ecommerce.mvp.modules.category.entity.Category
+import com.ecommerce.mvp.modules.category.repository.CategoryRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

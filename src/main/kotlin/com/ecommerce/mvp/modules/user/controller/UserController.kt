@@ -1,11 +1,11 @@
 package com.ecommerce.mvp.modules.user.controller
 
-import com.practice.ecommerce.ecommerce.ResponseMessage
-import com.practice.ecommerce.ecommerce.modules.user.model.dto.UserDto
-import com.practice.ecommerce.ecommerce.modules.user.model.dto.UserEmailDto
-import com.practice.ecommerce.ecommerce.modules.user.model.entity.User
-import com.practice.ecommerce.ecommerce.modules.user.service.UserMapper
-import com.practice.ecommerce.ecommerce.modules.user.service.UserService
+import com.ecommerce.mvp.ResponseMessage
+import com.ecommerce.mvp.modules.user.model.dto.UserDto
+import com.ecommerce.mvp.modules.user.model.dto.UserEmailDto
+import com.ecommerce.mvp.modules.user.model.entity.User
+import com.ecommerce.mvp.modules.user.service.UserMapper
+import com.ecommerce.mvp.modules.user.service.UserService
 import jakarta.validation.Valid
 import org.apache.catalina.mapper.Mapper
 import org.springframework.http.HttpStatus

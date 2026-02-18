@@ -1,7 +1,7 @@
 package com.ecommerce.mvp.modules.product.service
 
-import com.practice.ecommerce.ecommerce.modules.product.model.dto.ProductDto
-import com.practice.ecommerce.ecommerce.modules.product.model.entity.Product
+import com.ecommerce.mvp.modules.product.model.dto.ProductDto
+import com.ecommerce.mvp.modules.product.model.entity.Product
 
 object ProductMapper {
     fun toEntity(productDto: ProductDto): Product {

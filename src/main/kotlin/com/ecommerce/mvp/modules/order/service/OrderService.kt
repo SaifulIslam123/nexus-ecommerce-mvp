@@ -1,8 +1,8 @@
 package com.ecommerce.mvp.modules.order.service
 
-import com.practice.ecommerce.ecommerce.modules.order.model.entity.Order
-import com.practice.ecommerce.ecommerce.modules.order.repository.OrderRepository
-import com.practice.ecommerce.ecommerce.repository.UserRepository
+import com.ecommerce.mvp.modules.order.model.entity.Order
+import com.ecommerce.mvp.modules.order.repository.OrderRepository
+import com.ecommerce.mvp.modules.user.repository.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal

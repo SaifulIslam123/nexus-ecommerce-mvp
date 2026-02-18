@@ -1,6 +1,6 @@
-package com.practice.ecommerce.ecommerce.repository
+package com.ecommerce.mvp.modules.user.repository
 
-import com.practice.ecommerce.ecommerce.modules.user.model.entity.User
+import com.ecommerce.mvp.modules.user.model.entity.User
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
