@@ -1,6 +1,6 @@
 package com.ecommerce.mvp.modules.user.model.entity
 
-import com.practice.ecommerce.ecommerce.common.entity.audit.BaseEntityAudit
+import com.ecommerce.mvp.common.entity.audit.BaseEntityAudit
 import jakarta.persistence.*
 
 

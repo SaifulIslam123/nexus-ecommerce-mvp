@@ -1,8 +1,8 @@
 package com.ecommerce.mvp.modules.role.service
 
-import com.practice.ecommerce.ecommerce.modules.role.model.entity.ERole
-import com.practice.ecommerce.ecommerce.modules.role.model.entity.Role
-import com.practice.ecommerce.ecommerce.repository.RoleRepository
+import com.ecommerce.mvp.modules.role.model.entity.ERole
+import com.ecommerce.mvp.modules.role.model.entity.Role
+import com.ecommerce.mvp.repository.RoleRepository
 import jakarta.annotation.PostConstruct
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

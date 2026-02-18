@@ -1,7 +1,7 @@
 package com.ecommerce.mvp.modules.order.model.entity
 
-import com.practice.ecommerce.ecommerce.common.entity.audit.BaseEntityAudit
-import com.practice.ecommerce.ecommerce.modules.product.model.entity.Product
+import com.ecommerce.mvp.common.entity.audit.BaseEntityAudit
+import com.ecommerce.mvp.modules.product.model.entity.Product
 import jakarta.persistence.*
 import java.math.BigDecimal
 

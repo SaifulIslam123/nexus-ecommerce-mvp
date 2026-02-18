@@ -1,6 +1,6 @@
 package com.ecommerce.mvp.modules.category.repository
 
-import com.practice.ecommerce.ecommerce.modules.category.entity.Category
+import com.ecommerce.mvp.modules.category.entity.Category
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.Optional

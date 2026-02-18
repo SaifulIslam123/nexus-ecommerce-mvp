@@ -1,7 +1,7 @@
 package com.ecommerce.mvp.modules.user.service
 
-import com.practice.ecommerce.ecommerce.modules.user.model.dto.UserDto
-import com.practice.ecommerce.ecommerce.modules.user.model.entity.User
+import com.ecommerce.mvp.modules.user.model.dto.UserDto
+import com.ecommerce.mvp.modules.user.model.entity.User
 
 object UserMapper {
     fun toDto(user: User): UserDto {

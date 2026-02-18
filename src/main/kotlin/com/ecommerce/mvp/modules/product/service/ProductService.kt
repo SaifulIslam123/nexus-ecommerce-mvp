@@ -1,7 +1,7 @@
 package com.ecommerce.mvp.modules.product.service
 
-import com.practice.ecommerce.ecommerce.modules.product.model.entity.Product
-import com.practice.ecommerce.ecommerce.modules.product.repository.ProductRepository
+import com.ecommerce.mvp.modules.product.model.entity.Product
+import com.ecommerce.mvp.modules.product.repository.ProductRepository
 import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service

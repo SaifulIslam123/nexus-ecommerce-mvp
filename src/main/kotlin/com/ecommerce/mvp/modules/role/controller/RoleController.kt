@@ -1,7 +1,7 @@
 package com.ecommerce.mvp.modules.role.controller
 
-import com.practice.ecommerce.ecommerce.modules.role.model.entity.Role
-import com.practice.ecommerce.ecommerce.modules.role.service.RoleService
+import com.ecommerce.mvp.modules.role.model.entity.Role
+import com.ecommerce.mvp.modules.role.service.RoleService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping

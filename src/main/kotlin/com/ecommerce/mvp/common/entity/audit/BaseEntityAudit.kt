@@ -1,6 +1,6 @@
 package com.ecommerce.mvp.common.entity.audit
 
-import com.practice.ecommerce.ecommerce.common.entity.BaseEntity
+import com.ecommerce.mvp.common.entity.BaseEntity
 import jakarta.persistence.Column
 import jakarta.persistence.EntityListeners
 import jakarta.persistence.MappedSuperclass

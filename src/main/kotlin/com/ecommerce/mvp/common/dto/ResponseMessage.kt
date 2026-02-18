@@ -1,4 +1,4 @@
-package com.practice.ecommerce.ecommerce
+package com.ecommerce.mvp
 
 data class ResponseMessage(
     val isSuccessful: Boolean,

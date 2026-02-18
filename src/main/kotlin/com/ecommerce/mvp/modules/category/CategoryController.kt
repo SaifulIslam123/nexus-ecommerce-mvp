@@ -1,8 +1,8 @@
 package com.ecommerce.mvp.modules.category
 
-import com.practice.ecommerce.ecommerce.modules.category.dto.CategoryDto
-import com.practice.ecommerce.ecommerce.modules.category.dto.toDto
-import com.practice.ecommerce.ecommerce.modules.category.service.CategoryService
+import com.ecommerce.mvp.modules.category.dto.CategoryDto
+import com.ecommerce.mvp.modules.category.dto.toDto
+import com.ecommerce.mvp.modules.category.service.CategoryService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

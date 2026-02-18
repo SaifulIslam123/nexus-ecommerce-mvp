@@ -3,7 +3,7 @@ package com.ecommerce.mvp.modules.category.dto
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 
-import com.practice.ecommerce.ecommerce.modules.category.entity.Category
+import com.ecommerce.mvp.modules.category.entity.Category
 
 /**
  * Extension method to convert Category entity to CategoryDto

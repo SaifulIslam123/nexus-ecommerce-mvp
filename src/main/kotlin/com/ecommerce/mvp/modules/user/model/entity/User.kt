@@ -1,9 +1,9 @@
 package com.ecommerce.mvp.modules.user.model.entity
 
-import com.practice.ecommerce.ecommerce.common.entity.audit.BaseEntityAudit
-import com.practice.ecommerce.ecommerce.modules.role.model.entity.Role
-import com.practice.ecommerce.ecommerce.modules.order.model.entity.Order
-import com.practice.ecommerce.ecommerce.modules.cart.model.entity.Cart
+import com.ecommerce.mvp.common.entity.audit.BaseEntityAudit
+import com.ecommerce.mvp.modules.cart.model.entity.Cart
+import com.ecommerce.mvp.modules.order.model.entity.Order
+import com.ecommerce.mvp.modules.role.model.entity.Role
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
