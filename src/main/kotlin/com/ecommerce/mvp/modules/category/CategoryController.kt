@@ -31,14 +31,10 @@ class CategoryController(
         }
     }
 
-    @PostMapping
+    @PostMapping("/create")
     fun createCategory(@Valid @RequestBody categoryDto: CategoryDto): ResponseEntity<CategoryDto> {
-        return try {
-            val createdCategory = categoryService.createCategory(categoryDto)
-            ResponseEntity.status(HttpStatus.CREATED).body(createdCategory.toDto())
-        } catch (ex: IllegalArgumentException) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
-        }
+        val createdCategory = categoryService.createCategory(categoryDto)
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory.toDto())
     }
 
     @PutMapping("/{id}")

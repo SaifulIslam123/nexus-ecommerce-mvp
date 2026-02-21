@@ -1,6 +1,7 @@
 package com.ecommerce.mvp.modules.product.model.entity
 
 import com.ecommerce.mvp.common.entity.audit.BaseEntityAudit
+import com.ecommerce.mvp.modules.category.entity.Category
 import jakarta.persistence.*
 import java.math.BigDecimal
 
