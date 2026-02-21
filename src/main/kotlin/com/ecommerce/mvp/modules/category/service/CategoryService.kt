@@ -28,7 +28,7 @@ class CategoryService(
     @Transactional
     fun createCategory(categoryDto: CategoryDto): Category {
         // Check if category with same name already exists
-        if (categoryRepository.existsByName(categoryDto.name)) {
+        if (categoryRepository.existsByName(categoryDto.name?:"")) {
             throw IllegalArgumentException("Category with name '${categoryDto.name}' already exists")
         }
 
@@ -42,7 +42,7 @@ class CategoryService(
             ?: throw IllegalArgumentException("Category with id $id not found")
 
         // Check if updating to a name that already exists (excluding current category)
-        if (categoryDto.name != existingCategory.name && categoryRepository.existsByName(categoryDto.name)) {
+        if (categoryDto.name != existingCategory.name && categoryRepository.existsByName(categoryDto.name ?: "")) {
             throw IllegalArgumentException("Category with name '${categoryDto.name}' already exists")
         }
 
