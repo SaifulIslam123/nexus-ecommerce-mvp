@@ -121,11 +121,11 @@ class UserService(
     }
 
 
-    //@Transactional
+    /*//@Transactional
     fun findUserOrderByEmail(email: String): Optional<User> {
 
         return userRepository.findByUserEmail(email)
-    }
+    }*/
 
 
 

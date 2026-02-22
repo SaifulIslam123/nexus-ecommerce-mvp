@@ -10,7 +10,7 @@ import java.util.Optional
 interface UserRepository : JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u WHERE u.email = ?1")
-    fun findByUserEmail(email: String?): Optional<User>
+    fun findByUserEmail(email: String?): User?
 
 
 }

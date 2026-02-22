@@ -110,12 +110,12 @@ class UserController(
      }*/
 
 
-    @GetMapping("/emailuser")
+    /*@GetMapping("/emailuser")
     fun getUserOrderByEmail(@Valid @RequestBody  email: UserEmailDto): ResponseEntity<User> {
         return userService.findUserOrderByEmail(email.email)
             .map({ user -> ResponseEntity.ok(user) }) // Automatically sets status to 200 OK
             .orElse(ResponseEntity.notFound().build())
-    }
+    }*/
 }
 
 
