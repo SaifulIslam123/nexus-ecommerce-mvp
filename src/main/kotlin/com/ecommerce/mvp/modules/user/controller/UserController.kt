@@ -2,12 +2,10 @@ package com.ecommerce.mvp.modules.user.controller
 
 import com.ecommerce.mvp.ResponseMessage
 import com.ecommerce.mvp.modules.user.model.dto.UserDto
-import com.ecommerce.mvp.modules.user.model.dto.UserEmailDto
 import com.ecommerce.mvp.modules.user.model.entity.User
 import com.ecommerce.mvp.modules.user.service.UserMapper
 import com.ecommerce.mvp.modules.user.service.UserService
 import jakarta.validation.Valid
-import org.apache.catalina.mapper.Mapper
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
