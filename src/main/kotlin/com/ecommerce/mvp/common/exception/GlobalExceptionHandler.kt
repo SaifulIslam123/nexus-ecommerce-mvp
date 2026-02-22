@@ -51,7 +51,7 @@ class GlobalExceptionHandler {
         return ErrorResponse(
             HttpStatus.INTERNAL_SERVER_ERROR.value(),
             HttpStatus.INTERNAL_SERVER_ERROR.reasonPhrase,
-            ex.message!!,
+            "Error: ${ex.message}",
             request.requestURI
         )
         // return ResponseEntity<ErrorResponse?>(error, HttpStatus.INTERNAL_SERVER_ERROR)
