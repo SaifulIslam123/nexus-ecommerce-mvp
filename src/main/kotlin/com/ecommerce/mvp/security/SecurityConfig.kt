@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 
 @EnableWebSecurity
@@ -21,11 +22,11 @@ class SecurityConfig(
     private val jwtAuthFilter: JwtAuthenticationFilter
 ) {
 
-   /* @Bean
+    @Bean
     fun passwordEncoder(): Pbkdf2PasswordEncoder {
         val algorithm = Pbkdf2PasswordEncoder.SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1
         return Pbkdf2PasswordEncoder("secret, encrypt me ;)", 16, 128, algorithm)
-    }*/
+    }
 
     /*@Bean
     fun authenticationManager(
@@ -40,11 +41,11 @@ class SecurityConfig(
         return authenticationManagerBuilder.build()
     }*/
 
-    @Bean
+    /*@Bean
     @Throws(Exception::class)
     fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager {
         return config.authenticationManager
-    }
+    }*/
 
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -60,7 +61,7 @@ class SecurityConfig(
             .sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
-            .addFilterAfter(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterAfter(jwtAuthFilter, BasicAuthenticationFilter::class.java)
 
         return http.build()
     }
