@@ -1,11 +1,8 @@
 package com.ecommerce.mvp.modules.user.controller
 
 import com.ecommerce.mvp.ResponseMessage
-import com.ecommerce.mvp.modules.user.model.dto.UserDto
 import com.ecommerce.mvp.modules.user.model.entity.User
-import com.ecommerce.mvp.modules.user.service.UserMapper
 import com.ecommerce.mvp.modules.user.service.UserService
-import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -16,31 +13,31 @@ class UserController(
     private val userService: UserService
 ) {
 
-    @GetMapping
+    /*@GetMapping
     fun getAllUsers(): ResponseEntity<List<UserDto>> {
         val users = userService.findAll()
         val userDtos = users.map { UserMapper.toDto(it) }
         return ResponseEntity.ok(userDtos)
-    }
+    }*/
 
-    @GetMapping("/{id}")
+   /* @GetMapping("/{id}")
     fun getUserById(@PathVariable id: Long): ResponseEntity<User> {
         println("Fetching user with ID: $id")
         val user = userService.findById(id)
         return if (user != null) {
-            ResponseEntity.ok(user/*UserMapper.toDto(user)*/)
+            ResponseEntity.ok(user*//*UserMapper.toDto(user)*//*)
         } else {
             ResponseEntity.notFound().build()
         }
 
-    }
+    }*/
 
-    @PostMapping("/create-without-password")
+    /*@PostMapping("/create-without-password")
     fun createUserWithPassword(@Valid @RequestBody userDto: UserDto): ResponseEntity<Any> {
         if (userDto.password.isNullOrBlank() || userDto.password.length < 6) {
-           /* return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage(isSuccessful = false,
+           *//* return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage(isSuccessful = false,
                 code = HttpStatus.BAD_REQUEST.value(),
-                message = "Password must be at least 6 characters long"))*/
+                message = "Password must be at least 6 characters long"))*//*
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).
             body(
                 ResponseMessage(
@@ -55,7 +52,7 @@ class UserController(
         val savedUser = userService.registerUser(user, userDto.userRoles)
         return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toDto(user))
 
-    }
+    }*/
 
     @PostMapping("/create")
     fun createUser(@RequestBody user: User): ResponseEntity<Any> {
