@@ -2,6 +2,7 @@ package com.ecommerce.mvp.common.exception
 
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -44,6 +45,17 @@ class GlobalExceptionHandler {
        // return ResponseEntity<ErrorResponse?>(error, HttpStatus.BAD_REQUEST)
     }
 
+    @ExceptionHandler(UsernameNotFoundException::class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    fun handleUsernameNotFound(ex: UsernameNotFoundException, request: HttpServletRequest): ErrorResponse {
+        return ErrorResponse(
+            HttpStatus.NOT_FOUND.value(),
+            HttpStatus.NOT_FOUND.reasonPhrase,
+            ex.message.toString(),
+            request.requestURI
+        )
+    }
+
     @ExceptionHandler(Exception::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun handleGeneric(ex: Exception, request: HttpServletRequest): ErrorResponse {
@@ -53,7 +65,6 @@ class GlobalExceptionHandler {
             "Error: ${ex.message}",
             request.requestURI
         )
-        // return ResponseEntity<ErrorResponse?>(error, HttpStatus.INTERNAL_SERVER_ERROR)
     }
 }
 
