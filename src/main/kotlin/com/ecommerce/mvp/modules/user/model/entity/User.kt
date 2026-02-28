@@ -14,8 +14,6 @@ import jakarta.persistence.ManyToMany
 import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
-import jakarta.validation.constraints.Email
-import jakarta.validation.constraints.NotBlank
 
 
 @Entity
@@ -52,15 +50,3 @@ class User : BaseEntityAudit() {
     var cart: Cart? = null
 
 }
-
-data class UserCreateRequest(
-    @field:NotBlank(message = "Name is required")
-    val name: String,
-    @field:NotBlank(message = "Email is required")
-    @field:Email(message = "Email should be valid")
-    val email: String,
-    @field:NotBlank(message = "Password is required")
-    val password: String,
-    val phone: String? = null
-
-)
