@@ -2,7 +2,11 @@ package com.ecommerce.mvp.security
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.AuthenticationProvider
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.Customizer
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -11,6 +15,7 @@ import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
+
 
 @EnableWebSecurity
 @Configuration
@@ -23,6 +28,20 @@ class SecurityConfig(
     fun passwordEncoder(): Pbkdf2PasswordEncoder {
         val algorithm = Pbkdf2PasswordEncoder.SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1
         return Pbkdf2PasswordEncoder("secret, encrypt me ;)", 16, 128, algorithm)
+    }
+
+    @Bean
+    fun authenticationProvider(): AuthenticationProvider {
+        val authProvider = DaoAuthenticationProvider()
+        authProvider.setUserDetailsService(customerUserDetailsService)
+        authProvider.setPasswordEncoder(passwordEncoder())
+        return authProvider
+    }
+
+    @Bean
+    @Throws(Exception::class)
+    fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager {
+        return config.authenticationManager
     }
 
     @Bean
