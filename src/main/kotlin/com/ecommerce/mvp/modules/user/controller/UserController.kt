@@ -1,10 +1,14 @@
 package com.ecommerce.mvp.modules.user.controller
 
 import com.ecommerce.mvp.ResponseMessage
+import com.ecommerce.mvp.modules.user.model.dto.UserDto
 import com.ecommerce.mvp.modules.user.model.entity.User
+import com.ecommerce.mvp.modules.user.model.dto.UserProfileResponseDto
+import com.ecommerce.mvp.modules.user.model.dto.UserProfileUpdateDto
 import com.ecommerce.mvp.modules.user.service.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -111,7 +115,22 @@ class UserController(
             .map({ user -> ResponseEntity.ok(user) }) // Automatically sets status to 200 OK
             .orElse(ResponseEntity.notFound().build())
     }*/
+
+    @GetMapping("/profile")
+    @PreAuthorize("isAuthenticated()")
+    fun getCurrentUserProfile(): ResponseEntity<UserDto> {
+        val profile = userService.getCurrentUserProfile()
+        return ResponseEntity.ok(profile)
+    }
+
+    @PutMapping("/profile")
+    @PreAuthorize("isAuthenticated()")
+    fun updateCurrentUserProfile(@RequestBody updateDto: UserProfileUpdateDto): ResponseEntity<UserDto> {
+        val updatedProfile = userService.updateCurrentUserProfile(updateDto)
+        return ResponseEntity.ok(updatedProfile)
+    }
 }
+
 
 
 
