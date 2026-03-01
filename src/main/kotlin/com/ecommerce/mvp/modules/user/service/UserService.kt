@@ -12,11 +12,16 @@ import jakarta.annotation.PostConstruct
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.Collections
+import com.ecommerce.mvp.modules.user.model.dto.UserProfileUpdateDto
+import com.ecommerce.mvp.modules.user.model.dto.AddressDto
+import com.ecommerce.mvp.modules.user.repository.AddressRepository
+import org.springframework.security.core.context.SecurityContextHolder
 
 @Service
 class UserService(
     private val userRepository: UserRepository,
-    private val  roleRepository: RoleRepository
+    private val  roleRepository: RoleRepository,
+    private val addressRepository: AddressRepository
 ) {
     var dbRoleList: MutableList<Role> = Collections.emptyList();
 
@@ -56,6 +61,48 @@ class UserService(
         return userDto.also {
             it.id = savedUser.id
         }
+    }
+
+    fun getCurrentUserProfile(): UserDto {
+        val email = SecurityContextHolder.getContext().authentication?.name
+        val user = userRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
+        val address = user.addresses.firstOrNull()
+        val addressDto = address?.let {
+            AddressDto(
+                street = it.street,
+                city = it.city,
+                zip = it.zip,
+                country = it.country
+            )
+        }
+        return UserDto(
+            id = user.id,
+            name = user.name,
+            email = user.email,
+            phone = user.phone,
+            address = addressDto
+        )
+    }
+
+    fun updateCurrentUserProfile(updateDto: UserProfileUpdateDto): UserDto {
+        val email = SecurityContextHolder.getContext().authentication?.name
+        val user = userRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
+        if (updateDto.phone != null) {
+            user.phone = updateDto.phone
+        }
+        if (updateDto.address != null) {
+            val address = user.addresses.firstOrNull() ?: com.ecommerce.mvp.modules.user.model.entity.Address()
+                .apply { this.user = user }
+            address.street = updateDto.address.street
+            address.city = updateDto.address.city
+            address.zip = updateDto.address.zip
+            address.country = updateDto.address.country
+            user.addresses.clear()
+            user.addresses.add(address)
+            addressRepository.save(address)
+        }
+        userRepository.save(user)
+        return getCurrentUserProfile()
     }
 
 
