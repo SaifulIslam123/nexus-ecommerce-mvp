@@ -3,7 +3,6 @@ package com.ecommerce.mvp.modules.user.controller
 import com.ecommerce.mvp.ResponseMessage
 import com.ecommerce.mvp.modules.user.model.dto.UserDto
 import com.ecommerce.mvp.modules.user.model.entity.User
-import com.ecommerce.mvp.modules.user.model.dto.UserProfileResponseDto
 import com.ecommerce.mvp.modules.user.model.dto.UserProfileUpdateDto
 import com.ecommerce.mvp.modules.user.service.UserService
 import org.springframework.http.HttpStatus
