@@ -1,5 +1,6 @@
 package com.ecommerce.mvp.common.exception
 
+import com.ecommerce.mvp.common.response.ApiResponse
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -15,12 +16,10 @@ import java.util.stream.Collectors
 class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException::class)
-    fun handleNotFound(ex: ResourceNotFoundException, request: HttpServletRequest): ErrorResponse {
-        return ErrorResponse(
-            HttpStatus.NOT_FOUND.value(),
-            HttpStatus.NOT_FOUND.reasonPhrase,
-            ex.message.toString(),
-            request.requestURI
+    fun handleNotFound(ex: ResourceNotFoundException, request: HttpServletRequest): ApiResponse<Unit> {
+        return ApiResponse(
+            success = false,
+            message = ex.message ?: "Resource not found"
         )
         //return ResponseEntity<ErrorResponse>(error, HttpStatus.NOT_FOUND)
 
@@ -28,7 +27,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun handleValidation(ex: MethodArgumentNotValidException, request: HttpServletRequest): ErrorResponse{
+    fun handleValidation(ex: MethodArgumentNotValidException, request: HttpServletRequest): ApiResponse<Unit> {
 
         val errorMsg = ex.bindingResult
             .fieldErrors
@@ -36,34 +35,28 @@ class GlobalExceptionHandler {
             .map { e: FieldError? -> e!!.field + ": " + e.defaultMessage }
             .collect(Collectors.joining(", "))
 
-        return ErrorResponse(
-            HttpStatus.BAD_REQUEST.value(),
-            "Validation Failed",
-            errorMsg,
-            request.requestURI
+        return ApiResponse(
+            success = false,
+            message = errorMsg
         )
-       // return ResponseEntity<ErrorResponse?>(error, HttpStatus.BAD_REQUEST)
+        // return ResponseEntity<ErrorResponse?>(error, HttpStatus.BAD_REQUEST)
     }
 
     @ExceptionHandler(UsernameNotFoundException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    fun handleUsernameNotFound(ex: UsernameNotFoundException, request: HttpServletRequest): ErrorResponse {
-        return ErrorResponse(
-            HttpStatus.NOT_FOUND.value(),
-            HttpStatus.NOT_FOUND.reasonPhrase,
-            ex.message.toString(),
-            request.requestURI
+    fun handleUsernameNotFound(ex: UsernameNotFoundException, request: HttpServletRequest): ApiResponse<Unit> {
+        return ApiResponse(
+            success = false,
+            message = ex.message.toString()
         )
     }
 
     @ExceptionHandler(Exception::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    fun handleGeneric(ex: Exception, request: HttpServletRequest): ErrorResponse {
-        return ErrorResponse(
-            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-            HttpStatus.INTERNAL_SERVER_ERROR.reasonPhrase,
-            "Error: ${ex.message}",
-            request.requestURI
+    fun handleGeneric(ex: Exception, request: HttpServletRequest): ApiResponse<Unit> {
+        return ApiResponse(
+            success = false,
+            message = ex.message.toString()
         )
     }
 }
