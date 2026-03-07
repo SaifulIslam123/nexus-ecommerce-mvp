@@ -45,10 +45,18 @@ class UserService(
     @Transactional
     fun registerUser(userDto: UserDto): UserDto {
 
-        val requestRoleList: MutableList<Role> = Collections.emptyList()
+        val requestRoleList: MutableList<Role> = mutableListOf()
+
+
 
         userDto.userRoles?.forEach { roleName ->
-            dbRoleList.find { it.name?.name == roleName }?.let { requestRoleList.add(it) }
+
+            /*val role = roleRepository.findByName(ERole.valueOf(roleName))
+                ?: throw ResourceNotFoundException("Role not found: $roleName")*/
+
+            dbRoleList.find { it.name?.name == roleName }?.let { requestRoleList.add(
+                roleRepository.getReferenceById(it.id ?: throw ResourceNotFoundException("Role reference id not found: $roleName"))
+            ) }
                 ?: run {
                 throw ResourceNotFoundException("Role not found: $roleName")
             }

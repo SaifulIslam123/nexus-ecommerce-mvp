@@ -18,7 +18,7 @@ class CustomUserDetailsService(
 
         return org.springframework.security.core.userdetails.User
             .withUsername(user.email)
-            //.password("{noop}${user.password}")
+           // .password("{noop}${user.password}")
             .password(user.password)
             .build()
     }
