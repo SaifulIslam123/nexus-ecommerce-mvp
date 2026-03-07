@@ -4,6 +4,7 @@ import com.ecommerce.mvp.modules.user.model.entity.User
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 
 data class UserDto(
     var id: Long? = null,
@@ -16,10 +17,10 @@ data class UserDto(
     val phone: String?,
     @field:NotBlank(message = "Password is required")
     @com.fasterxml.jackson.annotation.JsonProperty(access = com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY)
-    @JsonIgnore
     var password: String? = null,
+    @field:NotNull(message = "Required user roles")
     val userRoles: List<String>? = null,
-    @field:NotBlank(message = "Phone number is required")
+    @field:NotNull(message = "Address is required")
     var address: AddressDto? = null
 )
 
