@@ -33,12 +33,12 @@ class AuthController(
     }
 
     @PostMapping("/register")
-    fun register(@Valid @RequestBody request: UserDto): ResponseEntity<UserDto> {
+    fun register(@Valid @RequestBody request: UserDto): UserDto {
 
         val userDto = userService.registerUser(request.apply {
             password = passwordEncoder.encode(password)
         })
-        return ResponseEntity.status(HttpStatus.CREATED).body(userDto)
+        return  userDto
     }
 
 }
