@@ -1,10 +1,10 @@
 package com.ecommerce.mvp.modules.auth.controller
 
+import com.ecommerce.mvp.modules.auth.model.AuthRequest
 import com.ecommerce.mvp.modules.user.model.dto.UserDto
 import com.ecommerce.mvp.modules.user.service.UserService
 import com.ecommerce.mvp.security.JwtUtil
 import jakarta.validation.Valid
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -43,8 +43,3 @@ class AuthController(
 
 }
 
-// Idiomatic Kotlin Data Class (includes Getters/Setters/Constructor)
-data class AuthRequest(
-    val username: String,
-    val password: String
-)
