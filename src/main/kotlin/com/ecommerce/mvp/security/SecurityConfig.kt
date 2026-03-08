@@ -22,7 +22,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 @Configuration
 class SecurityConfig(
     private val customerUserDetailsService: UserDetailsService,
-    private val jwtAuthFilter: JwtAuthenticationFilter
+    private val jwtAuthFilter: JwtAuthenticationFilter,
+    private val authenticationEntryPoint: JwtAuthenticationEntryPoint
 ) {
 
     @Bean
@@ -49,10 +50,11 @@ class SecurityConfig(
         http
             .csrf { it.disable() }
             .authorizeHttpRequests {
-                //  it.requestMatchers(AntPathRequestMatcher("**")).authenticated() // restrict all endpoints by default
-                it.requestMatchers(AntPathRequestMatcher("/api/auth/**")).permitAll()  // Allow auth endpoints
-                    //it.requestMatchers(AntPathRequestMatcher("**")).authenticated()
+                it.requestMatchers(AntPathRequestMatcher("/api/auth/**")).permitAll()
                     .anyRequest().authenticated()
+            }
+            .exceptionHandling {
+                it.authenticationEntryPoint(authenticationEntryPoint)
             }
             .httpBasic(Customizer.withDefaults())
             .sessionManagement {
