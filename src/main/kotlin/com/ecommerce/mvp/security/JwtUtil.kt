@@ -37,6 +37,9 @@ class JwtUtil {
         return extractedUsername == username && !isTokenExpired(token)
     }
 
+    /** Returns the expiration Date embedded in the token (used by the blacklist service). */
+    fun extractExpiration(token: String): Date = extractClaim(token, Claims::getExpiration)
+
     private fun <T> extractClaim(token: String, claimsResolver: (Claims) -> T): T {
         val claims = extractAllClaims(token)
         return claimsResolver(claims)

@@ -9,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.client.HttpClientErrorException
 import java.util.stream.Collectors
 
 
@@ -45,6 +46,15 @@ class GlobalExceptionHandler {
     @ExceptionHandler(UsernameNotFoundException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     fun handleUsernameNotFound(ex: UsernameNotFoundException, request: HttpServletRequest): ApiResponse<Unit> {
+        return ApiResponse(
+            success = false,
+            message = ex.message.toString()
+        )
+    }
+
+    @ExceptionHandler(HttpClientErrorException.Unauthorized::class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    fun handleUnAuthorized(ex: Exception, request: HttpServletRequest): ApiResponse<Unit> {
         return ApiResponse(
             success = false,
             message = ex.message.toString()

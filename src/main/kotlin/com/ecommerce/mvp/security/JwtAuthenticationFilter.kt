@@ -14,7 +14,8 @@ import java.io.IOException
 @Component
 class JwtAuthenticationFilter(
     private val jwtUtil: JwtUtil,
-    private val userDetailsService: CustomUserDetailsService
+    private val userDetailsService: CustomUserDetailsService,
+    private val tokenBlacklistService: TokenBlacklistService
 ) : OncePerRequestFilter() {
 
 
@@ -32,6 +33,13 @@ class JwtAuthenticationFilter(
         }
 
         val jwt = authHeader.substring(7) // Remove "Bearer " prefix
+
+        // Reject tokens that have been explicitly invalidated via logout
+        if (tokenBlacklistService.isBlacklisted(jwt)) {
+            filterChain.doFilter(request, response)
+            return
+        }
+
         val username = jwtUtil.extractUserEmail(jwt)
 
         if (SecurityContextHolder.getContext().authentication == null) {
