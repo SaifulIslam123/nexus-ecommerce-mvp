@@ -3,13 +3,13 @@ package com.ecommerce.mvp.common.exception
 import com.ecommerce.mvp.common.response.ApiResponse
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import org.springframework.web.client.HttpClientErrorException
 import java.util.stream.Collectors
 
 
@@ -52,12 +52,12 @@ class GlobalExceptionHandler {
         )
     }
 
-    @ExceptionHandler(HttpClientErrorException.Unauthorized::class)
+    @ExceptionHandler(AuthenticationException::class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    fun handleUnAuthorized(ex: Exception, request: HttpServletRequest): ApiResponse<Unit> {
+    fun handleUnauthorized(ex: AuthenticationException, request: HttpServletRequest): ApiResponse<Unit> {
         return ApiResponse(
             success = false,
-            message = ex.message.toString()
+            message = ex.message ?: "Authentication is required to access this resource"
         )
     }
 
