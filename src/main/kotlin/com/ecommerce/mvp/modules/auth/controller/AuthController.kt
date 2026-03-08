@@ -4,6 +4,8 @@ import com.ecommerce.mvp.modules.auth.model.AuthRequest
 import com.ecommerce.mvp.modules.user.model.dto.UserDto
 import com.ecommerce.mvp.modules.user.service.UserService
 import com.ecommerce.mvp.security.JwtUtil
+import com.ecommerce.mvp.security.TokenBlacklistService
+import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
@@ -17,7 +19,8 @@ class AuthController(
     private val userService: UserService,
     private val authenticationManager: AuthenticationManager,
     private val jwtUtil: JwtUtil,
-    private val passwordEncoder: BCryptPasswordEncoder
+    private val passwordEncoder: BCryptPasswordEncoder,
+    private val tokenBlacklistService: TokenBlacklistService
 ) {
 
     @PostMapping("/login")
@@ -34,12 +37,30 @@ class AuthController(
 
     @PostMapping("/register")
     fun register(@Valid @RequestBody request: UserDto): UserDto {
-
         val userDto = userService.registerUser(request.apply {
             password = passwordEncoder.encode(password)
         })
-        return  userDto
+        return userDto
     }
 
+    /**
+     * Logout: invalidates the bearer token by adding it to the blacklist.
+     *
+     * The client must send the same Authorization: Bearer <token> header.
+     * Once blacklisted, the token is rejected by JwtAuthenticationFilter on
+     * every subsequent request, even if it has not naturally expired yet.
+     */
+    @PostMapping("/logout")
+    fun logout(request: HttpServletRequest): String {
+        val authHeader = request.getHeader("Authorization")
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            val token = authHeader.substring(7)
+            tokenBlacklistService.blacklist(token)
+        }
+
+        return "Logged out successfully"
+    }
 }
+
 
