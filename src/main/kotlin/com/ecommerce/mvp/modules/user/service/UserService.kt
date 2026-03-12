@@ -113,7 +113,14 @@ class UserService(
         }
 
         userRepository.save<User>(user)
-        return getCurrentUserProfile()
+        //return getCurrentUserProfile()
+        return UserDto(
+            id = user.id,
+            name = user.name,
+            email = user.email,
+            phone = user.phone,
+            address = updateDto.address
+        )
     }
 
 
