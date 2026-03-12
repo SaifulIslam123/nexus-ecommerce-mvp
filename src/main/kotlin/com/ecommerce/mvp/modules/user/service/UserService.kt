@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.Collections
 import com.ecommerce.mvp.modules.user.model.dto.UserProfileUpdateDto
 import com.ecommerce.mvp.modules.user.model.dto.AddressDto
+import com.ecommerce.mvp.modules.user.model.entity.Address
 import com.ecommerce.mvp.modules.user.repository.AddressRepository
 import org.springframework.security.core.context.SecurityContextHolder
 
@@ -92,24 +93,26 @@ class UserService(
         )
     }
 
+    @Transactional
     fun updateCurrentUserProfile(updateDto: UserProfileUpdateDto): UserDto {
         val email = SecurityContextHolder.getContext().authentication?.name
         val user = userRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
-        if (updateDto.phone != null) {
-            user.phone = updateDto.phone
-        }
-        if (updateDto.address != null) {
-            val address = user.addresses.firstOrNull() ?: com.ecommerce.mvp.modules.user.model.entity.Address()
-                .apply { this.user = user }
-            address.street = updateDto.address.street
-            address.city = updateDto.address.city
-            address.zip = updateDto.address.zip
-            address.country = updateDto.address.country
+
+        updateDto.name?.takeIf { it.isNotBlank() }?.let { user.name = it }
+        updateDto.phone?.takeIf { it.isNotBlank() }?.let { user.phone = it }
+
+        updateDto.address?.let {
+            val address = user.addresses.firstOrNull() ?: Address().apply { this.user = user }
+            address.street = it.street
+            address.city = it.city
+            address.zip = it.zip
+            address.country = it.country
             user.addresses.clear()
             user.addresses.add(address)
             addressRepository.save(address)
         }
-        userRepository.save(user)
+
+        userRepository.save<User>(user)
         return getCurrentUserProfile()
     }
 

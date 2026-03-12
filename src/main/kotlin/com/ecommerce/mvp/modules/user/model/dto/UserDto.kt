@@ -32,10 +32,11 @@ data class AddressDto(
 )
 
 data class UserProfileUpdateDto(
-    val phone: String?,
+    @field:jakarta.validation.constraints.Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
+    val name: String? = null,
+    @field:jakarta.validation.constraints.Pattern(regexp = "^\\+?[0-9]{7,15}$", message = "Invalid phone number format")
+    val phone: String? = null,
     val address: AddressDto?,
-    val name: String?,
-    val email: String?,
 )
 
 fun UserDto.toEntity(): User {
