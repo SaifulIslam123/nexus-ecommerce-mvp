@@ -48,9 +48,9 @@ class UserController(
     }
 
     @PatchMapping("/me")
-    fun updateCurrentUserProfile(@Valid @RequestBody updateDto: UserProfileUpdateDto): ResponseEntity<UserDto> {
+    fun updateCurrentUserProfile(@Valid @RequestBody updateDto: UserProfileUpdateDto): UserDto {
         val updatedProfile = userService.updateCurrentUserProfile(updateDto)
-        return ResponseEntity.ok(updatedProfile)
+        return updatedProfile
     }
 
 }
