@@ -21,7 +21,7 @@ data class UserDto(
     @field:NotNull(message = "Required user roles")
     val userRoles: List<String>? = null,
     @field:NotNull(message = "Address is required")
-    var address: AddressDto? = null
+    var address: List<AddressDto>? = null
 )
 
 data class AddressDto(
@@ -46,8 +46,8 @@ fun UserDto.toEntity(): User {
         email = this@toEntity.email
         phone = this@toEntity.phone
         password = this@toEntity.password
-        address = this@toEntity.address
-        // Roles are usually handled separately or looked up from DB, not created from DTO directly in simple mapper
+
+        // Roles and Address are usually handled separately or looked up from DB, not created from DTO directly in simple mapper
     }
 
 }
