@@ -63,6 +63,15 @@ class UserService(
             }
         }
         val user = userDto.toEntity().also {
+            it.addresses = userDto.address?.map { addrDto ->
+                Address().apply {
+                    street = addrDto.street
+                    city = addrDto.city
+                    zip = addrDto.zip
+                    country = addrDto.country
+                    this.user = it
+                }
+            }?.toMutableSet() ?: mutableSetOf()
             it.userRoles = requestRoleList.toMutableSet()
         }
         val savedUser = userRepository.save(user)
@@ -89,7 +98,7 @@ class UserService(
             name = user.name,
             email = user.email,
             phone = user.phone,
-            address = addressDto
+           // address = addressDto
         )
     }
 
@@ -119,7 +128,7 @@ class UserService(
             name = user.name,
             email = user.email,
             phone = user.phone,
-            address = updateDto.address
+            //address = updateDto.address
         )
     }
 
