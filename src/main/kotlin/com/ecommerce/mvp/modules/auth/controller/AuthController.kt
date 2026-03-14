@@ -1,14 +1,13 @@
 package com.ecommerce.mvp.modules.auth.controller
 
-import com.ecommerce.mvp.common.response.ApiResponse
 import com.ecommerce.mvp.modules.auth.model.AuthRequest
+import com.ecommerce.mvp.modules.auth.model.LoginResponseDto
 import com.ecommerce.mvp.modules.user.model.dto.UserDto
 import com.ecommerce.mvp.modules.user.service.UserService
 import com.ecommerce.mvp.security.JwtUtil
 import com.ecommerce.mvp.security.TokenBlacklistService
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
-import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -25,7 +24,7 @@ class AuthController(
 ) {
 
     @PostMapping("/login")
-    fun login(@RequestBody request: AuthRequest): ApiResponse<String> {
+    fun login(@RequestBody request: AuthRequest): LoginResponseDto {
         // Authenticate the user
         authenticationManager.authenticate(
             UsernamePasswordAuthenticationToken(request.username, request.password)
@@ -33,9 +32,8 @@ class AuthController(
 
         // If authentication successful, generate token
         val token = jwtUtil.generateToken(request.username)
-        val response = ApiResponse(success = true, data = token, message = "Login successful")
+        return LoginResponseDto(token)
 
-        return response
     }
 
     @PostMapping("/register")
