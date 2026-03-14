@@ -1,5 +1,6 @@
 package com.ecommerce.mvp.modules.auth.controller
 
+import com.ecommerce.mvp.common.response.ApiResponse
 import com.ecommerce.mvp.modules.auth.model.AuthRequest
 import com.ecommerce.mvp.modules.user.model.dto.UserDto
 import com.ecommerce.mvp.modules.user.service.UserService
@@ -24,7 +25,7 @@ class AuthController(
 ) {
 
     @PostMapping("/login")
-    fun login(@RequestBody request: AuthRequest): ResponseEntity<String> {
+    fun login(@RequestBody request: AuthRequest): ApiResponse<String> {
         // Authenticate the user
         authenticationManager.authenticate(
             UsernamePasswordAuthenticationToken(request.username, request.password)
@@ -32,7 +33,9 @@ class AuthController(
 
         // If authentication successful, generate token
         val token = jwtUtil.generateToken(request.username)
-        return ResponseEntity.ok(token)
+        val response = ApiResponse(success = true, data = token, message = "Login successful")
+
+        return response
     }
 
     @PostMapping("/register")
