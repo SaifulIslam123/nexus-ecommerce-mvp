@@ -60,9 +60,20 @@ fun User.toUserDto(): UserDto {
 
 data class AddressDto(
     var id: Long? = null,
+    @field:NotBlank(message = "Street is required")
+    @field:jakarta.validation.constraints.Size(max = 255, message = "Street must not exceed 255 characters")
     val street: String?,
+
+    @field:NotBlank(message = "City is required")
+    @field:jakarta.validation.constraints.Size(max = 100, message = "City must not exceed 100 characters")
     val city: String?,
+
+    @field:NotBlank(message = "Zip code is required")
+    @field:jakarta.validation.constraints.Pattern(regexp = "^[A-Za-z0-9\\-\\s]{3,10}$", message = "Invalid zip code format")
     val zip: String?,
+
+    @field:NotBlank(message = "Country is required")
+    @field:jakarta.validation.constraints.Size(max = 100, message = "Country must not exceed 100 characters")
     val country: String?
 )
 
@@ -84,4 +95,5 @@ data class UserProfileUpdateDto(
     @field:jakarta.validation.constraints.Size(max = MAX_Address, message = "Maximum $MAX_Address addresses allowed")
     var address: List<AddressDto>? = null
 )
+
 
