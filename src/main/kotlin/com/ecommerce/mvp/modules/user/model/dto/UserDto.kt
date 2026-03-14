@@ -45,9 +45,11 @@ fun User.toUserDto(): UserDto {
         email = this.email,
         phone = this.phone,
         userRoles = this.userRoles.map { it.name.toString() },
-        address = this.addresses.map { address -> address.toAddressDto() }
+        address = this.addresses.filter { it.deletedAt == null }.map { it.toAddressDto() }
     )
 }
+
+
 
 
 data class AddressDto(
