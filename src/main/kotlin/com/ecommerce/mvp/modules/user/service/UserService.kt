@@ -5,6 +5,7 @@ import com.ecommerce.mvp.common.exception.BusinessValidationException
 import com.ecommerce.mvp.common.exception.ResourceNotFoundException
 import com.ecommerce.mvp.modules.role.model.entity.ERole
 import com.ecommerce.mvp.modules.role.model.entity.Role
+import com.ecommerce.mvp.modules.user.model.dto.AddressDto
 import com.ecommerce.mvp.modules.user.model.dto.UserDto
 import com.ecommerce.mvp.modules.user.model.dto.toEntity
 import com.ecommerce.mvp.modules.user.model.entity.User
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.Collections
 import com.ecommerce.mvp.modules.user.model.dto.UserProfileUpdateDto
+import com.ecommerce.mvp.modules.user.model.dto.toAddressDto
 import com.ecommerce.mvp.modules.user.model.dto.toUserDto
 import com.ecommerce.mvp.modules.user.model.entity.Address
 import com.ecommerce.mvp.modules.user.repository.AddressRepository
@@ -105,7 +107,7 @@ class UserService(
         updateDto.address?.let { updateDtoAddresses ->
 
             if (user.addresses.size == MAX_Address) {
-                throw BusinessValidationException("Maximum ${MAX_Address} addresses allowed")
+                throw BusinessValidationException("Maximum $MAX_Address addresses allowed. Please remove an existing address before adding a new one.")
             } else if ((user.addresses.size + updateDtoAddresses.size) > MAX_Address) {
                 throw BusinessValidationException("Only ${MAX_Address - user.addresses.size} addresses can add")
             } else {
@@ -125,5 +127,25 @@ class UserService(
         return user.toUserDto()
     }
 
+    @Transactional
+    fun addAddress(addressRequestDto: AddressDto): AddressDto {
+        val email = SecurityContextHolder.getContext().authentication?.name
+        val user = userRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
+
+        if (user.addresses.size >= MAX_Address) {
+            throw BusinessValidationException("Maximum $MAX_Address addresses allowed. Please remove an existing address before adding a new one.")
+        }
+
+        val address = Address().apply {
+            street = addressRequestDto.street
+            city = addressRequestDto.city
+            zip = addressRequestDto.zip
+            country = addressRequestDto.country
+            this.user = user
+        }
+
+        val savedAddress = addressRepository.save(address)
+        return savedAddress.toAddressDto()
+    }
 
 }
