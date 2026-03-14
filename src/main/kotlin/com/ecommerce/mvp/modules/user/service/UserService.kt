@@ -1,6 +1,7 @@
 package com.ecommerce.mvp.modules.user.service
 
 import com.ecommerce.mvp.common.AppConstant.MAX_Address
+import com.ecommerce.mvp.common.exception.BusinessValidationException
 import com.ecommerce.mvp.common.exception.ResourceNotFoundException
 import com.ecommerce.mvp.modules.role.model.entity.ERole
 import com.ecommerce.mvp.modules.role.model.entity.Role
@@ -17,6 +18,7 @@ import com.ecommerce.mvp.modules.user.model.dto.UserProfileUpdateDto
 import com.ecommerce.mvp.modules.user.model.dto.AddressDto
 import com.ecommerce.mvp.modules.user.model.entity.Address
 import com.ecommerce.mvp.modules.user.repository.AddressRepository
+import jakarta.validation.ValidationException
 import org.springframework.security.core.context.SecurityContextHolder
 
 @Service
@@ -111,19 +113,12 @@ class UserService(
         updateDto.name?.takeIf { it.isNotBlank() }?.let { user.name = it }
         updateDto.phone?.takeIf { it.isNotBlank() }?.let { user.phone = it }
 
-/*
-        In Spring Data JPA, if you modify a managed entity (such as user and its addresses) within a transactional context, changes are usually persisted automatically when the transaction commits. Explicitly calling addressRepository.save(address) is only necessary if the Address entity is new (not yet persisted) or detached.
-
-        In your code, since you are creating new Address instances and adding them to user.addresses, calling addressRepository.save(address) ensures they are persisted. However, if you only update existing addresses, you typically do not need to call save explicitly.
-
-        For PATCH requests that update existing addresses, you can rely on the persistence context to track changes, but for new addresses, save is needed.*/
-
         updateDto.address?.let { updateDtoAddresses ->
 
             if (user.addresses.size == MAX_Address) {
-                throw IllegalStateException("Maximum ${MAX_Address} addresses allowed")
+                throw BusinessValidationException("Maximum ${MAX_Address} addresses allowed")
             } else if ((user.addresses.size + updateDtoAddresses.size) > MAX_Address) {
-                throw IllegalStateException("Only ${MAX_Address - user.addresses.size} addresses can add")
+                throw BusinessValidationException("Only ${MAX_Address - user.addresses.size} addresses can add")
             } else {
                 for (it in updateDtoAddresses) {
                     val address = /*user.addresses.firstOrNull() ?:*/ Address().apply { this.user = user }
