@@ -15,16 +15,15 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.Collections
 import com.ecommerce.mvp.modules.user.model.dto.UserProfileUpdateDto
-import com.ecommerce.mvp.modules.user.model.dto.AddressDto
+import com.ecommerce.mvp.modules.user.model.dto.toUserDto
 import com.ecommerce.mvp.modules.user.model.entity.Address
 import com.ecommerce.mvp.modules.user.repository.AddressRepository
-import jakarta.validation.ValidationException
 import org.springframework.security.core.context.SecurityContextHolder
 
 @Service
 class UserService(
     private val userRepository: UserRepository,
-    private val  roleRepository: RoleRepository,
+    private val roleRepository: RoleRepository,
     private val addressRepository: AddressRepository
 ) {
     var dbRoleList: MutableList<Role> = Collections.emptyList();
@@ -58,12 +57,16 @@ class UserService(
             /*val role = roleRepository.findByName(ERole.valueOf(roleName))
                 ?: throw ResourceNotFoundException("Role not found: $roleName")*/
 
-            dbRoleList.find { it.name?.name == roleName }?.let { requestRoleList.add(
-                roleRepository.getReferenceById(it.id ?: throw ResourceNotFoundException("Role reference id not found: $roleName"))
-            ) }
-                ?: run {
-                throw ResourceNotFoundException("Role not found: $roleName")
+            dbRoleList.find { it.name?.name == roleName }?.let {
+                requestRoleList.add(
+                    roleRepository.getReferenceById(
+                        it.id ?: throw ResourceNotFoundException("Role reference id not found: $roleName")
+                    )
+                )
             }
+                ?: run {
+                    throw ResourceNotFoundException("Role not found: $roleName")
+                }
         }
         val user = userDto.toEntity().also {
             it.addresses = userDto.address?.map { addrDto ->
@@ -87,22 +90,8 @@ class UserService(
     fun getCurrentUserProfile(): UserDto {
         val email = SecurityContextHolder.getContext().authentication?.name
         val user = userRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
-        val address = user.addresses.firstOrNull()
-        val addressDto = address?.let {
-            AddressDto(
-                street = it.street,
-                city = it.city,
-                zip = it.zip,
-                country = it.country
-            )
-        }
-        return UserDto(
-            id = user.id,
-            name = user.name,
-            email = user.email,
-            phone = user.phone,
-           // address = addressDto
-        )
+
+        return user.toUserDto()
     }
 
     @Transactional
@@ -121,32 +110,20 @@ class UserService(
                 throw BusinessValidationException("Only ${MAX_Address - user.addresses.size} addresses can add")
             } else {
                 for (it in updateDtoAddresses) {
-                    val address = /*user.addresses.firstOrNull() ?:*/ Address().apply { this.user = user }
+                    val address =  Address().apply { this.user = user }
                     address.street = it.street
                     address.city = it.city
                     address.zip = it.zip
                     address.country = it.country
-                    //user.addresses.clear()
 
                     user.addresses.add(address)
-                    //addressRepository.save(address)
                 }
             }
         }
 
         userRepository.save<User>(user)
-        //return getCurrentUserProfile()
-        return UserDto(
-            id = user.id,
-            name = user.name,
-            email = user.email,
-            phone = user.phone,
-            //address = updateDto.address
-        )
+        return user.toUserDto()
     }
-
-
-
 
 
 }
