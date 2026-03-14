@@ -14,13 +14,14 @@ import com.ecommerce.mvp.repository.RoleRepository
 import jakarta.annotation.PostConstruct
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.Collections
 import com.ecommerce.mvp.modules.user.model.dto.UserProfileUpdateDto
 import com.ecommerce.mvp.modules.user.model.dto.toAddressDto
 import com.ecommerce.mvp.modules.user.model.dto.toUserDto
 import com.ecommerce.mvp.modules.user.model.entity.Address
 import com.ecommerce.mvp.modules.user.repository.AddressRepository
 import org.springframework.security.core.context.SecurityContextHolder
+import java.time.LocalDateTime
+import java.util.Collections
 
 @Service
 class UserService(
@@ -146,6 +147,19 @@ class UserService(
 
         val savedAddress = addressRepository.save(address)
         return savedAddress.toAddressDto()
+    }
+
+    @Transactional
+    fun deleteAddress(addressId: Long) {
+        val email = SecurityContextHolder.getContext().authentication?.name
+        val user = userRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
+
+        val address = addressRepository
+            .findByIdAndUserIdAndDeletedAtIsNull(addressId, user.id!!)
+            .orElseThrow { ResourceNotFoundException("Address not found with id: $addressId") }
+
+        address.deletedAt = LocalDateTime.now()
+        addressRepository.save(address)
     }
 
 }

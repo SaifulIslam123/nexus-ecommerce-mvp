@@ -5,6 +5,8 @@ import com.ecommerce.mvp.modules.user.model.dto.UserDto
 import com.ecommerce.mvp.modules.user.model.dto.UserProfileUpdateDto
 import com.ecommerce.mvp.modules.user.service.UserService
 import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -29,6 +31,12 @@ class UserController(
     fun addAddress(@Valid @RequestBody addressRequestDto: AddressDto): AddressDto {
         val savedAddress = userService.addAddress(addressRequestDto)
         return savedAddress
+    }
+
+    @DeleteMapping("/me/addresses/{id}")
+    fun deleteAddress(@PathVariable id: Long): ResponseEntity<Void> {
+        userService.deleteAddress(id)
+        return ResponseEntity.noContent().build()
     }
 
 }

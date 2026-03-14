@@ -45,15 +45,7 @@ fun User.toUserDto(): UserDto {
         email = this.email,
         phone = this.phone,
         userRoles = this.userRoles.map { it.name.toString() },
-        address = this.addresses.map { address ->
-            AddressDto(
-                id = address.id,
-                street = address.street,
-                city = address.city,
-                zip = address.zip,
-                country = address.country
-            )
-        }
+        address = this.addresses.map { address -> address.toAddressDto() }
     )
 }
 

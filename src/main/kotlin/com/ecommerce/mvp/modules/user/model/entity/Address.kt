@@ -2,6 +2,7 @@ package com.ecommerce.mvp.modules.user.model.entity
 
 import com.ecommerce.mvp.common.entity.audit.BaseEntityAudit
 import jakarta.persistence.*
+import java.time.LocalDateTime
 
 
 @Entity
@@ -19,6 +20,10 @@ class Address : BaseEntityAudit() {
 
     @Column(nullable = false)
     var country: String? = null
+
+    //Used for soft delete, null means active, non-null means deleted
+    @Column(name = "deleted_at")
+    var deletedAt: LocalDateTime? = null
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
