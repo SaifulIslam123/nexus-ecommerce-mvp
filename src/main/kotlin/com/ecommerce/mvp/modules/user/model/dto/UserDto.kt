@@ -1,5 +1,6 @@
 package com.ecommerce.mvp.modules.user.model.dto
 
+import com.ecommerce.mvp.common.AppConstant.MAX_Address
 import com.ecommerce.mvp.modules.user.model.entity.User
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.validation.constraints.Email
@@ -21,6 +22,7 @@ data class UserDto(
     @field:NotNull(message = "Required user roles")
     val userRoles: List<String>? = null,
     @field:NotNull(message = "Address is required")
+    @field:jakarta.validation.constraints.Size(max = MAX_Address, message = "Maximum $MAX_Address addresses allowed")
     var address: List<AddressDto>? = null
 )
 
@@ -36,7 +38,8 @@ data class UserProfileUpdateDto(
     val name: String? = null,
     @field:jakarta.validation.constraints.Pattern(regexp = "^\\+?[0-9]{7,15}$", message = "Invalid phone number format")
     val phone: String? = null,
-    val address: AddressDto?,
+    @field:jakarta.validation.constraints.Size(max = MAX_Address, message = "Maximum $MAX_Address addresses allowed")
+    var address: List<AddressDto>? = null
 )
 
 fun UserDto.toEntity(): User {

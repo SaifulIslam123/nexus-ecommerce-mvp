@@ -1,5 +1,6 @@
 package com.ecommerce.mvp.modules.user.service
 
+import com.ecommerce.mvp.common.AppConstant.MAX_Address
 import com.ecommerce.mvp.common.exception.ResourceNotFoundException
 import com.ecommerce.mvp.modules.role.model.entity.ERole
 import com.ecommerce.mvp.modules.role.model.entity.Role
@@ -110,15 +111,32 @@ class UserService(
         updateDto.name?.takeIf { it.isNotBlank() }?.let { user.name = it }
         updateDto.phone?.takeIf { it.isNotBlank() }?.let { user.phone = it }
 
-        updateDto.address?.let {
-            val address = user.addresses.firstOrNull() ?: Address().apply { this.user = user }
-            address.street = it.street
-            address.city = it.city
-            address.zip = it.zip
-            address.country = it.country
-            user.addresses.clear()
-            user.addresses.add(address)
-            addressRepository.save(address)
+/*
+        In Spring Data JPA, if you modify a managed entity (such as user and its addresses) within a transactional context, changes are usually persisted automatically when the transaction commits. Explicitly calling addressRepository.save(address) is only necessary if the Address entity is new (not yet persisted) or detached.
+
+        In your code, since you are creating new Address instances and adding them to user.addresses, calling addressRepository.save(address) ensures they are persisted. However, if you only update existing addresses, you typically do not need to call save explicitly.
+
+        For PATCH requests that update existing addresses, you can rely on the persistence context to track changes, but for new addresses, save is needed.*/
+
+        updateDto.address?.let { updateDtoAddresses ->
+
+            if (user.addresses.size == MAX_Address) {
+                throw IllegalStateException("Maximum ${MAX_Address} addresses allowed")
+            } else if ((user.addresses.size + updateDtoAddresses.size) > MAX_Address) {
+                throw IllegalStateException("Only ${MAX_Address - user.addresses.size} addresses can add")
+            } else {
+                for (it in updateDtoAddresses) {
+                    val address = /*user.addresses.firstOrNull() ?:*/ Address().apply { this.user = user }
+                    address.street = it.street
+                    address.city = it.city
+                    address.zip = it.zip
+                    address.country = it.country
+                    //user.addresses.clear()
+
+                    user.addresses.add(address)
+                    //addressRepository.save(address)
+                }
+            }
         }
 
         userRepository.save<User>(user)
