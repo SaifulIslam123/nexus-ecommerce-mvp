@@ -7,6 +7,7 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "addresses")
+@org.hibernate.annotations.SQLRestriction("deleted_at IS NULL")
 class Address : BaseEntityAudit() {
 
     @Column(nullable = false)
