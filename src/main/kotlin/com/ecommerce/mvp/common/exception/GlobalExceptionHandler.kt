@@ -17,7 +17,8 @@ import java.util.stream.Collectors
 class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException::class)
-    fun handleNotFound(ex: ResourceNotFoundException, request: HttpServletRequest): ApiResponse<Unit> {
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    fun handleResourceNotFound(ex: ResourceNotFoundException, request: HttpServletRequest): ApiResponse<Unit> {
         return ApiResponse(
             success = false,
             message = ex.message ?: "Resource not found"
@@ -69,8 +70,18 @@ class GlobalExceptionHandler {
             message = ex.message.toString()
         )
     }
+
+    @ExceptionHandler(BusinessValidationException::class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    fun handleBusinessValidation(ex: BusinessValidationException, request: HttpServletRequest): ApiResponse<Unit> {
+        return ApiResponse(
+            success = false,
+            message = ex.message ?: "Invalid request data"
+        )
+    }
 }
 
-@ResponseStatus(value = HttpStatus.NOT_FOUND)
+
 class ResourceNotFoundException(message: String) : RuntimeException(message)
+class BusinessValidationException(message: String) : RuntimeException(message)
 
