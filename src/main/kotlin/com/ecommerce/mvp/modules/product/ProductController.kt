@@ -57,7 +57,7 @@ class ProductController(
             minPrice = minPrice,
             maxPrice = maxPrice,
             tags = tags,
-            attributes = attributes,
+            dynamicAttributes = attributes,
             page = page,
             size = size,
             sort = sort,

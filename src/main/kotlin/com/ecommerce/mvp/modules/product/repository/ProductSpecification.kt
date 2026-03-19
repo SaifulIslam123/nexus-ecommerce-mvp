@@ -59,7 +59,7 @@ object ProductSpecification {
             //    The current schema has no EAV / attribute table, so each attribute value
             //    is matched as a keyword against name + description.
             //    Replace this block with a proper attribute-table join once the schema grows.
-            request.attributes.forEach { (_, value) ->
+            request.dynamicAttributes.forEach { (_, value) ->
                 if (value.isNotBlank()) {
                     val pattern = "%${value.lowercase()}%"
                     val nameLike = cb.like(cb.lower(root.get("name")), pattern)

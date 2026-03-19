@@ -6,7 +6,7 @@ import java.math.BigDecimal
  * Encapsulates all supported query parameters for the product search API.
  *
  * Standard params: keyword, categoryIds, minPrice, maxPrice, tags, page, size, sort, direction
- * Dynamic attribute filters (e.g. color=red&size=M) are captured in [attributes].
+ * Dynamic attribute filters (e.g. color=red&size=M) are captured in [dynamicAttributes].
  */
 data class ProductSearchRequest(
     val keyword: String? = null,
@@ -19,7 +19,7 @@ data class ProductSearchRequest(
      *  These are matched against the product name / description as a simple
      *  keyword strategy, because the current schema has no separate attribute table.
      *  Replace with a proper EAV join once an attribute table is added. */
-    val attributes: Map<String, String> = emptyMap(),
+    val dynamicAttributes: Map<String, String> = emptyMap(),
 
     val page: Int = 0,
     val size: Int = 20,
