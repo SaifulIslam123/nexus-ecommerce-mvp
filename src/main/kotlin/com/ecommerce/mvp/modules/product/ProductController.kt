@@ -1,11 +1,10 @@
 package com.ecommerce.mvp.modules.product
 
-import com.ecommerce.mvp.common.response.ApiResponse
 import com.ecommerce.mvp.modules.product.model.dto.ProductResponseDto
+import com.ecommerce.mvp.common.response.ApiResponse
 import com.ecommerce.mvp.modules.product.model.dto.ProductSearchRequest
 import com.ecommerce.mvp.modules.product.service.ProductService
 import org.springframework.data.domain.Page
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.math.BigDecimal
 
@@ -47,7 +46,7 @@ class ProductController(
         @RequestParam(defaultValue = "createdDate") sort: String,
         @RequestParam(defaultValue = "desc") direction: String,
         @RequestParam allParams: Map<String, String>
-    ): ResponseEntity<ApiResponse<Page<ProductResponseDto>>> {
+    ): ApiResponse<Page<ProductResponseDto>> {
 
         // Separate dynamic attribute params from the known/reserved ones
         val attributes = allParams.filterKeys { it !in reservedParams }
@@ -67,12 +66,10 @@ class ProductController(
 
         val result = productService.searchProducts(request)
 
-        return ResponseEntity.ok(
-            ApiResponse(
-                success = true,
-                message = "Products fetched successfully",
-                data = result
-            )
+        return ApiResponse(
+            success = true,
+            message = "Products fetched successfully",
+            data = result
         )
     }
 }
