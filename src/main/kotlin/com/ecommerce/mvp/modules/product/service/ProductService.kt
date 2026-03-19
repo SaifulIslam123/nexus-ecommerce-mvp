@@ -1,7 +1,8 @@
 package com.ecommerce.mvp.modules.product.service
 
-import ProductResponseDto
+import com.ecommerce.mvp.modules.product.model.dto.ProductResponseDto
 import com.ecommerce.mvp.modules.product.model.dto.ProductSearchRequest
+import com.ecommerce.mvp.modules.product.model.dto.toResponseDto
 import com.ecommerce.mvp.modules.product.model.entity.Product
 import com.ecommerce.mvp.modules.product.repository.ProductRepository
 import com.ecommerce.mvp.modules.product.repository.ProductSpecification
@@ -10,7 +11,6 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
-import toResponseDto
 import java.math.BigDecimal
 
 @Service
