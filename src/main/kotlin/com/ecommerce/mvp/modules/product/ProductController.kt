@@ -34,6 +34,12 @@ class ProductController(
      *  - direction     : asc | desc (default desc)
      *  - <anything else>: treated as a dynamic attribute filter (e.g. ?color=red&size=M)
      */
+    @GetMapping("/{id}")
+    fun getProductById(@PathVariable id: Long): ProductResponseDto {
+        val product = productService.getProductById(id)
+        return product
+    }
+
     @GetMapping
     fun searchProducts(
         @RequestParam(required = false) keyword: String?,
@@ -46,7 +52,7 @@ class ProductController(
         @RequestParam(defaultValue = "createdDate") sort: String,
         @RequestParam(defaultValue = "desc") direction: String,
         @RequestParam allParams: Map<String, String>
-    ): ApiResponse<Page<ProductResponseDto>> {
+    ): Page<ProductResponseDto> {
 
         // Separate dynamic attribute params from the known/reserved ones
         val attributes = allParams.filterKeys { it !in reservedParams }
@@ -64,13 +70,8 @@ class ProductController(
             direction = direction
         )
 
-        val result = productService.searchProducts(request)
+        return productService.searchProducts(request)
 
-        return ApiResponse(
-            success = true,
-            message = "Products fetched successfully",
-            data = result
-        )
     }
 }
 
