@@ -1,5 +1,6 @@
 package com.ecommerce.mvp.modules.product.service
 
+import com.ecommerce.mvp.common.exception.ResourceNotFoundException
 import com.ecommerce.mvp.modules.product.model.dto.ProductResponseDto
 import com.ecommerce.mvp.modules.product.model.dto.ProductSearchRequest
 import com.ecommerce.mvp.modules.product.model.dto.toResponseDto
@@ -26,6 +27,12 @@ class ProductService(
             description = "This is a sample product."
         }
         productRepository.save(newProduct)
+    }
+
+    fun getProductById(id: Long): ProductResponseDto {
+        val product = productRepository.findById(id)
+            .orElseThrow { ResourceNotFoundException("Product not found with id: $id") }
+        return product.toResponseDto()
     }
 
     fun searchProducts(request: ProductSearchRequest): Page<ProductResponseDto> {
