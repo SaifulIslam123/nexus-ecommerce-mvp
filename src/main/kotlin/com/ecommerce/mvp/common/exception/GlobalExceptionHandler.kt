@@ -79,9 +79,19 @@ class GlobalExceptionHandler {
             message = ex.message ?: "Invalid request data"
         )
     }
+
+    @ExceptionHandler(ResourceAlreadyExistException::class)
+    @ResponseStatus(value = HttpStatus.CONFLICT)
+    fun handleResourceAlreadyExist(ex: ResourceAlreadyExistException, request: HttpServletRequest): ApiResponse<Unit> {
+        return ApiResponse(
+            success = false,
+            message = ex.message ?: "Invalid request data"
+        )
+    }
 }
 
 
 class ResourceNotFoundException(message: String) : RuntimeException(message)
 class BusinessValidationException(message: String) : RuntimeException(message)
+class ResourceAlreadyExistException(message: String) : RuntimeException(message)
 
