@@ -1,6 +1,8 @@
 package com.ecommerce.mvp.modules.category
 
+import com.ecommerce.mvp.common.exception.ResourceNotFoundException
 import com.ecommerce.mvp.modules.category.dto.CategoryDto
+import com.ecommerce.mvp.modules.category.dto.CategoryTreeResponseDto
 import com.ecommerce.mvp.modules.category.dto.toDto
 import com.ecommerce.mvp.modules.category.service.CategoryService
 import jakarta.validation.Valid
@@ -15,48 +17,34 @@ class CategoryController(
 ) {
 
     @GetMapping
-    fun getAllCategories(): ResponseEntity<List<CategoryDto>> {
-        val categories = categoryService.findAll()
-        val categoryDtos = categories.map { it.toDto() }
-        return ResponseEntity.ok(categoryDtos)
+    fun getAllCategories(): List<CategoryTreeResponseDto> {
+        return categoryService.getCategoryTree()
     }
 
     @GetMapping("/{id}")
-    fun getCategoryById(@PathVariable id: Long): ResponseEntity<CategoryDto> {
-        val category = categoryService.findById(id)
-        return if (category != null) {
-            ResponseEntity.ok(category.toDto())
-        } else {
-            ResponseEntity.notFound().build()
-        }
+    fun getCategoryById(@PathVariable id: Long): CategoryDto {
+
+        return categoryService.findById(id)?.toDto() ?: throw ResourceNotFoundException("Category with id $id not found")
     }
 
     @PostMapping("/create")
-    fun createCategory(@Valid @RequestBody categoryDto: CategoryDto): ResponseEntity<CategoryDto> {
-        val createdCategory = categoryService.createCategory(categoryDto)
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory.toDto())
+    fun createCategory(@Valid @RequestBody categoryDto: CategoryDto): CategoryDto {
+        return categoryService.createCategory(categoryDto).toDto()
     }
 
     @PutMapping("/{id}")
     fun updateCategory(
         @PathVariable id: Long,
         @Valid @RequestBody categoryDto: CategoryDto
-    ): ResponseEntity<CategoryDto> {
-        return try {
-            val updatedCategory = categoryService.updateCategory(id, categoryDto)
-            ResponseEntity.ok(updatedCategory.toDto())
-        } catch (ex: IllegalArgumentException) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
-        }
+    ): CategoryDto {
+        return categoryService.updateCategory(id, categoryDto).toDto()
     }
 
     @DeleteMapping("/{id}")
     fun deleteCategory(@PathVariable id: Long): ResponseEntity<Void> {
-        return try {
-            categoryService.deleteById(id)
-            ResponseEntity.noContent().build()
-        } catch (ex: IllegalArgumentException) {
-            ResponseEntity.notFound().build()
-        }
+
+        categoryService.deleteById(id)
+        return ResponseEntity.noContent().build()
+
     }
 }
