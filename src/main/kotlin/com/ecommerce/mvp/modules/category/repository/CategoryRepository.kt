@@ -9,5 +9,6 @@ import java.util.Optional
 interface CategoryRepository : JpaRepository<Category, Long> {
     fun findByName(name: String): Optional<Category>
     fun existsByName(name: String): Boolean
+    fun findAllByParentIsNull(): List<Category>
 }
 
