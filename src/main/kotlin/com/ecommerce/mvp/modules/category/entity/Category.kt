@@ -15,6 +15,13 @@ class Category : BaseEntityAudit() {
     @Column(columnDefinition = "TEXT")
     var description: String? = null
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    var parent: Category? = null
+
+    @OneToMany(mappedBy = "parent", cascade = [CascadeType.ALL], orphanRemoval = false, fetch = FetchType.LAZY)
+    var children: MutableList<Category> = mutableListOf()
+
     @OneToMany(mappedBy = "category", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     var products: MutableSet<Product> = mutableSetOf()
 
