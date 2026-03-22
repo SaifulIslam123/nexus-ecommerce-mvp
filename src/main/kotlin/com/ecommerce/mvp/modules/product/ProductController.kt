@@ -73,5 +73,10 @@ class ProductController(
         return productService.searchProducts(request)
 
     }
+
+    @GetMapping("rec/{id}")
+    fun getRecommendedProductById(@PathVariable id: Long): List<ProductResponseDto> {
+        return productService.getRecommendedProduct(id)
+    }
 }
 

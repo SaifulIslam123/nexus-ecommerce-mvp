@@ -24,7 +24,7 @@ open class Product : BaseEntityAudit() {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
-    var category: Category? = null
+    lateinit var category: Category
 
     @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE], fetch = FetchType.LAZY)
     @JoinTable(
