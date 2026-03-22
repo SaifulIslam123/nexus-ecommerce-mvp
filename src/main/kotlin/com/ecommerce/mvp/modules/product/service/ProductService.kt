@@ -1,10 +1,8 @@
 package com.ecommerce.mvp.modules.product.service
 
 import com.ecommerce.mvp.common.exception.ResourceNotFoundException
-import com.ecommerce.mvp.modules.product.model.dto.ProductDetailResponseDto
 import com.ecommerce.mvp.modules.product.model.dto.ProductResponseDto
 import com.ecommerce.mvp.modules.product.model.dto.ProductSearchRequest
-import com.ecommerce.mvp.modules.product.model.dto.toDetailResponseDto
 import com.ecommerce.mvp.modules.product.model.dto.toResponseDto
 import com.ecommerce.mvp.modules.product.model.entity.Product
 import com.ecommerce.mvp.modules.product.repository.ProductRepository
@@ -37,12 +35,13 @@ class ProductService(
         return product.toResponseDto()
     }
 
-    fun getProductDetail(id: Long): ProductDetailResponseDto {
+    fun getProductDetail(id: Long): ProductResponseDto {
         val product = productRepository.findById(id)
             .orElseThrow { ResourceNotFoundException("Product not found with id: $id") }
-        return product.toDetailResponseDto()
+        return product.toResponseDto()
     }
 
+    @Transactional
     fun searchProducts(request: ProductSearchRequest): Page<ProductResponseDto> {
         val direction = if (request.direction.equals("asc", ignoreCase = true))
             Sort.Direction.ASC else Sort.Direction.DESC
@@ -52,6 +51,27 @@ class ProductService(
 
         return productRepository.findAll(spec, pageable)
             .map { it.toResponseDto()}
+    }
+
+    @Transactional
+    fun getRecommendedProduct(id: Long): List<ProductResponseDto> {
+        /*val product = productRepository.
+            .orElseThrow { ResourceNotFoundException("Product not found with id: $id") }
+
+        // For simplicity, we just return the same product as "recommended".
+        // In a real implementation, you would have a more complex recommendation logic here.
+        return product.toDetailResponseDto()*/
+
+        val product = productRepository.findById(id)
+            .orElseThrow { ResourceNotFoundException("Product not found with id: $id") }
+        product.category.id?.let {
+            val productList = productRepository.findByCategoryId(id)
+
+            return productList.map { it.toResponseDto() }
+
+        }.run {
+            throw ResourceNotFoundException("Product category not found with id: $id")
+        }
     }
 }
 
