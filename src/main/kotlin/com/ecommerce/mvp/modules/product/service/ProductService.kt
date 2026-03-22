@@ -65,7 +65,7 @@ class ProductService(
         val product = productRepository.findById(id)
             .orElseThrow { ResourceNotFoundException("Product not found with id: $id") }
         product.category.id?.let {
-            val productList = productRepository.findByCategoryId(id)
+            val productList = productRepository.findAllByCategory(product.category)
 
             return productList.map { it.toResponseDto() }
 
