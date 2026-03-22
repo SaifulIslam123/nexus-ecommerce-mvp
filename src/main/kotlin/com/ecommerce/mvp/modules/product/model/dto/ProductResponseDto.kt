@@ -2,6 +2,14 @@ package com.ecommerce.mvp.modules.product.model.dto
 
 import com.ecommerce.mvp.modules.product.model.entity.Product
 import java.math.BigDecimal
+import java.util.Date
+
+data class CategorySummaryDto(
+    val id: Long?,
+    val name: String?,
+    val description: String?
+)
+
 data class ProductImageResponseDto(
     val id: Long,
     val imageUrl: String?,
@@ -14,22 +22,30 @@ data class ProductResponseDto(
     val price: BigDecimal,
     val stock: Int,
     val description: String?,
-    val categoryId: Long?,
-    val categoryName: String?,
+    val category: CategorySummaryDto?,
+    val createdDate: Date?,
+    val modifiedDate: Date?,
     val tags: List<String>/*,
     val images: List<ProductImageResponseDto>*/
 )
 
 fun Product.toResponseDto(): ProductResponseDto {
     return ProductResponseDto(
-        id = this.id!!,
+        id = this.id ?: -1,
         name = this.name,
         price = this.price,
         stock = this.stock,
         description = this.description,
-        categoryId = this.category?.id,
-        categoryName = this.category?.name,
-        tags = this.tags.mapNotNull { it.name }/*,
+        category = this.category.let {
+            CategorySummaryDto(
+                id = it.id,
+                name = it.name,
+                description = it.description
+            )
+        },
+        tags = this.tags.mapNotNull { it.name },
+        createdDate = this.createdDate,
+        modifiedDate = this.modifiedDate/*,
         images = this.images.map { img ->
             ProductImageResponseDto(
                 id = img.id!!,
