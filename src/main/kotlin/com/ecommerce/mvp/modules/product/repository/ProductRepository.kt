@@ -13,5 +13,5 @@ interface ProductRepository : JpaRepository<Product, Long>, JpaSpecificationExec
         /*@Query("SELECT p FROM Product u WHERE u.status = :status")
         fun findById(id: Long): List<Product>*/
         fun findByCategoryId(id: Long): List<Product>
-        fun findAllByCategory(category: Category): MutableList<Product>
+        fun findAllByCategory(category: Category): List<Product>
 }

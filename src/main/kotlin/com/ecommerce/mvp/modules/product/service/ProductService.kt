@@ -55,12 +55,6 @@ class ProductService(
 
     @Transactional
     fun getRecommendedProduct(id: Long): List<ProductResponseDto> {
-        /*val product = productRepository.
-            .orElseThrow { ResourceNotFoundException("Product not found with id: $id") }
-
-        // For simplicity, we just return the same product as "recommended".
-        // In a real implementation, you would have a more complex recommendation logic here.
-        return product.toDetailResponseDto()*/
 
         val product = productRepository.findById(id)
             .orElseThrow { ResourceNotFoundException("Product not found with id: $id") }
