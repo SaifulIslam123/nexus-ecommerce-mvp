@@ -1,9 +1,12 @@
 package com.ecommerce.mvp.modules.cart.model.dto
 
+import com.ecommerce.mvp.common.AppConstant.MAX_Address
+import com.ecommerce.mvp.common.AppConstant.MIN_CART_ITEM_QUANTITY
 import com.ecommerce.mvp.modules.cart.model.entity.Cart
 import com.ecommerce.mvp.modules.cart.model.entity.CartItem
-import org.jetbrains.annotations.NotNull
+import jakarta.validation.constraints.Min
 import java.math.BigDecimal
+import jakarta.validation.constraints.NotNull
 
 // ── Cart Item ────────────────────────────────────────────────────────────────
 
@@ -17,28 +20,28 @@ data class CartItemResponseDto(
 )
 
 fun CartItem.toResponseDto() = CartItemResponseDto(
-    id         = this.id ?: -1,
-    productId  = this.product?.id ?: -1,
-    productName= this.product?.name ?: "",
-    unitPrice  = this.price,
-    quantity   = this.quantity,
-    subtotal   = this.price.multiply(BigDecimal(this.quantity))
+    id = this.id ?: -1,
+    productId = this.product?.id ?: -1,
+    productName = this.product?.name ?: "",
+    unitPrice = this.price,
+    quantity = this.quantity,
+    subtotal = this.price.multiply(BigDecimal(this.quantity))
 )
 
 // ── Cart ─────────────────────────────────────────────────────────────────────
 
 data class CartResponseDto(
-    val id      : Long,
-    val items       : List<CartItemResponseDto>,
-    val totalItems  : Int,          // sum of all quantities
-    val totalPrice  : BigDecimal    // sum of all subtotals
+    val id: Long,
+    val items: List<CartItemResponseDto>,
+    val totalItems: Int,          // sum of all quantities
+    val totalPrice: BigDecimal    // sum of all subtotals
 )
 
 fun Cart.toResponseDto(): CartResponseDto {
     val itemDtos = this.cartItems.map { it.toResponseDto() }
     return CartResponseDto(
-        id     = this.id ?: -1,
-        items      = itemDtos,
+        id = this.id ?: -1,
+        items = itemDtos,
         totalItems = itemDtos.sumOf { it.quantity },
         totalPrice = itemDtos.fold(BigDecimal.ZERO) { acc, item -> acc + item.subtotal }
     )
@@ -46,9 +49,12 @@ fun Cart.toResponseDto(): CartResponseDto {
 
 data class CartItemRequestDto(
     @field:NotNull(message = "Product Id must not be null")
-    val productId: Long?,
-    @field:jakarta.validation.constraints.Size(message = "Quantity must not null")
-    @field:jakarta.validation.constraints.Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
-    val quantity: Int
+    val productId: Long = -1,
+    @field:NotNull(message = "Quantity must not null")
+    @field:jakarta.validation.constraints.Size(
+        min = MIN_CART_ITEM_QUANTITY,
+        message = "Quantity must be at least $MIN_CART_ITEM_QUANTITY"
+    )
+    val quantity: Int = -1
 )
 

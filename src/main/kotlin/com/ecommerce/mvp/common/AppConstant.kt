@@ -5,4 +5,5 @@ object AppConstant {
     const val DEFAULT_PAGE_SIZE = 10
     const val DEFAULT_SORT_BY = "createdAt"
     const val DEFAULT_SORT_DIR = "desc"
+    const val MIN_CART_ITEM_QUANTITY = 1
 }
