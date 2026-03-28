@@ -40,7 +40,7 @@ class CartService(
     @Transactional
     fun addItemToCart(requestDto: CartItemRequestDto): CartResponseDto {
 
-        val product = productRepository.findById(requestDto.productId)
+        val product = productRepository.findById(requestDto.productId )
             .orElseThrow { ResourceNotFoundException("Product not found with id: ${requestDto.productId}") }
 
         if (requestDto.quantity > product.stock) {
