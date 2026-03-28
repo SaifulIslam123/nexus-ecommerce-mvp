@@ -1,15 +1,23 @@
 package com.ecommerce.mvp.modules.cart.service
 
+import com.ecommerce.mvp.common.exception.BusinessValidationException
 import com.ecommerce.mvp.common.exception.ResourceNotFoundException
+import com.ecommerce.mvp.modules.cart.model.dto.CartItemRequestDto
 import com.ecommerce.mvp.modules.cart.model.dto.CartResponseDto
 import com.ecommerce.mvp.modules.cart.model.dto.toResponseDto
+import com.ecommerce.mvp.modules.cart.model.entity.Cart
+import com.ecommerce.mvp.modules.cart.model.entity.CartItem
 import com.ecommerce.mvp.modules.cart.repository.CartRepository
+import com.ecommerce.mvp.modules.product.repository.ProductRepository
+import com.ecommerce.mvp.modules.user.repository.UserRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 class CartService(
+    private val userRepository: UserRepository,
+    private val productRepository: ProductRepository,
     private val cartRepository: CartRepository
 ) {
 
@@ -26,6 +34,38 @@ class CartService(
         val cart = cartRepository.findByUserEmail(email)
         return cart?.toResponseDto()
             ?: throw ResourceNotFoundException("Cart not found for user: $email")
+
+    }
+
+    @Transactional
+    fun addItemToCart(requestDto: CartItemRequestDto): CartResponseDto {
+
+        val product = productRepository.findById(requestDto.productId)
+            .orElseThrow { ResourceNotFoundException("Product not found with id: ${requestDto.productId}") }
+
+        if (requestDto.quantity > product.stock) {
+            throw BusinessValidationException("Requested quantity exceeds available stock")
+        }
+
+        val email = SecurityContextHolder.getContext().authentication?.name
+        val user = userRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
+
+        val cart = Cart().apply {
+            this.user = user
+        }
+
+        val cartItem = CartItem().apply {
+            this.product = product
+            this.quantity = requestDto.quantity
+            this.price = product.price
+            this.cart = cart
+        }
+
+        cart.cartItems.add(cartItem)
+
+        val savedCart = cartRepository.save(cart)
+
+        return savedCart.toResponseDto()
 
     }
 }

@@ -2,6 +2,7 @@ package com.ecommerce.mvp.modules.cart.model.dto
 
 import com.ecommerce.mvp.modules.cart.model.entity.Cart
 import com.ecommerce.mvp.modules.cart.model.entity.CartItem
+import org.jetbrains.annotations.NotNull
 import java.math.BigDecimal
 
 // ── Cart Item ────────────────────────────────────────────────────────────────
@@ -27,7 +28,7 @@ fun CartItem.toResponseDto() = CartItemResponseDto(
 // ── Cart ─────────────────────────────────────────────────────────────────────
 
 data class CartResponseDto(
-    val cartId      : Long,
+    val id      : Long,
     val items       : List<CartItemResponseDto>,
     val totalItems  : Int,          // sum of all quantities
     val totalPrice  : BigDecimal    // sum of all subtotals
@@ -36,10 +37,18 @@ data class CartResponseDto(
 fun Cart.toResponseDto(): CartResponseDto {
     val itemDtos = this.cartItems.map { it.toResponseDto() }
     return CartResponseDto(
-        cartId     = this.id ?: -1,
+        id     = this.id ?: -1,
         items      = itemDtos,
         totalItems = itemDtos.sumOf { it.quantity },
         totalPrice = itemDtos.fold(BigDecimal.ZERO) { acc, item -> acc + item.subtotal }
     )
 }
+
+data class CartItemRequestDto(
+    @field:NotNull(message = "Product Id must not be null")
+    val productId: Long?,
+    @field:jakarta.validation.constraints.Size(message = "Quantity must not null")
+    @field:jakarta.validation.constraints.Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
+    val quantity: Int
+)
 
