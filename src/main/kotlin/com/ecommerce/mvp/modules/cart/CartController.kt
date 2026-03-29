@@ -59,5 +59,16 @@ class CartController(
     fun removeCartItem(@PathVariable itemId: Long): CartResponseDto {
         return cartService.removeCartItem(itemId)
     }
+
+    /**
+     * DELETE /api/cart
+     *
+     * Removes ALL items from the authenticated user's cart at once.
+     * Returns the emptied cart (totalItems = 0, totalPrice = 0).
+     */
+    @DeleteMapping
+    fun clearCart(): CartResponseDto {
+        return cartService.clearCart()
+    }
 }
 
