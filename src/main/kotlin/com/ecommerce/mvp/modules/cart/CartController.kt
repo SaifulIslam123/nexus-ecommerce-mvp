@@ -4,6 +4,7 @@ import com.ecommerce.mvp.modules.cart.model.dto.CartItemRequestDto
 import com.ecommerce.mvp.modules.cart.model.dto.CartResponseDto
 import com.ecommerce.mvp.modules.cart.service.CartService
 import jakarta.validation.Valid
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -46,6 +47,17 @@ class CartController(
         @Valid @RequestBody updateRequest: CartItemRequestDto
     ): CartResponseDto {
         return cartService.updateCartItemQuantity(itemId, updateRequest)
+    }
+
+    /**
+     * DELETE /api/cart/items/{itemId}
+     *
+     * Removes the specified item from the authenticated user's cart.
+     * Returns the updated cart with recalculated totals.
+     */
+    @DeleteMapping("/items/{itemId}")
+    fun removeCartItem(@PathVariable itemId: Long): CartResponseDto {
+        return cartService.removeCartItem(itemId)
     }
 }
 

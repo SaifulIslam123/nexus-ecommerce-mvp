@@ -94,10 +94,37 @@ class CartService(
         cartItem.quantity = requestDto.quantity
         cartItemRepository.save(cartItem)
 
-        val cart = cartItem.cart
+        val cartId = cartItem.cart?.id
             ?: throw ResourceNotFoundException("Cart not found for item: $itemId")
 
-        return cartRepository.findById(cart.id!!).orElseThrow {
+        return cartRepository.findById(cartId).orElseThrow {
+            ResourceNotFoundException("Cart not found")
+        }.toResponseDto()
+    }
+
+    /**
+     * Removes a single cart item identified by [itemId] from the authenticated
+     * user's cart.  Ownership is verified — a user cannot delete items that
+     * belong to another user's cart.
+     * Throws [ResourceNotFoundException] if the item does not exist or does
+     * not belong to the current user.
+     * Returns the updated [CartResponseDto] with recalculated totals.
+     */
+    @Transactional
+    fun removeCartItem(itemId: Long): CartResponseDto {
+
+        val email = SecurityContextHolder.getContext().authentication?.name
+            ?: throw ResourceNotFoundException("Authenticated user not found")
+
+        val cartItem = cartItemRepository.findByIdAndUserEmail(itemId, email)
+            ?: throw ResourceNotFoundException("Cart item not found with id: $itemId")
+
+        val cartId = cartItem.cart?.id
+            ?: throw ResourceNotFoundException("Cart not found for item: $itemId")
+
+        cartItemRepository.delete(cartItem)
+
+        return cartRepository.findById(cartId).orElseThrow {
             ResourceNotFoundException("Cart not found")
         }.toResponseDto()
     }
