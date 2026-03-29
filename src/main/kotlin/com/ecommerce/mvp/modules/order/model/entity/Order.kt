@@ -18,8 +18,9 @@ class Order : BaseEntityAudit() {
     @Column(nullable = false, precision = 10, scale = 2)
     var totalAmount: BigDecimal = BigDecimal.ZERO
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    var status: String = "PENDING"
+    var status: OrderStatus = OrderStatus.PENDING
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
@@ -34,4 +35,13 @@ class Order : BaseEntityAudit() {
     @OneToOne(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     var shipment: Shipment? = null
 
+}
+
+enum class OrderStatus {
+    PENDING,
+    PROCESSING,
+    SHIPPED,
+    DELIVERED,
+    COMPLETED,
+    CANCELLED
 }
