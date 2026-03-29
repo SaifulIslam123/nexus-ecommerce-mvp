@@ -1,9 +1,13 @@
 package com.ecommerce.mvp.modules.order.service
 
+import com.ecommerce.mvp.common.exception.ResourceNotFoundException
+import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
+import com.ecommerce.mvp.modules.order.model.dto.toResponseDto
 import com.ecommerce.mvp.modules.order.model.entity.Order
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
 import com.ecommerce.mvp.modules.user.repository.UserRepository
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
@@ -33,6 +37,24 @@ class OrderService(
 
     fun deleteById(id: Long) {
         orderRepository.deleteById(id)
+    }
+
+    /**
+     * Returns the full details of a single order identified by [orderId].
+     * The order is fetched only when it belongs to the currently authenticated
+     * user, so one user can never view another user's order.
+     * Throws [ResourceNotFoundException] if the order does not exist or does
+     * not belong to the current user.
+     */
+    @Transactional(readOnly = true)
+    fun getOrderById(orderId: Long): OrderResponseDto {
+        val email = SecurityContextHolder.getContext().authentication?.name
+            ?: throw ResourceNotFoundException("Authenticated user not found")
+
+        val order = orderRepository.findByIdAndUserEmail(orderId, email)
+            ?: throw ResourceNotFoundException("Order not found with id: $orderId")
+
+        return order.toResponseDto()
     }
 
     @Transactional
