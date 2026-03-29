@@ -1,6 +1,7 @@
 package com.ecommerce.mvp.modules.order.service
 
 import com.ecommerce.mvp.modules.order.model.entity.Order
+import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
 import com.ecommerce.mvp.modules.user.repository.UserRepository
 import org.springframework.stereotype.Service
@@ -50,28 +51,28 @@ class OrderService(
         dummyOrders.add(Order().apply {
             orderDate = Date()
             totalAmount = BigDecimal("250.00")
-            status = "PENDING"
+            status = OrderStatus.PENDING
             user = users[0 % users.size]
         })
 
         dummyOrders.add(Order().apply {
             orderDate = Date()
             totalAmount = BigDecimal("150.50")
-            status = "PROCESSING"
+            status = OrderStatus.PROCESSING
             user = users[1 % users.size]
         })
 
         dummyOrders.add(Order().apply {
             orderDate = Date()
             totalAmount = BigDecimal("500.00")
-            status = "COMPLETED"
+            status = OrderStatus.COMPLETED
             user = users[2 % users.size]
         })
 
         dummyOrders.add(Order().apply {
             orderDate = Date()
             totalAmount = BigDecimal("350.75")
-            status = "SHIPPED"
+            status = OrderStatus.SHIPPED
             user = users[0 % users.size]
         })
 
