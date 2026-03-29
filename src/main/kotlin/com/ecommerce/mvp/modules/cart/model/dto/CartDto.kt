@@ -5,8 +5,8 @@ import com.ecommerce.mvp.common.AppConstant.MIN_CART_ITEM_QUANTITY
 import com.ecommerce.mvp.modules.cart.model.entity.Cart
 import com.ecommerce.mvp.modules.cart.model.entity.CartItem
 import jakarta.validation.constraints.Min
-import java.math.BigDecimal
 import jakarta.validation.constraints.NotNull
+import java.math.BigDecimal
 
 // ── Cart Item ────────────────────────────────────────────────────────────────
 
@@ -50,11 +50,8 @@ fun Cart.toResponseDto(): CartResponseDto {
 data class CartItemRequestDto(
     @field:NotNull(message = "Product Id must not be null")
     val productId: Long = -1,
-    @field:NotNull(message = "Quantity must not null")
-    @field:jakarta.validation.constraints.Size(
-        min = MIN_CART_ITEM_QUANTITY,
-        message = "Quantity must be at least $MIN_CART_ITEM_QUANTITY"
-    )
+    @field:NotNull(message = "Quantity must not be null")
+    @field:Min(value = MIN_CART_ITEM_QUANTITY.toLong(), message = "Quantity must be at least $MIN_CART_ITEM_QUANTITY")
     val quantity: Int = -1
 )
 

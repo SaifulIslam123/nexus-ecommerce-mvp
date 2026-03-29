@@ -1,12 +1,13 @@
 package com.ecommerce.mvp.modules.cart
 
-import com.ecommerce.mvp.common.response.ApiResponse
 import com.ecommerce.mvp.modules.cart.model.dto.CartItemRequestDto
 import com.ecommerce.mvp.modules.cart.model.dto.CartResponseDto
 import com.ecommerce.mvp.modules.cart.service.CartService
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -31,6 +32,20 @@ class CartController(
     @PostMapping
     fun addCart(@Valid @RequestBody cartItemRequestDto: CartItemRequestDto) {
         cartService.addItemToCart(cartItemRequestDto)
+    }
+
+    /**
+     * PUT /api/cart/items/{itemId}
+     *
+     * Updates the quantity of a specific item in the authenticated user's cart.
+     * Returns the updated cart with recalculated totals.
+     */
+    @PutMapping("/items/{itemId}")
+    fun updateCartItem(
+        @PathVariable itemId: Long,
+        @Valid @RequestBody updateRequest: CartItemRequestDto
+    ): CartResponseDto {
+        return cartService.updateCartItemQuantity(itemId, updateRequest)
     }
 }
 

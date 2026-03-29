@@ -7,6 +7,7 @@ import com.ecommerce.mvp.modules.cart.model.dto.CartResponseDto
 import com.ecommerce.mvp.modules.cart.model.dto.toResponseDto
 import com.ecommerce.mvp.modules.cart.model.entity.Cart
 import com.ecommerce.mvp.modules.cart.model.entity.CartItem
+import com.ecommerce.mvp.modules.cart.repository.CartItemRepository
 import com.ecommerce.mvp.modules.cart.repository.CartRepository
 import com.ecommerce.mvp.modules.product.repository.ProductRepository
 import com.ecommerce.mvp.modules.user.repository.UserRepository
@@ -18,7 +19,8 @@ import org.springframework.transaction.annotation.Transactional
 class CartService(
     private val userRepository: UserRepository,
     private val productRepository: ProductRepository,
-    private val cartRepository: CartRepository
+    private val cartRepository: CartRepository,
+    private val cartItemRepository: CartItemRepository
 ) {
 
     /**
@@ -43,9 +45,7 @@ class CartService(
         val product = productRepository.findById(requestDto.productId )
             .orElseThrow { ResourceNotFoundException("Product not found with id: ${requestDto.productId}") }
 
-        if (requestDto.quantity > product.stock) {
-            throw BusinessValidationException("Requested quantity exceeds available stock")
-        }
+        validateQuantityStock(requestDto.quantity, product.stock)
 
         val email = SecurityContextHolder.getContext().authentication?.name
         val user = userRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
@@ -67,6 +67,46 @@ class CartService(
 
         return savedCart.toResponseDto()
 
+    }
+
+    /**
+     * Updates the quantity of an existing cart item identified by [itemId].
+     * Only the item's owning user (resolved from the JWT) may perform this.
+     * Throws [ResourceNotFoundException] if the item doesn't exist or doesn't
+     * belong to the current user.
+     * Throws [BusinessValidationException] if the requested quantity exceeds
+     * available product stock.
+     */
+    @Transactional
+    fun updateCartItemQuantity(itemId: Long, requestDto: CartItemRequestDto): CartResponseDto {
+
+        val email = SecurityContextHolder.getContext().authentication?.name
+            ?: throw ResourceNotFoundException("Authenticated user not found")
+
+        val cartItem = cartItemRepository.findByIdAndUserEmail(itemId, email)
+            ?: throw ResourceNotFoundException("Cart item not found with id: $itemId")
+
+        val product = cartItem.product
+            ?: throw ResourceNotFoundException("Product associated with cart item not found")
+
+       validateQuantityStock(requestDto.quantity, product.stock)
+
+        cartItem.quantity = requestDto.quantity
+        cartItemRepository.save(cartItem)
+
+        val cart = cartItem.cart
+            ?: throw ResourceNotFoundException("Cart not found for item: $itemId")
+
+        return cartRepository.findById(cart.id!!).orElseThrow {
+            ResourceNotFoundException("Cart not found")
+        }.toResponseDto()
+    }
+
+    private fun validateQuantityStock(requestStock: Int, productStock: Int) {
+
+        if (requestStock > productStock) {
+            throw BusinessValidationException("Requested quantity (${requestStock}) exceeds available stock (${productStock})")
+        }
     }
 }
 
