@@ -129,6 +129,28 @@ class CartService(
         }.toResponseDto()
     }
 
+    /**
+     * Clears every item from the authenticated user's cart in one shot.
+     * Because [Cart.cartItems] is declared with [orphanRemoval] = true,
+     * calling [MutableSet.clear] on the collection and saving the cart is
+     * enough — Hibernate will issue the DELETE statements for all child rows.
+     * Throws [ResourceNotFoundException] if the user has no cart.
+     * Returns the emptied [CartResponseDto] (totals will be 0).
+     */
+    @Transactional
+    fun clearCart(): CartResponseDto {
+
+        val email = SecurityContextHolder.getContext().authentication?.name
+            ?: throw ResourceNotFoundException("Authenticated user not found")
+
+        val cart = cartRepository.findByUserEmail(email)
+            ?: throw ResourceNotFoundException("Cart not found for user: $email")
+
+        cart.cartItems.clear()  // orphanRemoval triggers DELETE for all CartItem rows
+
+        return cartRepository.save(cart).toResponseDto()
+    }
+
     private fun validateQuantityStock(requestStock: Int, productStock: Int) {
 
         if (requestStock > productStock) {
