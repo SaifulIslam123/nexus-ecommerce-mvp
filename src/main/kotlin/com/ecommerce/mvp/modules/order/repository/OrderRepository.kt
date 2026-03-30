@@ -20,9 +20,11 @@ interface OrderRepository : JpaRepository<Order, Long> {
      * Returns all orders that belong to the given user, ordered by date
      * (newest first). DISTINCT prevents duplicate Order rows that would
      * otherwise arise from the one-to-many JOIN FETCH on orderItems.
-     * LEFT JOIN FETCH is used for orderItems so that orders which have
-     * no items yet are still included in the result.
+     * JOIN FETCH is used for orderItems and product because every order
+     * is guaranteed to have at least one item and every item always has
+     * a product. payment and shipment use LEFT JOIN FETCH since they are
+     * optional associations.
      */
-    @Query("SELECT DISTINCT o FROM Order o JOIN FETCH o.user u LEFT JOIN FETCH o.orderItems item LEFT JOIN FETCH item.product LEFT JOIN FETCH o.payment LEFT JOIN FETCH o.shipment WHERE u.email = :email ORDER BY o.orderDate DESC")
+    @Query("SELECT DISTINCT o FROM Order o JOIN FETCH o.user u JOIN FETCH o.orderItems item JOIN FETCH item.product LEFT JOIN FETCH o.payment LEFT JOIN FETCH o.shipment WHERE u.email = :email ORDER BY o.orderDate DESC")
     fun findAllByUserEmail(email: String): List<Order>
 }
