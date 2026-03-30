@@ -11,6 +11,19 @@ class OrderController(
     private val orderService: OrderService
 ) {
     /**
+     * GET /api/orders
+     *
+     * Returns a list of all orders placed by the authenticated user,
+     * sorted from newest to oldest.
+     * Each entry includes the full order details: line items, payment,
+     * and shipment information.
+     */
+    @GetMapping
+    fun getMyOrders(): List<OrderResponseDto> {
+        return orderService.getMyOrders()
+    }
+
+    /**
      * GET /api/orders/{id}
      *
      * Returns the full details of a single order belonging to the

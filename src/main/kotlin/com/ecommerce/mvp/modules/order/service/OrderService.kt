@@ -40,6 +40,20 @@ class OrderService(
     }
 
     /**
+     * Returns every order that belongs to the currently authenticated user,
+     * sorted from newest to oldest.
+     * Throws [ResourceNotFoundException] if no authenticated user is found.
+     */
+    @Transactional(readOnly = true)
+    fun getMyOrders(): List<OrderResponseDto> {
+        val email = SecurityContextHolder.getContext().authentication?.name
+            ?: throw ResourceNotFoundException("Authenticated user not found")
+
+        return orderRepository.findAllByUserEmail(email)
+            .map { it.toResponseDto() }
+    }
+
+    /**
      * Returns the full details of a single order identified by [orderId].
      * The order is fetched only when it belongs to the currently authenticated
      * user, so one user can never view another user's order.
