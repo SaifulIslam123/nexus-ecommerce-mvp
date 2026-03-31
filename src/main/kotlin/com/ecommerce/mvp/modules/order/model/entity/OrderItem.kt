@@ -17,11 +17,11 @@ class OrderItem : BaseEntityAudit() {
     var price: BigDecimal = BigDecimal.ZERO
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
-    var order: Order? = null
+    @JoinColumn(name = "order_id", nullable = false)
+    lateinit var order: Order
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_id")
-    var product: Product? = null
+    @JoinColumn(name = "product_id", nullable = false)
+    lateinit var product: Product
 
 }

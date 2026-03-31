@@ -40,6 +40,7 @@ class Order : BaseEntityAudit() {
 enum class OrderStatus {
     PENDING,
     PROCESSING,
+    PAID,
     SHIPPED,
     DELIVERED,
     COMPLETED,
