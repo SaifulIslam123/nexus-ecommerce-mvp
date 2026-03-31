@@ -1,10 +1,8 @@
 package com.ecommerce.mvp.modules.order
 import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.service.OrderService
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/orders")
 class OrderController(
@@ -36,5 +34,23 @@ class OrderController(
     @GetMapping("/{id}")
     fun getOrder(@PathVariable id: Long): OrderResponseDto {
         return orderService.getOrderById(id)
+    }
+
+    /**
+     * PUT /api/orders/{id}/cancel
+     *
+     * Cancels an order that belongs to the authenticated user.
+     * Only orders with status PENDING or PAID can be cancelled.
+     * Restores the reserved stock for every line item in the order.
+     *
+     * Responds with 204 No Content on success.
+     * Responds with 404 if the order does not exist or does not belong to
+     * the current user, and 409 Conflict if the status does not allow
+     * cancellation.
+     */
+    @PutMapping("/{id}/cancel")
+    fun cancelOrder(@PathVariable id: Long): ResponseEntity<Void> {
+        orderService.cancelOrder(id)
+        return ResponseEntity.noContent().build()
     }
 }

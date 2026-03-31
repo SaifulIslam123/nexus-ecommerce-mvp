@@ -6,7 +6,6 @@ import com.ecommerce.mvp.modules.order.model.dto.toResponseDto
 import com.ecommerce.mvp.modules.order.model.entity.Order
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
-import com.ecommerce.mvp.modules.product.repository.ProductRepository
 import com.ecommerce.mvp.modules.user.repository.UserRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
@@ -18,7 +17,6 @@ import java.util.*
 class OrderService(
     private val orderRepository: OrderRepository,
     private val userRepository: UserRepository,
-    private val productRepository: ProductRepository
 
 ) {
 
@@ -84,24 +82,14 @@ class OrderService(
 
         if (order.status == OrderStatus.PENDING || order.status == OrderStatus.PAID) {
             order.status = OrderStatus.CANCELLED
-            orderRepository.save(order)
 
             order.orderItems.forEach {
-                val product = it.product
-                product.stock += it.quantity
-                productRepository.save(product)
+                it.product.stock += it.quantity
             }
 
         } else {
             throw IllegalStateException("Cannot cancel an order that has already been ${order.status}")
         }
-
-
-
-       /* if (order.status == OrderStatus.COMPLETED || order.status == OrderStatus.SHIPPED) {
-            throw IllegalStateException("Cannot cancel an order that has already been completed or shipped")
-        }*/
-
     }
 
 
