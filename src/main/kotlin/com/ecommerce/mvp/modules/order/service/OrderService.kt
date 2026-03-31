@@ -80,7 +80,7 @@ class OrderService(
         val order = orderRepository.findByIdAndUserEmail(orderId, email)
             ?: throw ResourceNotFoundException("Order not found with id: $orderId")
 
-        if (order.status == OrderStatus.PENDING || order.status == OrderStatus.PAID) {
+        if (order.status == OrderStatus.PENDING || order.status == OrderStatus.CONFIRMED) {
             order.status = OrderStatus.CANCELLED
 
             order.orderItems.forEach {
@@ -123,7 +123,7 @@ class OrderService(
         dummyOrders.add(Order().apply {
             orderDate = Date()
             totalAmount = BigDecimal("500.00")
-            status = OrderStatus.COMPLETED
+            status = OrderStatus.DELIVERED
             user = users[2 % users.size]
         })
 

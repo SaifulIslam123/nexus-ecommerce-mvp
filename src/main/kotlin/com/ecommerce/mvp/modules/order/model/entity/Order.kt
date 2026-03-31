@@ -38,11 +38,33 @@ class Order : BaseEntityAudit() {
 }
 
 enum class OrderStatus {
+    /** Order created but payment is not yet verified.  */
     PENDING,
+
+    /** Payment successfully received and order confirmed.  */
+    CONFIRMED,
+
+    /** Order is being picked, packed, or manufactured.  */
     PROCESSING,
-    PAID,
+
+    /** Package has been handed over to the shipping carrier.  */
     SHIPPED,
+
+    /** Package is with the local courier for final delivery.  */
+    OUT_FOR_DELIVERY,
+
+    /** Package has been successfully received by the customer.  */
     DELIVERED,
-    COMPLETED,
-    CANCELLED
+
+    /** Order was cancelled by the customer or the system.  */
+    CANCELLED,
+
+    /** Payment failed or was declined by the gateway.  */
+    FAILED,
+
+    /** Items were returned by the customer after delivery.  */
+    RETURNED,
+
+    /** Funds have been returned to the customer.  */
+    REFUNDED
 }
