@@ -6,6 +6,7 @@ import com.ecommerce.mvp.modules.order.model.dto.toResponseDto
 import com.ecommerce.mvp.modules.order.model.entity.Order
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
+import com.ecommerce.mvp.modules.product.repository.ProductRepository
 import com.ecommerce.mvp.modules.user.repository.UserRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
@@ -16,7 +17,9 @@ import java.util.*
 @Service
 class OrderService(
     private val orderRepository: OrderRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val productRepository: ProductRepository
+
 ) {
 
     init {
@@ -70,6 +73,37 @@ class OrderService(
 
         return order.toResponseDto()
     }
+
+    @Transactional
+    fun cancelOrder(orderId: Long) {
+        val email = SecurityContextHolder.getContext().authentication?.name
+            ?: throw ResourceNotFoundException("Authenticated user not found")
+
+        val order = orderRepository.findByIdAndUserEmail(orderId, email)
+            ?: throw ResourceNotFoundException("Order not found with id: $orderId")
+
+        if (order.status == OrderStatus.PENDING || order.status == OrderStatus.PAID) {
+            order.status = OrderStatus.CANCELLED
+            orderRepository.save(order)
+
+            order.orderItems.forEach {
+                val product = it.product
+                product.stock += it.quantity
+                productRepository.save(product)
+            }
+
+        } else {
+            throw IllegalStateException("Cannot cancel an order that has already been ${order.status}")
+        }
+
+
+
+       /* if (order.status == OrderStatus.COMPLETED || order.status == OrderStatus.SHIPPED) {
+            throw IllegalStateException("Cannot cancel an order that has already been completed or shipped")
+        }*/
+
+    }
+
 
     @Transactional
     fun insertDummyOrders(): List<Order> {
