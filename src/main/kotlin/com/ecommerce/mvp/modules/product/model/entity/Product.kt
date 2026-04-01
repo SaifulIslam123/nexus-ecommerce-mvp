@@ -22,6 +22,9 @@ open class Product : BaseEntityAudit() {
     @Column(columnDefinition = "TEXT")
     var description: String? = null
 
+    @Column(nullable = false, name = "is_active")
+    var isActive: Boolean = true
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     lateinit var category: Category
