@@ -2,28 +2,22 @@ package com.ecommerce.mvp.modules.order.service
 
 import com.ecommerce.mvp.common.exception.BusinessValidationException
 import com.ecommerce.mvp.common.exception.ResourceNotFoundException
-import com.ecommerce.mvp.modules.cart.model.dto.CartItemRequestDto
 import com.ecommerce.mvp.modules.cart.repository.CartItemRepository
-import com.ecommerce.mvp.modules.cart.repository.CartRepository
 import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.dto.toResponseDto
 import com.ecommerce.mvp.modules.order.model.entity.Order
 import com.ecommerce.mvp.modules.order.model.entity.OrderItem
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
-import com.ecommerce.mvp.modules.product.model.entity.Product
-import com.ecommerce.mvp.modules.product.repository.ProductRepository
 import com.ecommerce.mvp.modules.user.repository.UserRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.math.BigDecimal
 import java.util.*
 
 @Service
 class OrderService(
     private val orderRepository: OrderRepository,
-    private val userRepository: UserRepository,
     private val cartItemRepository: CartItemRepository,
 ) {
 
@@ -87,7 +81,7 @@ class OrderService(
         val order = orderRepository.findByIdAndUserEmail(orderId, email)
             ?: throw ResourceNotFoundException("Order not found with id: $orderId")
 
-        if (order.status == OrderStatus.PENDING || order.status == OrderStatus.CONFIRMED) {
+        if (order.status == OrderStatus.TO_PAY || order.status == OrderStatus.CONFIRMED) {
             order.status = OrderStatus.CANCELLED
 
             order.orderItems.forEach {
@@ -106,7 +100,7 @@ class OrderService(
     *
     * */
     @Transactional
-    fun initiateOrder(cartItemId: Long) {
+    fun toPayOrder(cartItemId: Long) {
 
         val email = SecurityContextHolder.getContext().authentication?.name
             ?: throw ResourceNotFoundException("Authenticated user not found")
@@ -115,17 +109,17 @@ class OrderService(
             ?: throw ResourceNotFoundException("Cart Item not found")
 
 
-        if (!cartItem.product.isActive) {
-            throw BusinessValidationException("This product is currently unavailable for purchase in order")
-        }
-        if (cartItem.quantity > cartItem.product.stock) {
-            throw BusinessValidationException("Requested quantity (${cartItem.quantity}) exceeds available stock (${cartItem.product.stock})")
-        }
+        validateCartItemForCheckout(
+            isActive = cartItem.product.isActive,
+            quantity = cartItem.quantity,
+            stock = cartItem.product.stock
+        )
+
 
         val order = Order(
             orderDate = Date(),
             totalAmount = cartItem.price,
-            status = OrderStatus.PENDING,
+            status = OrderStatus.TO_PAY,
             user = cartItem.cart.user,
             orderItems = mutableSetOf(),
             payment = null,
@@ -142,8 +136,16 @@ class OrderService(
         order.orderItems.add(orderItem)
 
         cartItem.product.stock -= cartItem.quantity
+        cartItem.cart.cartItems.remove(cartItem)
 
         orderRepository.save(order)
+    }
+
+    private fun validateCartItemForCheckout(isActive: Boolean, quantity: Int, stock: Int) {
+        if (!isActive)
+            throw BusinessValidationException("This product is currently unavailable for purchase in order")
+        if (quantity > stock)
+            throw BusinessValidationException("Requested quantity ($quantity) exceeds available stock ($stock)")
     }
 
     //TODO: Handle multiple cart items

@@ -38,7 +38,7 @@ data class Order(
 
 enum class OrderStatus {
     /** Order created but payment is not yet verified.  */
-    PENDING,
+    TO_PAY,
 
     /** Payment successfully received and order confirmed.  */
     CONFIRMED,
