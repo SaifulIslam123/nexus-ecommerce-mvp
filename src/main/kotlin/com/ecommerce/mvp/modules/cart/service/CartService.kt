@@ -51,9 +51,7 @@ class CartService(
             val email = SecurityContextHolder.getContext().authentication?.name
             val user = userRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
 
-            val cart = Cart().apply {
-                this.user = user
-            }
+            val cart = Cart(user = user)
 
             val cartItem = CartItem(
                 product = product,
