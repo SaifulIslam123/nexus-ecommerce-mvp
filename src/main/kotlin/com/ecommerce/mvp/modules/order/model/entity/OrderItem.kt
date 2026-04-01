@@ -8,20 +8,19 @@ import java.math.BigDecimal
 
 @Entity
 @Table(name = "order_items")
-class OrderItem : BaseEntityAudit() {
-
+data class OrderItem(
     @Column(nullable = false)
-    var quantity: Int = 0
+    var quantity: Int = 0,
 
     @Column(nullable = false, precision = 10, scale = 2)
-    var price: BigDecimal = BigDecimal.ZERO
+    var price: BigDecimal = BigDecimal.ZERO,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
-    lateinit var order: Order
+    var order: Order,
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
-    lateinit var product: Product
+    var product: Product
 
-}
+) : BaseEntityAudit()

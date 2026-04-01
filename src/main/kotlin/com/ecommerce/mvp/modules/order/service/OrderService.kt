@@ -8,6 +8,7 @@ import com.ecommerce.mvp.modules.cart.repository.CartRepository
 import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.dto.toResponseDto
 import com.ecommerce.mvp.modules.order.model.entity.Order
+import com.ecommerce.mvp.modules.order.model.entity.OrderItem
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
 import com.ecommerce.mvp.modules.product.model.entity.Product
@@ -24,7 +25,6 @@ class OrderService(
     private val orderRepository: OrderRepository,
     private val userRepository: UserRepository,
     private val cartItemRepository: CartItemRepository,
-    private val productRepository: ProductRepository
 ) {
 
     init {
@@ -111,11 +111,9 @@ class OrderService(
         val email = SecurityContextHolder.getContext().authentication?.name
             ?: throw ResourceNotFoundException("Authenticated user not found")
 
-        /*val product = productRepository.findById(cartItemRequestDto.productId )
-            .orElseThrow { ResourceNotFoundException("Product not found with id: ${cartItemRequestDto.productId}") }*/
+        val cartItem = cartItemRepository.findByIdAndUserEmail(cartItemId, email)
+            ?: throw ResourceNotFoundException("Cart Item not found")
 
-        val cartItem = cartItemRepository.findById(cartItemId)
-            .orElseThrow { ResourceNotFoundException("Cart Item not found ") }
 
         if (!cartItem.product.isActive) {
             throw BusinessValidationException("This product is currently unavailable for purchase in order")
@@ -124,18 +122,28 @@ class OrderService(
             throw BusinessValidationException("Requested quantity (${cartItem.quantity}) exceeds available stock (${cartItem.product.stock})")
         }
 
-        val order = Order().apply {
-            this.user = user
-            orderDate = Date()
-            totalAmount = cartItem.price
-            status = OrderStatus.PENDING
-        }
+        val order = Order(
+            orderDate = Date(),
+            totalAmount = cartItem.price,
+            status = OrderStatus.PENDING,
+            user = cartItem.cart.user,
+            orderItems = mutableSetOf(),
+            payment = null,
+            shipment = null
+        )
+
+        val orderItem = OrderItem(
+            quantity = cartItem.quantity,
+            order = order,
+            product = cartItem.product,
+            price = cartItem.price,
+        )
+
+        order.orderItems.add(orderItem)
 
         cartItem.product.stock -= cartItem.quantity
 
         orderRepository.save(order)
-
-
     }
 
     //TODO: Handle multiple cart items
@@ -144,7 +152,7 @@ class OrderService(
     }*/
 
 
-    @Transactional
+    /*@Transactional
     fun insertDummyOrders(): List<Order> {
         // First, get some existing users to associate with orders
         val users = userRepository.findAll()
@@ -188,7 +196,7 @@ class OrderService(
         val savedOrders = orderRepository.saveAll(dummyOrders)
         println("Successfully inserted ${savedOrders.size} dummy orders")
         return savedOrders
-    }
+    }*/
 
    // @Transactional
     fun testOrder(){

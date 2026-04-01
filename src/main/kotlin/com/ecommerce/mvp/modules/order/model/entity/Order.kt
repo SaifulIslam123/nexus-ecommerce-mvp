@@ -9,33 +9,32 @@ import java.util.*
 
 @Entity
 @Table(name = "Orders")
-class Order : BaseEntityAudit() {
-
+data class Order(
     @field:Temporal(TemporalType.TIMESTAMP)
     @field:Column(nullable = false)
-    var orderDate: Date = Date()
+    var orderDate: Date = Date(),
 
     @Column(nullable = false, precision = 10, scale = 2)
-    var totalAmount: BigDecimal = BigDecimal.ZERO
+    var totalAmount: BigDecimal = BigDecimal.ZERO,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    var status: OrderStatus = OrderStatus.PENDING
+    var status: OrderStatus,
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
-    var user: User? = null
+    var user: User? = null,
 
     @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    var orderItems: MutableSet<OrderItem> = mutableSetOf()
+    var orderItems: MutableSet<OrderItem> = mutableSetOf(),
 
     @OneToOne(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    var payment: Payment? = null
+    var payment: Payment? = null,
 
     @OneToOne(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     var shipment: Shipment? = null
 
-}
+) : BaseEntityAudit()
 
 enum class OrderStatus {
     /** Order created but payment is not yet verified.  */
