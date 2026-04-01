@@ -1,11 +1,17 @@
 package com.ecommerce.mvp.modules.order.service
 
+import com.ecommerce.mvp.common.exception.BusinessValidationException
 import com.ecommerce.mvp.common.exception.ResourceNotFoundException
+import com.ecommerce.mvp.modules.cart.model.dto.CartItemRequestDto
+import com.ecommerce.mvp.modules.cart.repository.CartItemRepository
+import com.ecommerce.mvp.modules.cart.repository.CartRepository
 import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.dto.toResponseDto
 import com.ecommerce.mvp.modules.order.model.entity.Order
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
+import com.ecommerce.mvp.modules.product.model.entity.Product
+import com.ecommerce.mvp.modules.product.repository.ProductRepository
 import com.ecommerce.mvp.modules.user.repository.UserRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
@@ -17,7 +23,8 @@ import java.util.*
 class OrderService(
     private val orderRepository: OrderRepository,
     private val userRepository: UserRepository,
-
+    private val cartItemRepository: CartItemRepository,
+    private val productRepository: ProductRepository
 ) {
 
     init {
@@ -91,6 +98,50 @@ class OrderService(
             throw IllegalStateException("Cannot cancel an order that has already been ${order.status}")
         }
     }
+
+
+    /*
+    *
+    * Checkout Start
+    *
+    * */
+    @Transactional
+    fun initiateOrder(cartItemId: Long) {
+
+        val email = SecurityContextHolder.getContext().authentication?.name
+            ?: throw ResourceNotFoundException("Authenticated user not found")
+
+        /*val product = productRepository.findById(cartItemRequestDto.productId )
+            .orElseThrow { ResourceNotFoundException("Product not found with id: ${cartItemRequestDto.productId}") }*/
+
+        val cartItem = cartItemRepository.findById(cartItemId)
+            .orElseThrow { ResourceNotFoundException("Cart Item not found ") }
+
+        if (!cartItem.product.isActive) {
+            throw BusinessValidationException("This product is currently unavailable for purchase in order")
+        }
+        if (cartItem.quantity > cartItem.product.stock) {
+            throw BusinessValidationException("Requested quantity (${cartItem.quantity}) exceeds available stock (${cartItem.product.stock})")
+        }
+
+        val order = Order().apply {
+            this.user = user
+            orderDate = Date()
+            totalAmount = cartItem.price
+            status = OrderStatus.PENDING
+        }
+
+        cartItem.product.stock -= cartItem.quantity
+
+        orderRepository.save(order)
+
+
+    }
+
+    //TODO: Handle multiple cart items
+    /*fun initiateOrders(cartItemRequestDtoList: List<CartItemRequestDto>): List<Order> {
+
+    }*/
 
 
     @Transactional
