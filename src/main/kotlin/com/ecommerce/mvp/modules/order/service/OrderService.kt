@@ -134,11 +134,11 @@ class OrderService(
         )
 
         order.orderItems.add(orderItem)
-
         cartItem.product.stock -= cartItem.quantity
         cartItem.cart.cartItems.remove(cartItem)
 
-        orderRepository.save(order)
+         orderRepository.save(order).toResponseDto()
+
     }
 
     private fun validateCartItemForCheckout(isActive: Boolean, quantity: Int, stock: Int) {
