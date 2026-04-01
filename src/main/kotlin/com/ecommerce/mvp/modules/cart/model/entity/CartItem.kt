@@ -6,7 +6,7 @@ import jakarta.persistence.*
 import java.math.BigDecimal
 
 
-@Entity
+/*@Entity
 @Table(name = "cart_items")
 class CartItem : BaseEntityAudit() {
 
@@ -16,13 +16,32 @@ class CartItem : BaseEntityAudit() {
     @Column(nullable = false, precision = 10, scale = 2)
     var price: BigDecimal = BigDecimal.ZERO
 
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cart_id")
-    var cart: Cart? = null
+    @JoinColumn(name = "cart_id", nullable = false)
+    lateinit var cart: Cart
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_id")
-    var product: Product? = null
+    @JoinColumn(name = "product_id", nullable = false)
+    lateinit var product: Product
 
-}
+}*/
+
+@Entity
+@Table(name = "cart_items")
+data class CartItem(
+    @Column(nullable = false)
+    var quantity: Int = 0,
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    var price: BigDecimal = BigDecimal.ZERO,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cart_id", nullable = false)
+    var cart: Cart,
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "product_id", nullable = false)
+    var product: Product,
+) : BaseEntityAudit()
 
