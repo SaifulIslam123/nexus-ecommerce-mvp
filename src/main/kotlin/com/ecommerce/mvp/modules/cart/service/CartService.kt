@@ -55,13 +55,12 @@ class CartService(
                 this.user = user
             }
 
-            val cartItem = CartItem().apply {
-                this.product = product
-                this.quantity = requestDto.quantity
-                this.price = product.price
-                this.cart = cart
-            }
-
+            val cartItem = CartItem(
+                product = product,
+                quantity = requestDto.quantity,
+                price = product.price,
+                cart = cart
+            )
             cart.cartItems.add(cartItem)
 
             val savedCart = cartRepository.save(cart)
