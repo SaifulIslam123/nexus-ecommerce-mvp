@@ -42,31 +42,32 @@ class CartService(
     @Transactional
     fun addItemToCart(requestDto: CartItemRequestDto): CartResponseDto {
 
-        val product = productRepository.findById(requestDto.productId )
-            .orElseThrow { ResourceNotFoundException("Product not found with id: ${requestDto.productId}") }
+        requestDto.productId?.let { productId ->
+            val product = productRepository.findById(productId)
+                .orElseThrow { ResourceNotFoundException("Product not found with id: ${productId}") }
 
-        validateQuantityStock(requestDto.quantity, product.stock)
+            validateQuantityStock(requestDto.quantity, product.stock)
 
-        val email = SecurityContextHolder.getContext().authentication?.name
-        val user = userRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
+            val email = SecurityContextHolder.getContext().authentication?.name
+            val user = userRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
 
-        val cart = Cart().apply {
-            this.user = user
-        }
+            val cart = Cart().apply {
+                this.user = user
+            }
 
-        val cartItem = CartItem().apply {
-            this.product = product
-            this.quantity = requestDto.quantity
-            this.price = product.price
-            this.cart = cart
-        }
+            val cartItem = CartItem().apply {
+                this.product = product
+                this.quantity = requestDto.quantity
+                this.price = product.price
+                this.cart = cart
+            }
 
-        cart.cartItems.add(cartItem)
+            cart.cartItems.add(cartItem)
 
-        val savedCart = cartRepository.save(cart)
+            val savedCart = cartRepository.save(cart)
 
-        return savedCart.toResponseDto()
-
+            return savedCart.toResponseDto()
+        } ?: run { throw BusinessValidationException("Product Id must not be null") }
     }
 
     /**

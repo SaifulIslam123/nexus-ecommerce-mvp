@@ -48,8 +48,7 @@ fun Cart.toResponseDto(): CartResponseDto {
 }
 
 data class CartItemRequestDto(
-    @field:NotNull(message = "Product Id must not be null")
-    val productId: Long = -1,
+    val productId: Long? = null,
     @field:NotNull(message = "Quantity must not be null")
     @field:Min(value = MIN_CART_ITEM_QUANTITY.toLong(), message = "Quantity must be at least $MIN_CART_ITEM_QUANTITY")
     val quantity: Int = -1
