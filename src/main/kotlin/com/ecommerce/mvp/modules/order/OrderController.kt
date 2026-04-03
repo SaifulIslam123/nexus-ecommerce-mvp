@@ -49,8 +49,12 @@ class OrderController(
      * cancellation.
      */
     @PutMapping("/{id}/cancel")
-    fun cancelOrder(@PathVariable id: Long): ResponseEntity<Void> {
-        orderService.cancelOrder(id)
-        return ResponseEntity.noContent().build()
+    fun cancelOrder(@PathVariable id: Long): OrderResponseDto {
+        return orderService.cancelOrder(id)
+    }
+
+    @PostMapping("/toPayOrder")
+    fun toPayOrder(@RequestBody cartItemId: Long): OrderResponseDto {
+        return orderService.toPayOrder(cartItemId)
     }
 }

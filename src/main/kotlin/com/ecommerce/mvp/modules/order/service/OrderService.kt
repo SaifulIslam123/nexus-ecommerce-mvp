@@ -2,6 +2,7 @@ package com.ecommerce.mvp.modules.order.service
 
 import com.ecommerce.mvp.common.exception.BusinessValidationException
 import com.ecommerce.mvp.common.exception.ResourceNotFoundException
+import com.ecommerce.mvp.modules.cart.model.entity.CartItem
 import com.ecommerce.mvp.modules.cart.repository.CartItemRepository
 import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.dto.toResponseDto
@@ -18,7 +19,7 @@ import java.util.*
 @Service
 class OrderService(
     private val orderRepository: OrderRepository,
-    private val cartItemRepository: CartItemRepository,
+    private val cartItemRepository: CartItemRepository
 ) {
 
     init {
@@ -74,7 +75,7 @@ class OrderService(
     }
 
     @Transactional
-    fun cancelOrder(orderId: Long) {
+    fun cancelOrder(orderId: Long): OrderResponseDto {
         val email = SecurityContextHolder.getContext().authentication?.name
             ?: throw ResourceNotFoundException("Authenticated user not found")
 
@@ -87,7 +88,7 @@ class OrderService(
             order.orderItems.forEach {
                 it.product.stock += it.quantity
             }
-
+            return order.toResponseDto()
         } else {
             throw IllegalStateException("Cannot cancel an order that has already been ${order.status}")
         }
@@ -100,7 +101,7 @@ class OrderService(
     *
     * */
     @Transactional
-    fun toPayOrder(cartItemId: Long) {
+    fun toPayOrder(cartItemId: Long): OrderResponseDto {
 
         val email = SecurityContextHolder.getContext().authentication?.name
             ?: throw ResourceNotFoundException("Authenticated user not found")
@@ -137,8 +138,7 @@ class OrderService(
         cartItem.product.stock -= cartItem.quantity
         cartItem.cart.cartItems.remove(cartItem)
 
-         orderRepository.save(order).toResponseDto()
-
+        return orderRepository.save(order).toResponseDto()
     }
 
     private fun validateCartItemForCheckout(isActive: Boolean, quantity: Int, stock: Int) {
@@ -154,62 +154,7 @@ class OrderService(
     }*/
 
 
-    /*@Transactional
-    fun insertDummyOrders(): List<Order> {
-        // First, get some existing users to associate with orders
-        val users = userRepository.findAll()
-
-        if (users.isEmpty()) {
-            println("No users found. Please create users first before creating orders.")
-            return emptyList()
-        }
-
-        val dummyOrders = mutableListOf<Order>()
-
-        // Create orders and assign them to users (cycling through available users)
-        dummyOrders.add(Order().apply {
-            orderDate = Date()
-            totalAmount = BigDecimal("250.00")
-            status = OrderStatus.PENDING
-            user = users[0 % users.size]
-        })
-
-        dummyOrders.add(Order().apply {
-            orderDate = Date()
-            totalAmount = BigDecimal("150.50")
-            status = OrderStatus.PROCESSING
-            user = users[1 % users.size]
-        })
-
-        dummyOrders.add(Order().apply {
-            orderDate = Date()
-            totalAmount = BigDecimal("500.00")
-            status = OrderStatus.DELIVERED
-            user = users[2 % users.size]
-        })
-
-        dummyOrders.add(Order().apply {
-            orderDate = Date()
-            totalAmount = BigDecimal("350.75")
-            status = OrderStatus.SHIPPED
-            user = users[0 % users.size]
-        })
-
-        val savedOrders = orderRepository.saveAll(dummyOrders)
-        println("Successfully inserted ${savedOrders.size} dummy orders")
-        return savedOrders
-    }*/
-
-   // @Transactional
-    fun testOrder(){
-       /*val orders = orderRepository.findById(2)
-        println("Order_Details: ${orders.get().totalAmount}, ${orders.get().user?.name}")*/
-
-        val orders = orderRepository.findAll()
-        /*for(order in orders){
-            println("Order_ID: ${order.id}, Order_TotalAmount: ${order.totalAmount}, User_Name: ${order.user?.name}")
-        }*/
-    }
-
-
 }
+
+
+
