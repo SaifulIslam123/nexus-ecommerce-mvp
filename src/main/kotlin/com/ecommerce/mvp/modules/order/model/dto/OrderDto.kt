@@ -3,7 +3,7 @@ package com.ecommerce.mvp.modules.order.model.dto
 import com.ecommerce.mvp.modules.order.model.entity.Order
 import com.ecommerce.mvp.modules.order.model.entity.OrderItem
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
-import com.ecommerce.mvp.modules.order.model.entity.Payment
+import com.ecommerce.mvp.modules.payment.model.entity.Payment
 import com.ecommerce.mvp.modules.order.model.entity.Shipment
 import java.math.BigDecimal
 import java.util.Date
