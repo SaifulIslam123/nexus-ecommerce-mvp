@@ -31,8 +31,8 @@ class CartService(
         val user = userRepository.findByUserEmail(email)
             ?: throw ResourceNotFoundException("User not found with email: $email")
 
-        val userCart = cartRepository.findByUserEmail(email)
-        userCart?.let {
+        //val userCart = user.cart//cartRepository.findByUserEmail(email)
+        user.cart?.let {
             throw BusinessValidationException("User cart already exists with id: ${it.id}")
         } ?: run {
             val cart = Cart(user = user)
@@ -59,29 +59,33 @@ class CartService(
     @Transactional
     fun addItemToCart(requestDto: CartItemRequestDto): CartResponseDto {
 
-        requestDto.productId?.let { productId ->
-            val product = productRepository.findById(productId)
-                .orElseThrow { ResourceNotFoundException("Product not found with id: ${productId}") }
+        val email = SecurityContextHolder.getContext().authentication?.name
+        val user = userRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
+        user.cart?.let { userCart ->
 
-            validateQuantityStock(requestDto.quantity, product.stock)
+            requestDto.productId?.let { productId ->
+                val product = productRepository.findById(productId)
+                    .orElseThrow { ResourceNotFoundException("Product not found with id: ${productId}") }
 
-            val email = SecurityContextHolder.getContext().authentication?.name
-            val user = userRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
+                validateQuantityStock(requestDto.quantity, product.stock)
 
-            val cart = Cart(user = user)
+                //val cart = Cart(user = user)
 
-            val cartItem = CartItem(
-                product = product,
-                quantity = requestDto.quantity,
-                price = product.price,
-                cart = cart
-            )
-            cart.cartItems.add(cartItem)
+                val cartItem = CartItem(
+                    product = product,
+                    quantity = requestDto.quantity,
+                    price = product.price,
+                    cart = userCart
+                )
+                userCart.cartItems.add(cartItem)
+                return userCart.toResponseDto()
 
-            val savedCart = cartRepository.save(cart)
+                /*val savedCart = cartRepository.save(userCart)
+                return savedCart.toResponseDto()*/
 
-            return savedCart.toResponseDto()
-        } ?: run { throw BusinessValidationException("Product Id must not be null") }
+            } ?: run { throw BusinessValidationException("Product Id must not be null") }
+        } ?: run { throw BusinessValidationException("No cart found for user: $email, need to create cart first for add item to cart") }
+
     }
 
     /**
