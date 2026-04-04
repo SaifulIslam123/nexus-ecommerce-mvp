@@ -2,6 +2,8 @@ package com.ecommerce.mvp.modules.payment.service
 
 import com.ecommerce.mvp.common.exception.BusinessValidationException
 import com.ecommerce.mvp.common.exception.ResourceNotFoundException
+import com.ecommerce.mvp.modules.order.model.dto.PaymentResponseDto
+import com.ecommerce.mvp.modules.order.model.dto.toResponseDto
 import com.ecommerce.mvp.modules.order.model.entity.Order
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
@@ -21,13 +23,17 @@ class PaymentService(
 
 
     @Transactional
-    fun verifyPayment(requestDto: PaymentVerifyRequestDto) {
+    fun verifyPayment(requestDto: PaymentVerifyRequestDto): PaymentResponseDto {
 
         val email = SecurityContextHolder.getContext().authentication?.name
             ?: throw ResourceNotFoundException("Authenticated user not found")
 
         val order = orderRepository.findByIdAndUserEmail(requestDto.orderId!!, email)
             ?: throw ResourceNotFoundException("Order not found")
+
+        if (order.totalAmount != requestDto.totalAmount) {
+            throw BusinessValidationException("Total amount should be equal to request amount")
+        }
 
         val payment = Payment()
 
@@ -66,6 +72,7 @@ class PaymentService(
         payment.order = order
         paymentRepository.save(payment)
 
+        return payment.toResponseDto()
     }
 
     private fun deductProductForOrder(order: Order) {
