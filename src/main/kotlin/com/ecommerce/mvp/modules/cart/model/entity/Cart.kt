@@ -7,7 +7,7 @@ import lombok.ToString
 
 @Entity
 @Table(name = "carts")
-data class Cart(
+class Cart(
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", unique = true, nullable = false)
     var user: User,

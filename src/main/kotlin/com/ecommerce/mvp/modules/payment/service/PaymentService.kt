@@ -75,9 +75,4 @@ class PaymentService(
         return payment.toResponseDto()
     }
 
-    private fun deductProductForOrder(order: Order) {
-        order.orderItems.forEach { item ->
-            item.product.stock -= item.quantity
-        }
-    }
 }
