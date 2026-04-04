@@ -53,8 +53,8 @@ class OrderController(
         return orderService.cancelOrder(id)
     }
 
-    @PostMapping("/toPayOrder")
-    fun toPayOrder(@RequestBody cartItemId: Long): OrderResponseDto {
+    @PostMapping("/toPayOrder/{cartItemId}")
+    fun toPayOrder(@PathVariable cartItemId: Long): OrderResponseDto {
         return orderService.toPayOrder(cartItemId)
     }
 }
