@@ -22,8 +22,8 @@ data class OrderItemResponseDto(
 
 fun OrderItem.toResponseDto() = OrderItemResponseDto(
     id = this.id ?: -1,
-    productId = this.product.id ?: -1,
-    productName = this.product.name,
+    productId = this.product?.id ?: -1,
+    productName = this.product?.name.toString(),
     unitPrice = this.price,
     quantity = this.quantity,
     subtotal = this.price.multiply(BigDecimal(this.quantity))

@@ -85,12 +85,12 @@ class OrderService(
         if (order.status == OrderStatus.TO_PAY || order.status == OrderStatus.CONFIRMED) {
             order.status = OrderStatus.CANCELLED
 
-            order.orderItems.forEach {
-                it.product.stock += it.quantity
+            order.orderItems.forEach { item ->
+                item.product?.let { it.stock += item.quantity }
             }
             return order.toResponseDto()
         } else {
-            throw IllegalStateException("Cannot cancel an order that has already been ${order.status}")
+            throw BusinessValidationException("Cannot cancel an order that has already been ${order.status}")
         }
     }
 
@@ -110,35 +110,38 @@ class OrderService(
             ?: throw ResourceNotFoundException("Cart Item not found")
 
 
-        validateCartItemForCheckout(
-            isActive = cartItem.product.isActive,
-            quantity = cartItem.quantity,
-            stock = cartItem.product.stock
-        )
+        cartItem.product?.let {
+            validateCartItemForCheckout(
+                isActive = it.isActive,
+                quantity = cartItem.quantity,
+                stock = it.stock
+            )
+        } ?: throw ResourceNotFoundException("Cart Item does not have any product")
 
 
-        val order = Order(
+
+        val saveOrder = Order(
             orderDate = Date(),
             totalAmount = cartItem.price,
             status = OrderStatus.TO_PAY,
-            user = cartItem.cart.user,
+            user = cartItem.cart?.user,
             orderItems = mutableSetOf(),
             payment = null,
             shipment = null
         )
 
-        val orderItem = OrderItem(
-            quantity = cartItem.quantity,
-            order = order,
-            product = cartItem.product,
-            price = cartItem.price,
-        )
+        val orderItem = OrderItem().apply {
+            quantity = cartItem.quantity
+            order = saveOrder
+            product = cartItem.product
+            price = cartItem.price
+        }
 
-        order.orderItems.add(orderItem)
-        cartItem.product.stock -= cartItem.quantity
-        cartItem.cart.cartItems.remove(cartItem)
+        saveOrder.orderItems.add(orderItem)
+        cartItem.product?.let { it.stock -= cartItem.quantity }
+        cartItem.cart?.cartItems?.remove(cartItem)
 
-        return orderRepository.save(order).toResponseDto()
+        return orderRepository.save(saveOrder).toResponseDto()
     }
 
     private fun validateCartItemForCheckout(isActive: Boolean, quantity: Int, stock: Int) {

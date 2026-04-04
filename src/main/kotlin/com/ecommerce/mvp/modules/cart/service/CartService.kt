@@ -64,24 +64,21 @@ class CartService(
         user.cart?.let { userCart ->
 
             requestDto.productId?.let { productId ->
-                val product = productRepository.findById(productId)
+                val requestProduct = productRepository.findById(productId)
                     .orElseThrow { ResourceNotFoundException("Product not found with id: ${productId}") }
 
-                validateQuantityStock(requestDto.quantity, product.stock)
+                validateQuantityStock(requestDto.quantity, requestProduct.stock)
 
-                //val cart = Cart(user = user)
-
-                val cartItem = CartItem(
-                    product = product,
-                    quantity = requestDto.quantity,
-                    price = product.price,
+                val cartItem = CartItem().apply {
+                    product = requestProduct
+                    quantity = requestDto.quantity
+                    price = requestProduct.price
                     cart = userCart
-                )
-                userCart.cartItems.add(cartItem)
-                return userCart.toResponseDto()
+                }
 
-                /*val savedCart = cartRepository.save(userCart)
-                return savedCart.toResponseDto()*/
+                val savedCartItem = cartItemRepository.save(cartItem)
+                userCart.cartItems.add(savedCartItem)
+                return userCart.toResponseDto()
 
             } ?: run { throw BusinessValidationException("Product Id must not be null") }
         } ?: run { throw BusinessValidationException("No cart found for user: $email, need to create cart first for add item to cart") }
