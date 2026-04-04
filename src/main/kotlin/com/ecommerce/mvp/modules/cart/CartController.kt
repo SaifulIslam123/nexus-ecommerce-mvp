@@ -36,8 +36,8 @@ class CartController(
     }
 
     @PostMapping("/add-to-cart")
-    fun addCart(@Valid @RequestBody cartItemRequestDto: CartItemRequestDto) {
-        cartService.addItemToCart(cartItemRequestDto)
+    fun addCart(@Valid @RequestBody cartItemRequestDto: CartItemRequestDto): CartResponseDto {
+        return cartService.addItemToCart(cartItemRequestDto)
     }
 
     /**

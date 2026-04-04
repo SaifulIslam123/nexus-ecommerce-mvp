@@ -3,6 +3,7 @@ package com.ecommerce.mvp.modules.cart.model.entity
 import com.ecommerce.mvp.common.entity.audit.BaseEntityAudit
 import com.ecommerce.mvp.modules.user.model.entity.User
 import jakarta.persistence.*
+import lombok.ToString
 
 @Entity
 @Table(name = "carts")
@@ -12,6 +13,7 @@ data class Cart(
     var user: User,
 
     @OneToMany(mappedBy = "cart", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    @ToString.Exclude
     var cartItems: MutableSet<CartItem> = mutableSetOf()
 
 ) : BaseEntityAudit()
