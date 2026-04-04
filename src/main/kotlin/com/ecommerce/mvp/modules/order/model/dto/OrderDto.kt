@@ -5,6 +5,7 @@ import com.ecommerce.mvp.modules.order.model.entity.OrderItem
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.payment.model.entity.Payment
 import com.ecommerce.mvp.modules.order.model.entity.Shipment
+import com.ecommerce.mvp.modules.payment.model.entity.PaymentStatus
 import java.math.BigDecimal
 import java.util.Date
 
@@ -21,8 +22,8 @@ data class OrderItemResponseDto(
 
 fun OrderItem.toResponseDto() = OrderItemResponseDto(
     id = this.id ?: -1,
-    productId = this.product?.id ?: -1,
-    productName = this.product?.name ?: "",
+    productId = this.product.id ?: -1,
+    productName = this.product.name,
     unitPrice = this.price,
     quantity = this.quantity,
     subtotal = this.price.multiply(BigDecimal(this.quantity))
@@ -34,14 +35,18 @@ data class PaymentResponseDto(
     val id: Long,
     val method: String?,
     val amount: BigDecimal,
-    val transactionId: String?
+    val transactionId: String?,
+    val status: PaymentStatus?,
+    val orderId: Long?,
 )
 
 fun Payment.toResponseDto() = PaymentResponseDto(
     id = this.id ?: -1,
     method = this.method,
     amount = this.amount,
-    transactionId = this.transactionId
+    transactionId = this.transactionId,
+    status = this.status,
+    orderId = this.order?.id
 )
 
 // ── Shipment ──────────────────────────────────────────────────────────────────
