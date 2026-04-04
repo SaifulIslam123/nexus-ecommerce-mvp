@@ -19,6 +19,11 @@ class CartController(
     private val cartService: CartService
 ) {
 
+    @PostMapping
+    fun createCartForUser(): CartResponseDto {
+        return cartService.createCartForUser()
+    }
+
     /**
      * GET /api/cart
      *
@@ -30,7 +35,7 @@ class CartController(
         return cartService.getCart()
     }
 
-    @PostMapping
+    @PostMapping("/add-to-cart")
     fun addCart(@Valid @RequestBody cartItemRequestDto: CartItemRequestDto) {
         cartService.addItemToCart(cartItemRequestDto)
     }

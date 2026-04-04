@@ -23,6 +23,23 @@ class CartService(
     private val cartItemRepository: CartItemRepository
 ) {
 
+    @Transactional
+    fun createCartForUser(): CartResponseDto {
+        val email = SecurityContextHolder.getContext().authentication?.name
+            ?: throw ResourceNotFoundException("Authenticated user not found")
+
+        val user = userRepository.findByUserEmail(email)
+            ?: throw ResourceNotFoundException("User not found with email: $email")
+
+        val userCart = cartRepository.findByUserEmail(email)
+        userCart?.let {
+            throw BusinessValidationException("User cart already exists with id: ${it.id}")
+        } ?: run {
+            val cart = Cart(user = user)
+           return cartRepository.save(cart).toResponseDto()
+        }
+    }
+
     /**
      * Returns the cart (with calculated totals) for the currently
      * authenticated user.  Throws [ResourceNotFoundException] if the
