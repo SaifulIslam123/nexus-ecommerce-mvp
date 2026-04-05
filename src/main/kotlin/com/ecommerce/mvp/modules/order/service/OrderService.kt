@@ -2,7 +2,6 @@ package com.ecommerce.mvp.modules.order.service
 
 import com.ecommerce.mvp.common.exception.BusinessValidationException
 import com.ecommerce.mvp.common.exception.ResourceNotFoundException
-import com.ecommerce.mvp.modules.cart.model.entity.CartItem
 import com.ecommerce.mvp.modules.cart.repository.CartItemRepository
 import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.dto.toResponseDto
@@ -10,7 +9,6 @@ import com.ecommerce.mvp.modules.order.model.entity.Order
 import com.ecommerce.mvp.modules.order.model.entity.OrderItem
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
-import com.ecommerce.mvp.modules.user.repository.UserRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -85,8 +83,8 @@ class OrderService(
         if (order.status == OrderStatus.TO_PAY || order.status == OrderStatus.CONFIRMED) {
             order.status = OrderStatus.CANCELLED
 
-            order.orderItems.forEach { item ->
-                item.product?.let { it.stock += item.quantity }
+            order.orderItems.forEach { order ->
+                order.product?.let { it.stock += order.quantity }
             }
             return order.toResponseDto()
         } else {
@@ -119,8 +117,7 @@ class OrderService(
         } ?: throw ResourceNotFoundException("Cart Item does not have any product")
 
 
-
-        val saveOrder = Order(
+        val toPayOrder = Order(
             orderDate = Date(),
             totalAmount = cartItem.price,
             status = OrderStatus.TO_PAY,
@@ -132,16 +129,18 @@ class OrderService(
 
         val orderItem = OrderItem().apply {
             quantity = cartItem.quantity
-            order = saveOrder
+            order = toPayOrder
             product = cartItem.product
             price = cartItem.price
         }
 
-        saveOrder.orderItems.add(orderItem)
+        toPayOrder.orderItems.add(orderItem)
         cartItem.product?.let { it.stock -= cartItem.quantity }
         cartItem.cart?.cartItems?.remove(cartItem)
 
-        return orderRepository.save(saveOrder).toResponseDto()
+        val saveOrder = orderRepository.save(toPayOrder)
+
+        return saveOrder.toResponseDto()
     }
 
     private fun validateCartItemForCheckout(isActive: Boolean, quantity: Int, stock: Int) {

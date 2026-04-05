@@ -70,9 +70,9 @@ class PaymentService(
         payment.transactionId = requestDto.transactionId
         payment.amount = requestDto.totalAmount
         payment.order = order
-        paymentRepository.save(payment)
+        val savePayment = paymentRepository.save(payment)
 
-        return payment.toResponseDto()
+        return savePayment.toResponseDto()
     }
 
 }
