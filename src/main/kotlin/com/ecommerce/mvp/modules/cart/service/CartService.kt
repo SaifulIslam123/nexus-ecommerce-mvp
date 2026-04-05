@@ -130,14 +130,10 @@ class CartService(
         val cartItem = cartItemRepository.findByIdAndUserEmail(itemId, email)
             ?: throw ResourceNotFoundException("Cart item not found with id: $itemId")
 
-        val cartId = cartItem.cart?.id
+        cartItem.cart?.cartItems?.remove(cartItem) // orphanRemoval triggers DELETE for CartItem rows
+
+        return cartItem.cart?.toResponseDto()
             ?: throw ResourceNotFoundException("Cart not found for item: $itemId")
-
-        cartItemRepository.delete(cartItem)
-
-        return cartRepository.findById(cartId).orElseThrow {
-            ResourceNotFoundException("Cart not found")
-        }.toResponseDto()
     }
 
     /**
@@ -159,7 +155,7 @@ class CartService(
 
         cart.cartItems.clear()  // orphanRemoval triggers DELETE for all CartItem rows
 
-        return cartRepository.save(cart).toResponseDto()
+        return cart.toResponseDto()
     }
 
     private fun validateQuantityStock(requestStock: Int, productStock: Int) {
