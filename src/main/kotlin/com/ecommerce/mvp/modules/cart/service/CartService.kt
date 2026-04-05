@@ -108,14 +108,9 @@ class CartService(
        validateQuantityStock(requestDto.quantity, product.stock)
 
         cartItem.quantity = requestDto.quantity
-        cartItemRepository.save(cartItem)
 
-        val cartId = cartItem.cart?.id
+        return cartItem.cart?.toResponseDto()
             ?: throw ResourceNotFoundException("Cart not found for item: $itemId")
-
-        return cartRepository.findById(cartId).orElseThrow {
-            ResourceNotFoundException("Cart not found")
-        }.toResponseDto()
     }
 
     /**
