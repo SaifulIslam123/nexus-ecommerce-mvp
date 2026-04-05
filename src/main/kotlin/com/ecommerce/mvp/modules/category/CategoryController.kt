@@ -29,22 +29,19 @@ class CategoryController(
 
     @PostMapping("/create")
     fun createCategory(@Valid @RequestBody categoryDto: CategoryDto): CategoryDto {
-        return categoryService.createCategory(categoryDto).toDto()
+        return categoryService.createCategory(categoryDto)
     }
 
     @PutMapping("/{id}")
     fun updateCategory(
         @PathVariable id: Long,
-        @Valid @RequestBody categoryDto: CategoryDto
+        @RequestBody categoryDto: CategoryDto
     ): CategoryDto {
-        return categoryService.updateCategory(id, categoryDto).toDto()
+        return categoryService.updateCategory(id, categoryDto)
     }
 
     @DeleteMapping("/{id}")
-    fun deleteCategory(@PathVariable id: Long): ResponseEntity<Void> {
-
-        categoryService.deleteById(id)
-        return ResponseEntity.noContent().build()
-
+    fun deleteCategory(@PathVariable id: Long): List<CategoryTreeResponseDto> {
+        return categoryService.deleteById(id)
     }
 }
