@@ -4,9 +4,9 @@ import com.ecommerce.mvp.common.exception.ResourceAlreadyExistException
 import com.ecommerce.mvp.common.exception.ResourceNotFoundException
 import com.ecommerce.mvp.modules.category.dto.CategoryDto
 import com.ecommerce.mvp.modules.category.dto.CategoryTreeResponseDto
+import com.ecommerce.mvp.modules.category.dto.toDto
 import com.ecommerce.mvp.modules.category.dto.toEntity
 import com.ecommerce.mvp.modules.category.dto.toTreeDto
-import com.ecommerce.mvp.modules.category.dto.updateFrom
 import com.ecommerce.mvp.modules.category.entity.Category
 import com.ecommerce.mvp.modules.category.repository.CategoryRepository
 import org.springframework.stereotype.Service
@@ -35,36 +35,44 @@ class CategoryService(
     }
 
     @Transactional
-    fun createCategory(categoryDto: CategoryDto): Category {
+    fun createCategory(categoryDto: CategoryDto): CategoryDto {
         // Check if category with same name already exists
         if (categoryRepository.existsByName(categoryDto.name?:"")) {
             throw ResourceAlreadyExistException("Category with name '${categoryDto.name}' already exists")
         }
 
         val category = categoryDto.toEntity()
-        return categoryRepository.save(category)
+        val savedCategory = categoryRepository.save(category)
+        return savedCategory.toDto()
     }
 
     @Transactional
-    fun updateCategory(id: Long, categoryDto: CategoryDto): Category {
+    fun updateCategory(id: Long, categoryDto: CategoryDto): CategoryDto {
         val existingCategory = categoryRepository.findById(id).orElse(null)
-            ?: throw ResourceNotFoundException("Category with id $id not found")
+            ?: run { throw ResourceNotFoundException("Category with id $id not found") }
 
-        // Check if updating to a name that already exists (excluding current category)
-        if (categoryDto.name != existingCategory.name && categoryRepository.existsByName(categoryDto.name ?: "")) {
-            throw ResourceAlreadyExistException("Category with name '${categoryDto.name}' already exists")
+        categoryDto.name?.let { name ->
+         /*   // Check if updating to a name that already exists (excluding current category)
+            if (name != existingCategory.name && categoryRepository.existsByName(name)) {
+                throw ResourceAlreadyExistException("Category with name '${name}' already exists")
+            }*/
+            existingCategory.name = name
         }
 
-        existingCategory.updateFrom(categoryDto)
-        return categoryRepository.save(existingCategory)
+        categoryDto.description?.let { description ->
+            existingCategory.description = description
+        }
+
+        return existingCategory.toDto()
     }
 
     @Transactional
-    fun deleteById(id: Long) {
+    fun deleteById(id: Long): List<CategoryTreeResponseDto> {
         if (!categoryRepository.existsById(id)) {
             throw ResourceNotFoundException("Category with id $id not found")
         }
         categoryRepository.deleteById(id)
+        return getCategoryTree()
     }
 
 }
