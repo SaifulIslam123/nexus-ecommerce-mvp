@@ -13,7 +13,6 @@ class Cart(
     var user: User,
 
     @OneToMany(mappedBy = "cart", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    @ToString.Exclude
     var cartItems: MutableSet<CartItem> = mutableSetOf()
 
 ) : BaseEntityAudit()
