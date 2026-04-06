@@ -18,7 +18,6 @@ import com.ecommerce.mvp.modules.user.model.dto.UserProfileUpdateDto
 import com.ecommerce.mvp.modules.user.model.dto.toAddressDto
 import com.ecommerce.mvp.modules.user.model.dto.toUserDto
 import com.ecommerce.mvp.modules.user.model.entity.Address
-import com.ecommerce.mvp.modules.user.repository.AddressRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import java.time.LocalDateTime
 import java.util.Collections
@@ -27,7 +26,6 @@ import java.util.Collections
 class UserService(
     private val userRepository: UserRepository,
     private val roleRepository: RoleRepository,
-    private val addressRepository: AddressRepository
 ) {
     var dbRoleList: MutableList<Role> = Collections.emptyList();
 
@@ -113,7 +111,7 @@ class UserService(
                 throw BusinessValidationException("Only ${MAX_Address - user.addresses.size} addresses can add")
             } else {
                 for (it in updateDtoAddresses) {
-                    val address =  Address().apply { this.user = user }
+                    val address = Address().apply { this.user = user }
                     address.street = it.street
                     address.city = it.city
                     address.zip = it.zip
@@ -124,12 +122,11 @@ class UserService(
             }
         }
 
-        userRepository.save<User>(user)
         return user.toUserDto()
     }
 
     @Transactional
-    fun addAddress(addressRequestDto: AddressDto): AddressDto {
+    fun addAddress(addressRequestDto: AddressDto): UserDto {
         val email = SecurityContextHolder.getContext().authentication?.name
         val user = userRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
 
@@ -145,21 +142,24 @@ class UserService(
             this.user = user
         }
 
-        val savedAddress = addressRepository.save(address)
-        return savedAddress.toAddressDto()
+        user.addresses.add(address)
+        val savedUser = userRepository.save(user)
+
+        return savedUser.toUserDto()
     }
 
     @Transactional
-    fun deleteAddress(addressId: Long) {
+    fun deleteAddress(addressId: Long): UserDto {
         val email = SecurityContextHolder.getContext().authentication?.name
-        val user = userRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
+        val user = userRepository.findByUserEmailAndAddressId(email, addressId)
+            ?: throw ResourceNotFoundException("Address not found with id: $addressId")
 
-        val address = addressRepository
-            .findByIdAndUserIdAndDeletedAtIsNull(addressId, user.id!!)
-            .orElseThrow { ResourceNotFoundException("Address not found with id: $addressId") }
+        user.addresses.first().let {
+            it.deletedAt = LocalDateTime.now()
+        }
 
-        address.deletedAt = LocalDateTime.now()
-        addressRepository.save(address)
+        //TODO: Fix return response issue
+        return user.toUserDto()
     }
 
 }

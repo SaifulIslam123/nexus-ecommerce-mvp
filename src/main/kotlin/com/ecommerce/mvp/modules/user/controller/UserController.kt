@@ -28,15 +28,14 @@ class UserController(
     }
 
     @PostMapping("/me/addresses")
-    fun addAddress(@Valid @RequestBody addressRequestDto: AddressDto): AddressDto {
+    fun addAddress(@Valid @RequestBody addressRequestDto: AddressDto): UserDto {
         val savedAddress = userService.addAddress(addressRequestDto)
         return savedAddress
     }
 
     @DeleteMapping("/me/addresses/{id}")
-    fun deleteAddress(@PathVariable id: Long): ResponseEntity<Void> {
-        userService.deleteAddress(id)
-        return ResponseEntity.noContent().build()
+    fun deleteAddress(@PathVariable id: Long): UserDto {
+        return userService.deleteAddress(id)
     }
 
 }
