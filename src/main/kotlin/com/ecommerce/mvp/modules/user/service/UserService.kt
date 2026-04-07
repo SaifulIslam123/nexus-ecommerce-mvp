@@ -151,15 +151,19 @@ class UserService(
     @Transactional
     fun deleteAddress(addressId: Long): UserDto {
         val email = SecurityContextHolder.getContext().authentication?.name
-        val user = userRepository.findByUserEmailAndAddressId(email, addressId)
-            ?: throw ResourceNotFoundException("Address not found with id: $addressId")
+        val user = userRepository.findByUserEmailWithAddresses(email)
+        user?.let {
+            user.addresses.takeIf { it.isNotEmpty() }?.let {
+                val address = it.find { addr -> addr.id == addressId }
+                address?.let { addr ->
+                    addr.deletedAt = LocalDateTime.now()
+                } ?: throw ResourceNotFoundException("Address not found")
+            } ?: throw ResourceNotFoundException("No addresses found for the user")
 
-        user.addresses.first().let {
-            it.deletedAt = LocalDateTime.now()
-        }
+            return user.toUserDto()
+        }?: throw ResourceNotFoundException("User not found")
 
-        //TODO: Fix return response issue
-        return user.toUserDto()
+
     }
 
 }
