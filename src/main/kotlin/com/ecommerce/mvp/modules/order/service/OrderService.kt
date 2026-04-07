@@ -143,6 +143,35 @@ class OrderService(
         return saveOrder.toResponseDto()
     }
 
+    /**
+     * Transitions an order from [OrderStatus.CONFIRMED] to [OrderStatus.PROCESSING].
+     *
+     * This is an admin operation — it signals that the warehouse has started
+     * picking, packing, or manufacturing the items for the given order.
+     *
+     * Allowed transition:  CONFIRMED → PROCESSING
+     *
+     * Throws [ResourceNotFoundException] if no order with [orderId] exists.
+     * Throws [BusinessValidationException] if the order is not in CONFIRMED status.
+     */
+    @Transactional
+    fun markAsProcessing(orderId: Long): OrderResponseDto {
+
+        val order = orderRepository.findById(orderId)
+            .orElseThrow { throw ResourceNotFoundException("Order not found with id: $orderId") }
+
+
+        if (order.status != OrderStatus.CONFIRMED) {
+            throw BusinessValidationException(
+                "Order can only move to PROCESSING from CONFIRMED status. Current status: ${order.status}"
+            )
+        }
+
+        order.status = OrderStatus.PROCESSING
+
+        return order.toResponseDto()
+    }
+
     private fun validateCartItemForCheckout(isActive: Boolean, quantity: Int, stock: Int) {
         if (!isActive)
             throw BusinessValidationException("This product is currently unavailable for purchase in order")

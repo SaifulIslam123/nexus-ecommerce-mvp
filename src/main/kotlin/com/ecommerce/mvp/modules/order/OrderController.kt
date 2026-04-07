@@ -57,4 +57,20 @@ class OrderController(
     fun toPayOrder(@PathVariable cartItemId: Long): OrderResponseDto {
         return orderService.toPayOrder(cartItemId)
     }
+
+    /**
+     * PUT /api/orders/{id}/processing
+     *
+     * Admin operation. Transitions a CONFIRMED order to PROCESSING,
+     * signalling that the warehouse has started preparing the shipment.
+     *
+     * Allowed transition:  CONFIRMED → PROCESSING
+     *
+     * Responds with 404 if the order does not exist.
+     * Responds with 409 Conflict if the order is not in CONFIRMED status.
+     */
+    @PutMapping("/{id}/processing")
+    fun markAsProcessing(@PathVariable id: Long): OrderResponseDto {
+        return orderService.markAsProcessing(id)
+    }
 }
