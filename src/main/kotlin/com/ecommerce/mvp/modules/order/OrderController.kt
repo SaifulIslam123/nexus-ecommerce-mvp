@@ -1,7 +1,8 @@
 package com.ecommerce.mvp.modules.order
 import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
+import com.ecommerce.mvp.modules.order.model.dto.ShipOrderRequestDto
 import com.ecommerce.mvp.modules.order.service.OrderService
-import org.springframework.http.ResponseEntity
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/orders")
@@ -54,8 +55,8 @@ class OrderController(
     }
 
     @PostMapping("/toPayOrder/{cartItemId}")
-    fun toPayOrder(@PathVariable cartItemId: Long): OrderResponseDto {
-        return orderService.toPayOrder(cartItemId)
+    fun toPayOrder(@PathVariable cartItemId: Long, @RequestBody addressId: Long?): OrderResponseDto {
+        return orderService.toPayOrder(cartItemId, addressId)
     }
 
     /**
@@ -72,5 +73,24 @@ class OrderController(
     @PutMapping("/{id}/processing")
     fun markAsProcessing(@PathVariable id: Long): OrderResponseDto {
         return orderService.markAsProcessing(id)
+    }
+
+    /**
+     * PUT /api/orders/{id}/shipped
+     *
+     * Admin/courier operation. Transitions a PROCESSING order to SHIPPED
+     * and creates the shipment record with the carrier's tracking number.
+     *
+     * Allowed transition:  PROCESSING → SHIPPED
+     *
+     * Responds with 404 if the order does not exist.
+     * Responds with 409 Conflict if the order is not in PROCESSING status.
+     */
+    @PutMapping("/{id}/shipped")
+    fun markAsShipped(
+        @PathVariable id: Long,
+        @Valid @RequestBody requestDto: ShipOrderRequestDto
+    ): OrderResponseDto {
+        return orderService.markAsShipped(id, requestDto)
     }
 }

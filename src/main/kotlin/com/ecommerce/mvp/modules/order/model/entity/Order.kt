@@ -2,6 +2,7 @@ package com.ecommerce.mvp.modules.order.model.entity
 
 import com.ecommerce.mvp.common.entity.audit.BaseEntityAudit
 import com.ecommerce.mvp.modules.payment.model.entity.Payment
+import com.ecommerce.mvp.modules.user.model.entity.Address
 import com.ecommerce.mvp.modules.user.model.entity.User
 import jakarta.persistence.*
 import java.math.BigDecimal
@@ -33,7 +34,11 @@ data class Order(
     var payment: Payment? = null,
 
     @OneToOne(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    var shipment: Shipment? = null
+    var shipment: Shipment? = null,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shipment_address_id", nullable = false)
+    var shipmentAddress: Address
 
 ) : BaseEntityAudit()
 

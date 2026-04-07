@@ -1,15 +1,13 @@
 package com.ecommerce.mvp.modules.order.model.entity
 
 import com.ecommerce.mvp.common.entity.audit.BaseEntityAudit
+import com.ecommerce.mvp.modules.user.model.entity.Address
 import jakarta.persistence.*
 
 
 @Entity
 @Table(name = "shipments")
 class Shipment : BaseEntityAudit() {
-
-    @Column(nullable = false, columnDefinition = "TEXT")
-    var address: String? = null
 
     @Column(nullable = false)
     var status: String? = null

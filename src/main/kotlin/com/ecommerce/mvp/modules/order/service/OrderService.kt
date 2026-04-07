@@ -4,10 +4,12 @@ import com.ecommerce.mvp.common.exception.BusinessValidationException
 import com.ecommerce.mvp.common.exception.ResourceNotFoundException
 import com.ecommerce.mvp.modules.cart.repository.CartItemRepository
 import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
+import com.ecommerce.mvp.modules.order.model.dto.ShipOrderRequestDto
 import com.ecommerce.mvp.modules.order.model.dto.toResponseDto
 import com.ecommerce.mvp.modules.order.model.entity.Order
 import com.ecommerce.mvp.modules.order.model.entity.OrderItem
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
+import com.ecommerce.mvp.modules.order.model.entity.Shipment
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
@@ -99,14 +101,17 @@ class OrderService(
     *
     * */
     @Transactional
-    fun toPayOrder(cartItemId: Long): OrderResponseDto {
+    fun toPayOrder(cartItemId: Long, addressId: Long?): OrderResponseDto {
 
         val email = SecurityContextHolder.getContext().authentication?.name
             ?: throw ResourceNotFoundException("Authenticated user not found")
 
-        val cartItem = cartItemRepository.findByIdAndUserEmail(cartItemId, email)
-            ?: throw ResourceNotFoundException("Cart Item not found")
+        if (addressId == null) {
+            throw BusinessValidationException("Order shipment address not found")
+        }
 
+        val cartItem = cartItemRepository.findByIdAndUserEmailAndUserAddressId(cartItemId, email, addressId)
+            ?: throw ResourceNotFoundException("Cart Item not found")
 
         cartItem.product?.let {
             validateCartItemForCheckout(
@@ -116,7 +121,6 @@ class OrderService(
             )
         } ?: throw ResourceNotFoundException("Cart Item does not have any product")
 
-
         val toPayOrder = Order(
             orderDate = Date(),
             totalAmount = cartItem.price,
@@ -124,7 +128,8 @@ class OrderService(
             user = cartItem.cart?.user,
             orderItems = mutableSetOf(),
             payment = null,
-            shipment = null
+            shipment = null,
+            shipmentAddress = cartItem.cart?.user?.addresses?.first()!!
         )
 
         val orderItem = OrderItem().apply {
@@ -168,6 +173,47 @@ class OrderService(
         }
 
         order.status = OrderStatus.PROCESSING
+
+        return order.toResponseDto()
+    }
+
+    /**
+     * Transitions an order from [OrderStatus.PROCESSING] to [OrderStatus.SHIPPED]
+     * and creates the associated [Shipment] record for the order.
+     *
+     * This is an admin/courier operation — it signals that the package has been
+     * handed over to the shipping carrier with a tracking number.
+     *
+     * Allowed transition:  PROCESSING → SHIPPED
+     *
+     * Because [Order.shipment] is declared with [CascadeType.ALL], assigning the
+     * new [Shipment] to the managed [Order] entity is enough — Hibernate will
+     * INSERT the shipment row automatically when the transaction commits,
+     * without needing a separate shipment repository call.
+     *
+     * Throws [ResourceNotFoundException] if no order with [orderId] exists.
+     * Throws [BusinessValidationException] if the order is not in PROCESSING status.
+     */
+    @Transactional
+    fun markAsShipped(orderId: Long, requestDto: ShipOrderRequestDto): OrderResponseDto {
+
+        val order = orderRepository.findById(orderId)
+            .orElseThrow { throw ResourceNotFoundException("Order not found with id: $orderId") }
+
+        if (order.status != OrderStatus.PROCESSING) {
+            throw BusinessValidationException(
+                "Order can only move to SHIPPED from PROCESSING status. Current status: ${order.status}"
+            )
+        }
+
+        val shipment = Shipment().apply {
+            trackingId = requestDto.trackingId
+            status = OrderStatus.SHIPPED.name   // "SHIPPED" stored as a string
+            this.order = order
+        }
+
+        order.shipment = shipment               // CascadeType.ALL inserts the Shipment row
+        order.status = OrderStatus.SHIPPED      // dirty checking updates the Order row
 
         return order.toResponseDto()
     }

@@ -1,6 +1,7 @@
 package com.ecommerce.mvp.modules.user.service
 
 import com.ecommerce.mvp.common.AppConstant.MAX_Address
+import com.ecommerce.mvp.common.AppConstant.MIN_Address
 import com.ecommerce.mvp.common.exception.BusinessValidationException
 import com.ecommerce.mvp.common.exception.ResourceNotFoundException
 import com.ecommerce.mvp.modules.role.model.entity.ERole
@@ -154,6 +155,11 @@ class UserService(
         val user = userRepository.findByUserEmailWithAddresses(email)
         user?.let {
             user.addresses.takeIf { it.isNotEmpty() }?.let {
+
+                if (it.size == MIN_Address) {
+                    throw BusinessValidationException("At least $MIN_Address address is required. Please add a new address before removing the existing one.")
+                }
+
                 val address = it.find { addr -> addr.id == addressId }
                 address?.let { addr ->
                     addr.deletedAt = LocalDateTime.now()

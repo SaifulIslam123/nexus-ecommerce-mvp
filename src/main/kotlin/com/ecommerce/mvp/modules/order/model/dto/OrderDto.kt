@@ -6,6 +6,9 @@ import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.payment.model.entity.Payment
 import com.ecommerce.mvp.modules.order.model.entity.Shipment
 import com.ecommerce.mvp.modules.payment.model.entity.PaymentStatus
+import com.ecommerce.mvp.modules.user.model.dto.AddressDto
+import com.ecommerce.mvp.modules.user.model.dto.toAddressDto
+import jakarta.validation.constraints.NotBlank
 import java.math.BigDecimal
 import java.util.Date
 
@@ -51,16 +54,23 @@ fun Payment.toResponseDto() = PaymentResponseDto(
 
 // ── Shipment ──────────────────────────────────────────────────────────────────
 
+/**
+ * Request body for the "mark as shipped" admin endpoint.
+ * [trackingId] is the tracking number assigned by the carrier.
+ */
+data class ShipOrderRequestDto(
+    @field:NotBlank(message = "Tracking ID must not be blank")
+    val trackingId: String
+)
+
 data class ShipmentResponseDto(
     val id: Long,
-    val address: String?,
     val status: String?,
     val trackingId: String?
 )
 
 fun Shipment.toResponseDto() = ShipmentResponseDto(
     id = this.id ?: -1,
-    address = this.address,
     status = this.status,
     trackingId = this.trackingId
 )
@@ -74,7 +84,8 @@ data class OrderResponseDto(
     val status: OrderStatus,
     val items: List<OrderItemResponseDto>,
     val payment: PaymentResponseDto?,
-    val shipment: ShipmentResponseDto?
+    val shipment: ShipmentResponseDto?,
+    val shipmentAddress: AddressDto?
 )
 
 fun Order.toResponseDto() = OrderResponseDto(
@@ -84,6 +95,7 @@ fun Order.toResponseDto() = OrderResponseDto(
     status = this.status,
     items = this.orderItems.map { it.toResponseDto() },
     payment = this.payment?.toResponseDto(),
-    shipment = this.shipment?.toResponseDto()
+    shipment = this.shipment?.toResponseDto(),
+    shipmentAddress = this.shipmentAddress?.toAddressDto()
 )
 
