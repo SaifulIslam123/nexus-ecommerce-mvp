@@ -1,12 +1,19 @@
 package com.ecommerce.mvp.modules.order.repository
 
+import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.entity.Order
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
+import java.util.Date
 
 @Repository
 interface OrderRepository : JpaRepository<Order, Long> {
+
+    fun findByOrderDate( date: Date): List<Order>
+
+   // fun findByIdInOrderDateBetween(orderId: Long, startDate: Date, endDate: Date): List<Order>
+
 
     /**
      * Finds an order by its ID, but only if it belongs to the authenticated user.

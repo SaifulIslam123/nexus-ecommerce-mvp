@@ -6,6 +6,7 @@ import com.ecommerce.mvp.modules.user.model.entity.Address
 import com.ecommerce.mvp.modules.user.model.entity.User
 import jakarta.persistence.*
 import java.math.BigDecimal
+import java.time.LocalDateTime
 import java.util.*
 
 
@@ -14,7 +15,7 @@ import java.util.*
 data class Order(
     @field:Temporal(TemporalType.TIMESTAMP)
     @field:Column(nullable = false)
-    var orderDate: Date = Date(),
+    var orderDate: LocalDateTime = LocalDateTime.now(),
 
     @Column(nullable = false, precision = 10, scale = 2)
     var totalAmount: BigDecimal = BigDecimal.ZERO,
@@ -37,8 +38,8 @@ data class Order(
     var shipment: Shipment? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shipment_address_id", nullable = false)
-    var shipmentAddress: Address
+    @JoinColumn(name = "shipment_address_id")
+    var shipmentAddress: Address? = null
 
 ) : BaseEntityAudit()
 

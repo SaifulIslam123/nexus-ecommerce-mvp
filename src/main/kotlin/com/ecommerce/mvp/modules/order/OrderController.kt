@@ -1,11 +1,12 @@
 package com.ecommerce.mvp.modules.order
+import com.ecommerce.mvp.common.response.ApiResponse
 import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.dto.ShipOrderRequestDto
 import com.ecommerce.mvp.modules.order.service.OrderService
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.*
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping("/api/users/orders")
 class OrderController(
     private val orderService: OrderService
 ) {
@@ -93,4 +94,17 @@ class OrderController(
     ): OrderResponseDto {
         return orderService.markAsShipped(id, requestDto)
     }
+
+    @GetMapping("/getTodayOrders")
+    fun getTodayOrders(): List<OrderResponseDto> {
+        return orderService.getDateOrder()
+    }
+
+    @DeleteMapping
+    fun deleteOrders(@RequestBody requestDto: Long): ApiResponse<String> {
+        orderService.deleteById(requestDto)
+        return ApiResponse(success = true, message = "Done",data = "Order with id $requestDto has been deleted successfully.")
+    }
+
+
 }
