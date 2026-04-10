@@ -10,7 +10,7 @@ import com.ecommerce.mvp.modules.user.model.dto.AddressDto
 import com.ecommerce.mvp.modules.user.model.dto.toAddressDto
 import jakarta.validation.constraints.NotBlank
 import java.math.BigDecimal
-import java.util.Date
+import java.time.Instant
 
 // ── Order Item ────────────────────────────────────────────────────────────────
 
@@ -79,7 +79,7 @@ fun Shipment.toResponseDto() = ShipmentResponseDto(
 
 data class OrderResponseDto(
     val id: Long,
-    val orderDate: Date,
+    val orderDate: Instant,
     val totalAmount: BigDecimal,
     val status: OrderStatus,
     val items: List<OrderItemResponseDto>,

@@ -2,7 +2,7 @@ package com.ecommerce.mvp.modules.product.model.dto
 
 import com.ecommerce.mvp.modules.product.model.entity.Product
 import java.math.BigDecimal
-import java.util.Date
+import java.time.Instant
 
 data class CategorySummaryDto(
     val id: Long?,
@@ -23,8 +23,8 @@ data class ProductResponseDto(
     val stock: Int,
     val description: String?,
     val category: CategorySummaryDto?,
-    val createdDate: Date?,
-    val modifiedDate: Date?,
+    val createdDate: Instant?,
+    val modifiedDate: Instant?,
     val tags: List<String>/*,
     val images: List<ProductImageResponseDto>*/
 )
