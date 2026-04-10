@@ -5,6 +5,8 @@ import com.ecommerce.mvp.modules.order.model.dto.ShipOrderRequestDto
 import com.ecommerce.mvp.modules.order.service.OrderService
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDate
+
 @RestController
 @RequestMapping("/api/users/orders")
 class OrderController(
@@ -106,5 +108,9 @@ class OrderController(
         return ApiResponse(success = true, message = "Done",data = "Order with id $requestDto has been deleted successfully.")
     }
 
-
+    // GET /orders/by-date?date=2026-04-10
+    @GetMapping("/by-date")
+    fun getOrdersByDate(@RequestParam date: LocalDate): List<OrderResponseDto> {
+        return orderService.getOrdersByDate(date)
+    }
 }

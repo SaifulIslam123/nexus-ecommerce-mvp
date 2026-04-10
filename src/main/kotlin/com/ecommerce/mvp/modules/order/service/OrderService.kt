@@ -15,6 +15,8 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
 
 @Service
 class OrderService(
@@ -239,6 +241,16 @@ class OrderService(
     }
 
 
+    // Service method
+    fun getOrdersByDate(date: LocalDate): List<OrderResponseDto> {
+        // Start of day in UTC:  2026-04-10T00:00:00Z
+        val start: Instant = date.atStartOfDay(ZoneOffset.UTC).toInstant()
+        // Start of NEXT day:    2026-04-11T00:00:00Z  (exclusive upper bound)
+        val end: Instant = date.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant()
+
+        return orderRepository.findByOrderDateBetween(start, end)
+            .map { it.toResponseDto() }
+    }
 }
 
 
