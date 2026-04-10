@@ -37,7 +37,9 @@ class JacksonConfig {
             val javaTimeModule = JavaTimeModule()
             javaTimeModule.addSerializer(Instant::class.java, InstantUtcSerializer())
 
-            builder.modules(javaTimeModule)
+            // modulesToInstall() ADDS to existing modules (keeps KotlinModule, JavaTimeModule, etc.)
+            // builder.modules() would REPLACE all modules and break Kotlin data class deserialization
+            builder.modulesToInstall(javaTimeModule)
             // Do not write dates as numeric timestamps
             builder.featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
             // Jackson's own timezone set to UTC (covers java.util.Date if any slips through)
