@@ -6,16 +6,14 @@ import com.ecommerce.mvp.modules.user.model.entity.Address
 import com.ecommerce.mvp.modules.user.model.entity.User
 import jakarta.persistence.*
 import java.math.BigDecimal
-import java.time.LocalDateTime
-import java.util.*
+import java.time.Instant
 
 
 @Entity
 @Table(name = "Orders")
 data class Order(
-    @field:Temporal(TemporalType.TIMESTAMP)
     @field:Column(nullable = false)
-    var orderDate: LocalDateTime = LocalDateTime.now(),
+    var orderDate: Instant = Instant.now(),
 
     @Column(nullable = false, precision = 10, scale = 2)
     var totalAmount: BigDecimal = BigDecimal.ZERO,

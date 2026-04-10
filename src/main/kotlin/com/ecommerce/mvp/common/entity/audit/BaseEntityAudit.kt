@@ -12,7 +12,7 @@ import org.springframework.data.annotation.LastModifiedBy
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.io.Serializable
-import java.util.Date
+import java.time.Instant
 
 @Getter
 @Setter
@@ -23,11 +23,11 @@ abstract class BaseEntityAudit(
 
     @Column(name = "created_date", nullable = false, updatable = false)
     @CreatedDate
-    var createdDate: Date? = null
+    var createdDate: Instant? = null
 
     @Column(name = "modified_date")
     @LastModifiedDate
-    var modifiedDate: Date? = null
+    var modifiedDate: Instant? = null
 
     @Column(name = "created_by")
     @CreatedBy

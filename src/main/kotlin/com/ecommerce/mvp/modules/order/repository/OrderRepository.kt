@@ -5,12 +5,12 @@ import com.ecommerce.mvp.modules.order.model.entity.Order
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
-import java.util.Date
+import java.time.Instant
 
 @Repository
 interface OrderRepository : JpaRepository<Order, Long> {
 
-    fun findByOrderDate( date: Date): List<Order>
+    fun findByOrderDate(date: Instant): List<Order>
 
    // fun findByIdInOrderDateBetween(orderId: Long, startDate: Date, endDate: Date): List<Order>
 

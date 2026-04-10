@@ -14,7 +14,7 @@ import com.ecommerce.mvp.modules.order.repository.OrderRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.*
+import java.time.Instant
 
 @Service
 class OrderService(
@@ -122,7 +122,7 @@ class OrderService(
         } ?: throw ResourceNotFoundException("Cart Item does not have any product")
 
         val toPayOrder = Order(
-            orderDate = Date(),
+            orderDate = Instant.now(),
             totalAmount = cartItem.price,
             status = OrderStatus.TO_PAY,
             user = cartItem.cart?.user,
@@ -234,7 +234,7 @@ class OrderService(
     @Transactional
     fun getDateOrder(): List<OrderResponseDto> {
 
-        val orderList = orderRepository.findByOrderDate( Date())
+        val orderList = orderRepository.findByOrderDate(Instant.now())
         return orderList.map { it.toResponseDto() }
     }
 
