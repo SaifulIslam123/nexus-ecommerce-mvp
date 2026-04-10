@@ -110,7 +110,10 @@ class OrderController(
 
     // GET /orders/by-date?date=2026-04-10
     @GetMapping("/by-date")
-    fun getOrdersByDate(@RequestParam date: LocalDate): List<OrderResponseDto> {
-        return orderService.getOrdersByDate(date)
+    fun getOrdersByDate(
+        @RequestParam startDate: LocalDate,
+        @RequestParam endDate: LocalDate? = null
+    ): List<OrderResponseDto> {
+        return orderService.getOrdersByDate(startDate, endDate)
     }
 }

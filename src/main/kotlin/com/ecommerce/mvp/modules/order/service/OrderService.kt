@@ -242,14 +242,22 @@ class OrderService(
 
 
     // Service method
-    fun getOrdersByDate(date: LocalDate): List<OrderResponseDto> {
+    fun getOrdersByDate(
+        startDate: LocalDate,
+        endDate: LocalDate? = null,
+    ): List<OrderResponseDto> {
         // Start of day in UTC:  2026-04-10T00:00:00Z
-        val start: Instant = date.atStartOfDay(ZoneOffset.UTC).toInstant()
-        // Start of NEXT day:    2026-04-11T00:00:00Z  (exclusive upper bound)
-        val end: Instant = date.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant()
+        val start: Instant = startDate.atStartOfDay(ZoneOffset.UTC).toInstant()
 
-        return orderRepository.findByOrderDateBetween(start, end)
-            .map { it.toResponseDto() }
+        endDate?.let {
+            val end: Instant = it.atStartOfDay(ZoneOffset.UTC).toInstant()
+            return orderRepository.findByOrderDateBetween(start, end)
+                .map { it.toResponseDto() }
+        } ?: run {
+            val end: Instant = startDate.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant()
+            return orderRepository.findByOrderDateBetween(start, end)
+                .map { it.toResponseDto() }
+        }
     }
 }
 
