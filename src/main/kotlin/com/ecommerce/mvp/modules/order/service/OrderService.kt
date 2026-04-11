@@ -285,6 +285,35 @@ class OrderService(
 
         return order.toResponseDto()
     }
+    /**
+     * Transitions an order from [OrderStatus.DELIVERED] to [OrderStatus.RECEIVED].
+     *
+     * This is user operation — it signals that the package has been
+     * successfully received by the customer from courier.
+     *
+     * Allowed transition:  DELIVERED → RECEIVED
+     *
+     * Throws [ResourceNotFoundException] if no order with [orderId] exists.
+     * Throws [BusinessValidationException] if the order is not in OUT_FOR_DELIVERY status.
+     */
+    @Transactional
+    fun markAsReceived(orderId: Long): OrderResponseDto {
+
+        val order = orderRepository.findById(orderId)
+            .orElseThrow { throw ResourceNotFoundException("Order not found with id: $orderId") }
+
+        if (order.status != OrderStatus.DELIVERED) {
+            throw BusinessValidationException(
+                "Order can only move to RECEIVED from DELIVERED status. Current status: ${order.status}"
+            )
+        }
+
+        order.status = OrderStatus.RECEIVED
+        // Keep the Shipment status string in sync with the order status
+        //order.shipment?.status = OrderStatus.DELIVERED.name
+
+        return order.toResponseDto()
+    }
 
     private fun validateCartItemForCheckout(isActive: Boolean, quantity: Int, stock: Int) {
         if (!isActive)

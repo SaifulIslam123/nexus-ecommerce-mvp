@@ -68,5 +68,10 @@ class OrderController(
         return ApiResponse(success = true, message = "Done",data = "Order with id $requestDto has been deleted successfully.")
     }
 
+    @PutMapping("/{id}/received")
+    fun markAsDelivered(@PathVariable id: Long): OrderResponseDto {
+        return orderService.markAsReceived(id)
+    }
+
 
 }
