@@ -4,6 +4,8 @@ import com.ecommerce.mvp.modules.cart.model.dto.CartItemRequestDto
 import com.ecommerce.mvp.modules.cart.model.dto.CartResponseDto
 import com.ecommerce.mvp.modules.cart.service.CartService
 import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -61,8 +63,9 @@ class CartController(
      * Returns the updated cart with recalculated totals.
      */
     @DeleteMapping("/items/{itemId}")
-    fun removeCartItem(@PathVariable itemId: Long): CartResponseDto {
-        return cartService.removeCartItem(itemId)
+    fun removeCartItem(@PathVariable itemId: Long): ResponseEntity<Unit> {
+        cartService.removeCartItem(itemId)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 
     /**
@@ -72,8 +75,9 @@ class CartController(
      * Returns the emptied cart (totalItems = 0, totalPrice = 0).
      */
     @DeleteMapping
-    fun clearCart(): CartResponseDto {
-        return cartService.clearCart()
+    fun clearCart(): ResponseEntity<Unit> {
+        cartService.clearCart()
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 }
 

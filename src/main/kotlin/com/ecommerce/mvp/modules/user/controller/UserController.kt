@@ -34,8 +34,9 @@ class UserController(
     }
 
     @DeleteMapping("/me/addresses/{id}")
-    fun deleteAddress(@PathVariable id: Long): UserDto {
-        return userService.deleteAddress(id)
+    fun deleteAddress(@PathVariable id: Long): ResponseEntity<Unit> {
+         userService.deleteAddress(id)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 
 }

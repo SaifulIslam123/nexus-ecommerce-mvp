@@ -122,7 +122,7 @@ class CartService(
      * Returns the updated [CartResponseDto] with recalculated totals.
      */
     @Transactional
-    fun removeCartItem(itemId: Long): CartResponseDto {
+    fun removeCartItem(itemId: Long) {
 
         val email = SecurityContextHolder.getContext().authentication?.name
             ?: throw ResourceNotFoundException("Authenticated user not found")
@@ -132,8 +132,8 @@ class CartService(
 
         cartItem.cart?.cartItems?.remove(cartItem) // orphanRemoval triggers DELETE for CartItem rows
 
-        return cartItem.cart?.toResponseDto()
-            ?: throw ResourceNotFoundException("Cart not found for item: $itemId")
+        /*return cartItem.cart?.toResponseDto()
+            ?: throw ResourceNotFoundException("Cart not found for item: $itemId")*/
     }
 
     /**
@@ -145,7 +145,7 @@ class CartService(
      * Returns the emptied [CartResponseDto] (totals will be 0).
      */
     @Transactional
-    fun clearCart(): CartResponseDto {
+    fun clearCart() {
 
         val email = SecurityContextHolder.getContext().authentication?.name
             ?: throw ResourceNotFoundException("Authenticated user not found")
@@ -155,7 +155,7 @@ class CartService(
 
         cart.cartItems.clear()  // orphanRemoval triggers DELETE for all CartItem rows
 
-        return cart.toResponseDto()
+        //return cart.toResponseDto()
     }
 
     private fun validateQuantityStock(requestStock: Int, productStock: Int) {

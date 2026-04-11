@@ -4,7 +4,10 @@ import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.dto.ShipOrderRequestDto
 import com.ecommerce.mvp.modules.order.service.OrderService
 import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.net.http.HttpResponse
 import java.time.LocalDate
 
 @RestController
@@ -63,13 +66,13 @@ class OrderController(
     }
 
     @DeleteMapping
-    fun deleteOrders(@RequestBody requestDto: Long): ApiResponse<String> {
+    fun deleteOrders(@RequestBody requestDto: Long): ResponseEntity<Unit> {
         orderService.deleteById(requestDto)
-        return ApiResponse(success = true, message = "Done",data = "Order with id $requestDto has been deleted successfully.")
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 
     @PutMapping("/{id}/received")
-    fun markAsDelivered(@PathVariable id: Long): OrderResponseDto {
+    fun markAsReceived(@PathVariable id: Long): OrderResponseDto {
         return orderService.markAsReceived(id)
     }
 

@@ -150,7 +150,7 @@ class UserService(
     }
 
     @Transactional
-    fun deleteAddress(addressId: Long): UserDto {
+    fun deleteAddress(addressId: Long) {
         val email = SecurityContextHolder.getContext().authentication?.name
         val user = userRepository.findByUserEmailWithAddresses(email)
         user?.let {
@@ -166,7 +166,7 @@ class UserService(
                 } ?: throw ResourceNotFoundException("Address not found")
             } ?: throw ResourceNotFoundException("No addresses found for the user")
 
-            return user.toUserDto()
+            //return user.toUserDto()
         }?: throw ResourceNotFoundException("User not found")
 
 
