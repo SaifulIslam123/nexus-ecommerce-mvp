@@ -41,7 +41,8 @@ class CategoryController(
     }
 
     @DeleteMapping("/{id}")
-    fun deleteCategory(@PathVariable id: Long): List<CategoryTreeResponseDto> {
-        return categoryService.deleteById(id)
+    fun deleteCategory(@PathVariable id: Long): ResponseEntity<Unit> {
+        categoryService.deleteById(id)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 }

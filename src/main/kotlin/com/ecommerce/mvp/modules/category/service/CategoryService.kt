@@ -67,12 +67,12 @@ class CategoryService(
     }
 
     @Transactional
-    fun deleteById(id: Long): List<CategoryTreeResponseDto> {
+    fun deleteById(id: Long) {
         if (!categoryRepository.existsById(id)) {
             throw ResourceNotFoundException("Category with id $id not found")
         }
         categoryRepository.deleteById(id)
-        return getCategoryTree()
+        //return getCategoryTree()
     }
 
 }
