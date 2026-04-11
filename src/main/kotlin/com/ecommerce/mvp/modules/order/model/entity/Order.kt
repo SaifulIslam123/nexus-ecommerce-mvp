@@ -57,8 +57,11 @@ enum class OrderStatus {
     /** Package is with the local courier for final delivery.  */
     OUT_FOR_DELIVERY,
 
-    /** Package has been successfully received by the customer.  */
+    /** Package has been successfully deliver by the courier to customer.  */
     DELIVERED,
+
+    /** Package has been successfully received by the customer.  */
+    RECEIVED,
 
     /** Order was cancelled by the customer or the system.  */
     CANCELLED,
