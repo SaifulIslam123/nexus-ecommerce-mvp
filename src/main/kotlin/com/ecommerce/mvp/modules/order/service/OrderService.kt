@@ -232,15 +232,8 @@ class OrderService(
 
     }*/
 
+
     /** Admin will use this for getting specific date orders**/
-    @Transactional
-    fun getDateOrder(): List<OrderResponseDto> {
-
-        val orderList = orderRepository.findByOrderDate(Instant.now())
-        return orderList.map { it.toResponseDto() }
-    }
-
-
     // Service method
     fun getOrdersByDate(
         startDate: LocalDate,
