@@ -2,6 +2,7 @@ package com.ecommerce.mvp.modules.order.repository
 
 import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.entity.Order
+import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -10,8 +11,6 @@ import java.util.Date
 
 @Repository
 interface OrderRepository : JpaRepository<Order, Long> {
-
-    fun findByOrderDate(date: Instant): List<Order>
 
    fun findByOrderDateBetween(startDate: Instant, endDate: Instant): List<Order>
 
@@ -35,4 +34,6 @@ interface OrderRepository : JpaRepository<Order, Long> {
      */
     @Query("SELECT DISTINCT o FROM Order o JOIN FETCH o.user u JOIN FETCH o.orderItems item JOIN FETCH item.product LEFT JOIN FETCH o.payment LEFT JOIN FETCH o.shipment WHERE u.email = :email ORDER BY o.orderDate DESC")
     fun findAllByUserEmail(email: String): List<Order>
+
+    fun findByStatus(status: OrderStatus): List<Order>
 }
