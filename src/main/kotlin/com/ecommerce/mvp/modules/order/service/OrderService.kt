@@ -3,8 +3,9 @@ package com.ecommerce.mvp.modules.order.service
 import com.ecommerce.mvp.common.exception.BusinessValidationException
 import com.ecommerce.mvp.common.exception.ResourceNotFoundException
 import com.ecommerce.mvp.modules.cart.repository.CartItemRepository
+import com.ecommerce.mvp.modules.courier.TrackingIdGenerator
 import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
-import com.ecommerce.mvp.modules.order.model.dto.ShipOrderRequestDto
+import com.ecommerce.mvp.modules.order.model.dto.ToPayOrderRequest
 import com.ecommerce.mvp.modules.order.model.dto.toResponseDto
 import com.ecommerce.mvp.modules.order.model.entity.Order
 import com.ecommerce.mvp.modules.order.model.entity.OrderItem
@@ -103,16 +104,13 @@ class OrderService(
     *
     * */
     @Transactional
-    fun toPayOrder(cartItemId: Long, addressId: Long?): OrderResponseDto {
+    fun toPayOrder( requestDto: ToPayOrderRequest): OrderResponseDto {
 
         val email = SecurityContextHolder.getContext().authentication?.name
             ?: throw ResourceNotFoundException("Authenticated user not found")
 
-        if (addressId == null) {
-            throw BusinessValidationException("Order shipment address not found")
-        }
-
-        val cartItem = cartItemRepository.findByIdAndUserEmailAndUserAddressId(cartItemId, email, addressId)
+        val cartItem =
+            cartItemRepository.findByIdAndUserEmailAndUserAddressId(requestDto.cartItemId!!, email, requestDto.addressId!!)
             ?: throw ResourceNotFoundException("Cart Item not found")
 
         cartItem.product?.let {
@@ -123,6 +121,7 @@ class OrderService(
             )
         } ?: throw ResourceNotFoundException("Cart Item does not have any product")
 
+
         val toPayOrder = Order(
             orderDate = Instant.now(),
             totalAmount = cartItem.price,
@@ -130,8 +129,7 @@ class OrderService(
             user = cartItem.cart?.user,
             orderItems = mutableSetOf(),
             payment = null,
-            shipment = null,
-            shipmentAddress = cartItem.cart?.user?.addresses?.first()!!
+            shipment = null
         )
 
         val orderItem = OrderItem().apply {
@@ -141,6 +139,13 @@ class OrderService(
             price = cartItem.price
         }
 
+        val shipment = Shipment().apply {
+            shipmentAddress = cartItem.cart?.user?.addresses?.first()!!
+            estimatedDeliveryDate = requestDto.deliveryDate?.atStartOfDay(ZoneOffset.UTC)?.toInstant()
+            order = toPayOrder
+        }
+
+        toPayOrder.shipment = shipment
         toPayOrder.orderItems.add(orderItem)
         cartItem.product?.let { it.stock -= cartItem.quantity }
         cartItem.cart?.cartItems?.remove(cartItem)
@@ -197,10 +202,10 @@ class OrderService(
      * Throws [BusinessValidationException] if the order is not in PROCESSING status.
      */
     @Transactional
-    fun markAsShipped(orderId: Long, requestDto: ShipOrderRequestDto): OrderResponseDto {
+    fun markAsShipped(orderId: Long): OrderResponseDto {
 
-        val order = orderRepository.findById(orderId)
-            .orElseThrow { throw ResourceNotFoundException("Order not found with id: $orderId") }
+        val order = orderRepository.findByOrderId(orderId)
+            ?: throw ResourceNotFoundException("Order not found with id: $orderId")
 
         if (order.status != OrderStatus.PROCESSING) {
             throw BusinessValidationException(
@@ -208,14 +213,11 @@ class OrderService(
             )
         }
 
-        val shipment = Shipment().apply {
-            trackingId = requestDto.trackingId
-            status = OrderStatus.SHIPPED.name   // "SHIPPED" stored as a string
-            this.order = order
+        order.shipment?.let {
+            it.trackingId = TrackingIdGenerator.generateTrackingId()
+            it.status = OrderStatus.SHIPPED.name
         }
-
-        order.shipment = shipment               // CascadeType.ALL inserts the Shipment row
-        order.status = OrderStatus.SHIPPED      // dirty checking updates the Order row
+        order.status = OrderStatus.SHIPPED
 
         return order.toResponseDto()
     }

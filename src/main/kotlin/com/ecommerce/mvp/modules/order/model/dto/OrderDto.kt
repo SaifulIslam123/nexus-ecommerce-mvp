@@ -9,10 +9,21 @@ import com.ecommerce.mvp.modules.payment.model.entity.PaymentStatus
 import com.ecommerce.mvp.modules.user.model.dto.AddressDto
 import com.ecommerce.mvp.modules.user.model.dto.toAddressDto
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import java.math.BigDecimal
 import java.time.Instant
+import java.time.LocalDate
 
 // ── Order Item ────────────────────────────────────────────────────────────────
+
+data class ToPayOrderRequest(
+    @field:NotNull(message = "CartItem id is required")
+    val cartItemId: Long?,
+    @field:NotNull(message = "Delivery date is required")
+    val deliveryDate: LocalDate?,
+    @field:NotNull(message = "Order shipment address not found")
+    val addressId: Long?,
+)
 
 data class OrderItemResponseDto(
     val id: Long,
@@ -54,25 +65,19 @@ fun Payment.toResponseDto() = PaymentResponseDto(
 
 // ── Shipment ──────────────────────────────────────────────────────────────────
 
-/**
- * Request body for the "mark as shipped" admin endpoint.
- * [trackingId] is the tracking number assigned by the carrier.
- */
-data class ShipOrderRequestDto(
-    @field:NotBlank(message = "Tracking ID must not be blank")
-    val trackingId: String
-)
 
 data class ShipmentResponseDto(
     val id: Long,
     val status: String?,
-    val trackingId: String?
+    val trackingId: String?,
+    val address: AddressDto?
 )
 
 fun Shipment.toResponseDto() = ShipmentResponseDto(
     id = this.id ?: -1,
     status = this.status,
-    trackingId = this.trackingId
+    trackingId = this.trackingId,
+    address = this.shipmentAddress?.toAddressDto()
 )
 
 // ── Order ─────────────────────────────────────────────────────────────────────
@@ -84,8 +89,7 @@ data class OrderResponseDto(
     val status: OrderStatus,
     val items: List<OrderItemResponseDto>,
     val payment: PaymentResponseDto?,
-    val shipment: ShipmentResponseDto?,
-    val shipmentAddress: AddressDto?
+    val shipment: ShipmentResponseDto?
 )
 
 fun Order.toResponseDto() = OrderResponseDto(
@@ -95,7 +99,6 @@ fun Order.toResponseDto() = OrderResponseDto(
     status = this.status,
     items = this.orderItems.map { it.toResponseDto() },
     payment = this.payment?.toResponseDto(),
-    shipment = this.shipment?.toResponseDto(),
-    shipmentAddress = this.shipmentAddress?.toAddressDto()
+    shipment = this.shipment?.toResponseDto()
 )
 

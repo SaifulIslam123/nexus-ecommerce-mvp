@@ -1,20 +1,9 @@
 package com.ecommerce.mvp.modules.order
 
-import com.ecommerce.mvp.common.response.ApiResponse
 import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
-import com.ecommerce.mvp.modules.order.model.dto.ShipOrderRequestDto
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.service.OrderService
-import jakarta.validation.Valid
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 
 @RestController
@@ -60,10 +49,9 @@ class AdminOrderController(
      */
     @PutMapping("/{id}/shipped")
     fun markAsShipped(
-        @PathVariable id: Long,
-        @Valid @RequestBody requestDto: ShipOrderRequestDto
+        @PathVariable id: Long
     ): OrderResponseDto {
-        return orderService.markAsShipped(id, requestDto)
+        return orderService.markAsShipped(id)
     }
 
     /**
