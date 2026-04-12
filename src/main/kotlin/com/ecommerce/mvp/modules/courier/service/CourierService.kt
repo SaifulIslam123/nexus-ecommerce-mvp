@@ -17,7 +17,6 @@ import java.time.ZoneOffset
 @Service
 class CourierService(
     private val courierRepository: CourierRepository,
-    private val orderRepository: OrderRepository
 ) {
 
     /**
@@ -35,9 +34,6 @@ class CourierService(
     @Transactional
     fun createCourier(requestDto: CourierRequestDto): CourierResponseDto {
 
-        val order = orderRepository.findById(requestDto.orderId)
-            .orElseThrow { ResourceNotFoundException("Order not found with id: ${requestDto.orderId}") }
-
         if (courierRepository.existsByOrderId(requestDto.orderId)) {
             throw BusinessValidationException("A courier record already exists for order id: ${requestDto.orderId}")
         }
@@ -46,7 +42,7 @@ class CourierService(
             shipmentDate = requestDto.shipmentDate.atStartOfDay(ZoneOffset.UTC).toInstant()
             shipmentAddress = requestDto.shipmentAddress
             trackingId = TrackingIdGenerator.generateTrackingId()
-            this.orderId = order.id
+            orderId = requestDto.orderId
         }
 
         val savedCourier = courierRepository.save(courier)

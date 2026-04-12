@@ -10,7 +10,6 @@ import java.time.LocalDate
 
 data class CourierRequestDto(
     @field:NotNull(message = "ShipmentDate is required")
-
     val shipmentDate: LocalDate,
     @field:NotBlank(message = "ShipmentAddress is required")
     val shipmentAddress: String,

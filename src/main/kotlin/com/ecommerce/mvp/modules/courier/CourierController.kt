@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/admin/couriers")
+@RequestMapping("/api/courier/couriers")
 class CourierController(
     private val courierService: CourierService
 ) {
