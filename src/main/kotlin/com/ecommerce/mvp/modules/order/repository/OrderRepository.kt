@@ -36,4 +36,7 @@ interface OrderRepository : JpaRepository<Order, Long> {
     fun findAllByUserEmail(email: String): List<Order>
 
     fun findByStatus(status: OrderStatus): List<Order>
+
+    @Query("SELECT o FROM Order o JOIN FETCH o.shipment s WHERE o.id = :orderId")
+    fun findByOrderId(orderId: Long): Order?
 }

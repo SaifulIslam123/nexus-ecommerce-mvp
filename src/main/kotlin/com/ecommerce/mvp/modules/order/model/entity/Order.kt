@@ -35,9 +35,6 @@ data class Order(
     @OneToOne(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     var shipment: Shipment? = null,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shipment_address_id")
-    var shipmentAddress: Address? = null
 
 ) : BaseEntityAudit()
 

@@ -1,14 +1,11 @@
 package com.ecommerce.mvp.modules.order
-import com.ecommerce.mvp.common.response.ApiResponse
 import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
-import com.ecommerce.mvp.modules.order.model.dto.ShipOrderRequestDto
+import com.ecommerce.mvp.modules.order.model.dto.ToPayOrderRequest
 import com.ecommerce.mvp.modules.order.service.OrderService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.net.http.HttpResponse
-import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/users/orders")
@@ -60,9 +57,11 @@ class OrderController(
         return orderService.cancelOrder(id)
     }
 
-    @PostMapping("/toPayOrder/{cartItemId}")
-    fun toPayOrder(@PathVariable cartItemId: Long, @RequestBody addressId: Long?): OrderResponseDto {
-        return orderService.toPayOrder(cartItemId, addressId)
+    @PostMapping("/toPayOrder")
+    fun toPayOrder(
+        @Valid @RequestBody toPayOrderRequest:ToPayOrderRequest
+    ): OrderResponseDto {
+        return orderService.toPayOrder( toPayOrderRequest)
     }
 
     @DeleteMapping
