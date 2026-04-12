@@ -54,37 +54,6 @@ class AdminOrderController(
         return orderService.markAsShipped(id)
     }
 
-    /**
-     * PUT /api/admin/orders/{id}/out-for-delivery
-     *
-     * Admin/courier operation. Transitions a SHIPPED order to OUT_FOR_DELIVERY,
-     * signalling that the package is with the local courier for final delivery.
-     *
-     * Allowed transition:  SHIPPED → OUT_FOR_DELIVERY
-     *
-     * Responds with 404 if the order does not exist.
-     * Responds with 409 Conflict if the order is not in SHIPPED status.
-     */
-    @PutMapping("/{id}/out-for-delivery")
-    fun markAsOutForDelivery(@PathVariable id: Long): OrderResponseDto {
-        return orderService.markAsOutForDelivery(id)
-    }
-
-    /**
-     * PUT /api/admin/orders/{id}/delivered
-     *
-     * Admin/courier operation. Transitions an OUT_FOR_DELIVERY order to DELIVERED,
-     * signalling that the package has been successfully received by the customer.
-     *
-     * Allowed transition:  OUT_FOR_DELIVERY → DELIVERED
-     *
-     * Responds with 404 if the order does not exist.
-     * Responds with 409 Conflict if the order is not in OUT_FOR_DELIVERY status.
-     */
-    @PutMapping("/{id}/delivered")
-    fun markAsDelivered(@PathVariable id: Long): OrderResponseDto {
-        return orderService.markAsDelivered(id)
-    }
 
     @GetMapping("/byStatus")
     fun getOrdersByStatus(@RequestParam status: OrderStatus): List<OrderResponseDto> {
