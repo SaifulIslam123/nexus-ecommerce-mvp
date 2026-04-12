@@ -4,7 +4,10 @@ import com.ecommerce.mvp.common.response.ApiResponse
 import com.ecommerce.mvp.modules.courier.model.dto.CourierRequestDto
 import com.ecommerce.mvp.modules.courier.model.dto.CourierResponseDto
 import com.ecommerce.mvp.modules.courier.service.CourierService
+import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
+import com.ecommerce.mvp.modules.order.service.OrderService
 import jakarta.validation.Valid
+import lombok.experimental.PackagePrivate
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -14,92 +17,36 @@ import org.springframework.web.bind.annotation.*
 class CourierController(
     private val courierService: CourierService
 ) {
-
     /**
-     * POST /api/admin/couriers
+     * PUT /api/admin/orders/{id}/out-for-delivery
      *
-     * Creates a new courier record that links a tracking ID to an existing order.
-     * Responds with 201 Created on success.
+     * courier operation. Transitions a SHIPPED order to OUT_FOR_DELIVERY,
+     * signalling that the package is with the local courier for final delivery.
+     *
+     * Allowed transition:  SHIPPED → OUT_FOR_DELIVERY
+     *
+     * Responds with 404 if the order does not exist.
+     * Responds with 409 Conflict if the order is not in SHIPPED status.
      */
-    @PostMapping
-    fun createCourier(
-        @Valid @RequestBody requestDto: CourierRequestDto
-    ): CourierResponseDto {
-        return courierService.createCourier(requestDto)
+    @PutMapping("/{id}/out-for-delivery")
+    fun markAsOutForDelivery(@PathVariable id: Long): OrderResponseDto {
+        return courierService.markAsOutForDelivery(id)
     }
 
     /**
-     * GET /api/admin/couriers
+     * PUT /api/admin/orders/{id}/delivered
      *
-     * Returns all courier records.
+     * courier operation. Transitions an OUT_FOR_DELIVERY order to DELIVERED,
+     * signalling that the package has been successfully received by the customer.
+     *
+     * Allowed transition:  OUT_FOR_DELIVERY → DELIVERED
+     *
+     * Responds with 404 if the order does not exist.
+     * Responds with 409 Conflict if the order is not in OUT_FOR_DELIVERY status.
      */
-    @GetMapping
-    fun getAllCouriers(): ApiResponse<List<CourierResponseDto>> {
-        return ApiResponse(
-            success = true,
-            message = "Couriers fetched successfully",
-            data = courierService.getAllCouriers()
-        )
+    @PutMapping("/{id}/delivered")
+    fun markAsDelivered(@PathVariable id: Long): OrderResponseDto {
+        return courierService.markAsDelivered(id)
     }
 
-    /**
-     * GET /api/admin/couriers/{id}
-     *
-     * Returns a single courier by its own ID.
-     * Responds with 404 if no courier with that ID exists.
-     */
-    @GetMapping("/{id}")
-    fun getCourierById(@PathVariable id: Long): ApiResponse<CourierResponseDto> {
-        return ApiResponse(
-            success = true,
-            message = "Courier fetched successfully",
-            data = courierService.getCourierById(id)
-        )
-    }
-
-    /**
-     * GET /api/admin/couriers/order/{orderId}
-     *
-     * Returns the courier record associated with the given order.
-     * Responds with 404 if the order has no courier record yet.
-     */
-    @GetMapping("/order/{orderId}")
-    fun getCourierByOrderId(@PathVariable orderId: Long): ApiResponse<CourierResponseDto> {
-        return ApiResponse(
-            success = true,
-            message = "Courier fetched successfully",
-            data = courierService.getCourierByOrderId(orderId)
-        )
-    }
-
-    /**
-     * PUT /api/admin/couriers/{id}/tracking
-     *
-     * Updates the tracking ID of an existing courier.
-     * Responds with 404 if the courier does not exist.
-     * Responds with 400 if the tracking ID is already used by another courier.
-     */
-    @PutMapping("/{id}/tracking")
-    fun updateTrackingId(
-        @PathVariable id: Long,
-        @RequestParam trackingId: String
-    ): ApiResponse<CourierResponseDto> {
-        return ApiResponse(
-            success = true,
-            message = "Tracking ID updated successfully",
-            data = courierService.updateTrackingId(id, trackingId)
-        )
-    }
-
-    /**
-     * DELETE /api/admin/couriers/{id}
-     *
-     * Deletes a courier record by its ID.
-     * Responds with 204 No Content on success.
-     */
-    @DeleteMapping("/{id}")
-    fun deleteCourier(@PathVariable id: Long): ResponseEntity<Void> {
-        courierService.deleteCourier(id)
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
-    }
 }
