@@ -347,6 +347,12 @@ class OrderService(
                 .map { it.toResponseDto() }
         }
     }
+
+    /** Admin will use this for getting specific order status orders**/
+    fun getOrderByStatus(status:OrderStatus): List<OrderResponseDto> {
+
+        return orderRepository.findByStatus(status).map { it.toResponseDto() }
+    }
 }
 
 

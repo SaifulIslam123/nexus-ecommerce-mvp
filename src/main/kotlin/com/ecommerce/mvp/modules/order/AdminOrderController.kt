@@ -3,6 +3,7 @@ package com.ecommerce.mvp.modules.order
 import com.ecommerce.mvp.common.response.ApiResponse
 import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.dto.ShipOrderRequestDto
+import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.service.OrderService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -95,6 +96,11 @@ class AdminOrderController(
     @PutMapping("/{id}/delivered")
     fun markAsDelivered(@PathVariable id: Long): OrderResponseDto {
         return orderService.markAsDelivered(id)
+    }
+
+    @GetMapping("/byStatus")
+    fun getOrdersByStatus(@RequestParam status: OrderStatus): List<OrderResponseDto> {
+        return orderService.getOrderByStatus(status)
     }
 
 }
