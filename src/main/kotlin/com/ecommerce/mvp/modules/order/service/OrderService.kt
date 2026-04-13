@@ -293,11 +293,7 @@ class OrderService(
         return orderRepository.findByStatus(status).map { it.toResponseDto() }
     }
 
-    /** Runs every day */
-    @Scheduled(cron = "0 0 0 * * *")
-    fun purgeDeliveredOrdersOlderThan15Days() {
-        orderRepository.deleteDeliveredOrdersOlderThan15Days()
-    }
+
 }
 
 

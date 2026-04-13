@@ -2,28 +2,16 @@ package com.ecommerce.mvp.modules.courier.service
 
 import com.ecommerce.mvp.common.exception.BusinessValidationException
 import com.ecommerce.mvp.common.exception.ResourceNotFoundException
-import com.ecommerce.mvp.modules.courier.TrackingIdGenerator
-import com.ecommerce.mvp.modules.courier.model.dto.CourierRequestDto
-import com.ecommerce.mvp.modules.courier.model.dto.CourierResponseDto
-import com.ecommerce.mvp.modules.courier.model.dto.toResponseDto
-import com.ecommerce.mvp.modules.courier.model.entity.Courier
-import com.ecommerce.mvp.modules.courier.repository.CourierRepository
 import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.dto.toResponseDto
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
-import com.ecommerce.mvp.modules.order.model.entity.OrderStatus.DELIVERED
-import com.ecommerce.mvp.modules.order.model.entity.OrderStatus.OUT_FOR_DELIVERY
-import com.ecommerce.mvp.modules.order.model.entity.OrderStatus.SHIPPED
 import com.ecommerce.mvp.modules.order.model.entity.Shipment
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.Instant
-import java.time.ZoneOffset
 
 @Service
 class CourierService(
-    private val courierRepository: CourierRepository,
     private val orderRepository: OrderRepository
 ) {
 
