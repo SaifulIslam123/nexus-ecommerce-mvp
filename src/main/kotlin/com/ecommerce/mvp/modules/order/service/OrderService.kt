@@ -295,7 +295,7 @@ class OrderService(
 
     /** Runs every hour */
     @Scheduled(cron = "0 0 0 * * *")
-    fun purgeExpiredTokens() {
+    fun deleteAllExpiredReceivedOrders() {
         orderRepository.deleteAllExpiredReceivedOrders()
     }
 }
