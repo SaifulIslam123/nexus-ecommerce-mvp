@@ -12,6 +12,7 @@ import com.ecommerce.mvp.modules.order.model.entity.OrderItem
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.model.entity.Shipment
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -290,6 +291,12 @@ class OrderService(
     fun getOrderByStatus(status:OrderStatus): List<OrderResponseDto> {
 
         return orderRepository.findByStatus(status).map { it.toResponseDto() }
+    }
+
+    /** Runs every hour */
+    @Scheduled(cron = "0 0 0 * * *")
+    fun purgeExpiredTokens() {
+        orderRepository.deleteAllExpiredReceivedOrders()
     }
 }
 
