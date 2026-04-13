@@ -45,7 +45,8 @@ interface OrderRepository : JpaRepository<Order, Long> {
 
     @Transactional
     @Modifying(clearAutomatically = true)
-    @Query("DELETE FROM Order o WHERE o.status = :order_status AND FUNCTION('DATEDIFF', CURRENT_TIMESTAMP, o.orderDate) > 15")
-    fun deleteDeliveredOrdersOlderThan15Days(@Param("order_status") orderStatus: OrderStatus = OrderStatus.DELIVERED)
+    @Query("UPDATE Order o SET o.status = :new_status WHERE o.status = :order_status AND FUNCTION('DATEDIFF', CURRENT_TIMESTAMP, o.orderDate) > 15")
+    fun updateStatusForDeliveredOrdersOlderThan15Days(@Param("order_status") orderStatus: OrderStatus = OrderStatus.DELIVERED,
+                                                      @Param("new_status") newStatus: OrderStatus = OrderStatus.RECEIVED)
 
 }
