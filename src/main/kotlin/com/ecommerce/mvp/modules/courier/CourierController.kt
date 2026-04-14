@@ -5,20 +5,22 @@ import com.ecommerce.mvp.modules.courier.model.dto.CourierRequestDto
 import com.ecommerce.mvp.modules.courier.model.dto.CourierResponseDto
 import com.ecommerce.mvp.modules.courier.service.CourierService
 import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
+import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.service.OrderService
 import jakarta.validation.Valid
 import lombok.experimental.PackagePrivate
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDate
 
 @RestController
-@RequestMapping("/api/courier/couriers")
+@RequestMapping("/api/courier")
 class CourierController(
     private val courierService: CourierService
 ) {
     /**
-     * PUT /api/admin/orders/{id}/out-for-delivery
+     * PUT /api/courier/orders/{id}/out-for-delivery
      *
      * courier operation. Transitions a SHIPPED order to OUT_FOR_DELIVERY,
      * signalling that the package is with the local courier for final delivery.
@@ -28,7 +30,7 @@ class CourierController(
      * Responds with 404 if the order does not exist.
      * Responds with 409 Conflict if the order is not in SHIPPED status.
      */
-    @PutMapping("/{id}/out-for-delivery")
+    @PutMapping("/orders/{id}/out-for-delivery")
     fun markAsOutForDelivery(@PathVariable id: Long): OrderResponseDto {
         return courierService.markAsOutForDelivery(id)
     }
@@ -44,9 +46,13 @@ class CourierController(
      * Responds with 404 if the order does not exist.
      * Responds with 409 Conflict if the order is not in OUT_FOR_DELIVERY status.
      */
-    @PutMapping("/{id}/delivered")
+    @PutMapping("/orders/{id}/delivered")
     fun markAsDelivered(@PathVariable id: Long): OrderResponseDto {
         return courierService.markAsDelivered(id)
     }
 
+    @GetMapping("/orders/byStatus")
+    fun getOrdersByStatus(@RequestParam status: OrderStatus): List<OrderResponseDto> {
+        return courierService.getOrderByStatus(status)
+    }
 }

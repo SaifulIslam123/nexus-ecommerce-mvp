@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 
 @RestController
-@RequestMapping("/api/admin/orders")
+@RequestMapping("/api/admin")
 class AdminOrderController(
     private val orderService: OrderService
 ) {
     // Expected date format 2026-04-10
-    @GetMapping("/byDate")
+    @GetMapping("/orders/byDate")
     fun getOrdersByDate(
         @RequestParam startDate: LocalDate,
         @RequestParam endDate: LocalDate? = null
@@ -31,7 +31,7 @@ class AdminOrderController(
      * Responds with 404 if the order does not exist.
      * Responds with 409 Conflict if the order is not in CONFIRMED status.
      */
-    @PutMapping("/{id}/processing")
+    @PutMapping("/orders/{id}/processing")
     fun markAsProcessing(@PathVariable id: Long): OrderResponseDto {
         return orderService.markAsProcessing(id)
     }
@@ -47,7 +47,7 @@ class AdminOrderController(
      * Responds with 404 if the order does not exist.
      * Responds with 409 Conflict if the order is not in PROCESSING status.
      */
-    @PutMapping("/{id}/shipped")
+    @PutMapping("/orders/{id}/shipped")
     fun markAsShipped(
         @PathVariable id: Long
     ): OrderResponseDto {
@@ -55,7 +55,7 @@ class AdminOrderController(
     }
 
 
-    @GetMapping("/byStatus")
+    @GetMapping("/orders/byStatus")
     fun getOrdersByStatus(@RequestParam status: OrderStatus): List<OrderResponseDto> {
         return orderService.getOrderByStatus(status)
     }

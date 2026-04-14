@@ -77,4 +77,10 @@ class CourierService(
 
         return order.toResponseDto()
     }
+
+    /** Courier will use this for getting specific order status orders**/
+    fun getOrderByStatus(status: OrderStatus): List<OrderResponseDto> {
+
+        return orderRepository.findByStatus(status).map { it.toResponseDto() }
+    }
 }
