@@ -52,7 +52,5 @@ class CourierController(
     }
 
     @GetMapping("/orders/byStatus")
-    fun getOrdersByStatus(@RequestParam status: OrderStatus): List<OrderResponseDto> {
-        return courierService.getOrderByStatus(status)
-    }
+    fun getOrdersByStatus(): List<OrderResponseDto> = courierService.getOrderByStatus()
 }
