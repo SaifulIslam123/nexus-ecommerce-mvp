@@ -12,6 +12,7 @@ import com.ecommerce.mvp.modules.order.model.entity.OrderItem
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.model.entity.Shipment
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
+import com.ecommerce.mvp.modules.payment.model.entity.PaymentStatus
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
@@ -105,14 +106,18 @@ class OrderService(
     *
     * */
     @Transactional
-    fun toPayOrder( requestDto: ToPayOrderRequest): OrderResponseDto {
+    fun toPayOrder(requestDto: ToPayOrderRequest): OrderResponseDto {
 
         val email = SecurityContextHolder.getContext().authentication?.name
             ?: throw ResourceNotFoundException("Authenticated user not found")
 
         val cartItem =
-            cartItemRepository.findByIdAndUserEmailAndUserAddressId(requestDto.cartItemId!!, email, requestDto.addressId!!)
-            ?: throw ResourceNotFoundException("Cart Item not found")
+            cartItemRepository.findByIdAndUserEmailAndUserAddressId(
+                requestDto.cartItemId!!,
+                email,
+                requestDto.addressId!!
+            )
+                ?: throw ResourceNotFoundException("Cart Item not found")
 
         cartItem.product?.let {
             validateCartItemForCheckout(
@@ -319,11 +324,36 @@ class OrderService(
     }
 
     /** Admin will use this for getting specific order status orders**/
-    fun getOrderByStatus(status:OrderStatus): List<OrderResponseDto> {
+    fun getOrderByStatus(status: OrderStatus): List<OrderResponseDto> {
 
         return orderRepository.findByStatus(status).map { it.toResponseDto() }
     }
 
+    @Transactional
+    fun markAsRefunded(orderId: Long): OrderResponseDto {
+
+        val order = orderRepository.findById(orderId)
+            .orElseThrow { ResourceNotFoundException("Order not found with id: $orderId") }
+
+        if (order.status != OrderStatus.RETURNED) {
+            throw BusinessValidationException(
+                "Order can only move to REFUNDED from RETURNED status. Current status: ${order.status}"
+            )
+        }
+
+        // 1. Update order status
+        order.status = OrderStatus.REFUNDED
+
+        // 2. Restore stock for every item
+        order.orderItems.forEach { item ->
+            item.product?.let { it.stock += item.quantity }
+        }
+
+        // 3. Update payment status
+        order.payment?.status = PaymentStatus.REFUNDED
+
+        return order.toResponseDto()
+    }
 
 }
 

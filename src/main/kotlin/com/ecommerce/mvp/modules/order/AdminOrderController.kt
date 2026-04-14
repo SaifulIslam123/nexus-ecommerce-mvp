@@ -60,4 +60,8 @@ class AdminOrderController(
         return orderService.getOrderByStatus(status)
     }
 
+    @PutMapping("/orders/{id}/refund")
+    fun markAsRefunded(@PathVariable id: Long): OrderResponseDto {
+        return orderService.markAsRefunded(id)
+    }
 }
