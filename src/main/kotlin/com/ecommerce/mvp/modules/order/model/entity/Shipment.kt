@@ -17,9 +17,6 @@ class Shipment : BaseEntityAudit() {
     @field:Column(nullable = false)
     var estimatedDeliveryDate: Instant? = null
 
-    @Column(nullable = false)
-    var status: String? = null
-
     @Column(unique = true)
     var trackingId: String? = null
 

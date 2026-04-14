@@ -43,8 +43,6 @@ class CourierService(
         }
 
         order.status = OrderStatus.OUT_FOR_DELIVERY
-        // Keep the Shipment status string in sync with the order status
-        order.shipment?.status = OrderStatus.OUT_FOR_DELIVERY.name
 
         return order.toResponseDto()
     }
@@ -76,8 +74,6 @@ class CourierService(
         }
 
         order.status = OrderStatus.DELIVERED
-        // Keep the Shipment status string in sync with the order status
-        order.shipment?.status = OrderStatus.DELIVERED.name
 
         return order.toResponseDto()
     }

@@ -216,7 +216,6 @@ class OrderService(
 
         order.shipment?.let {
             it.trackingId = TrackingIdGenerator.generateTrackingId()
-            it.status = OrderStatus.SHIPPED.name
         }
         order.status = OrderStatus.SHIPPED
 
