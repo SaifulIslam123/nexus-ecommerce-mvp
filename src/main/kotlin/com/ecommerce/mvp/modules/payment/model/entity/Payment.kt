@@ -35,9 +35,11 @@ data class Payment(
 ) : BaseEntityAudit()
 
 
+// Payment.kt
 enum class PaymentStatus {
     TO_PAY,
     COMPLETED,
     FAILED,
-    CANCELLED
+    CANCELLED,
+    REFUNDED   // ← add this
 }
