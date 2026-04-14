@@ -68,14 +68,12 @@ fun Payment.toResponseDto() = PaymentResponseDto(
 
 data class ShipmentResponseDto(
     val id: Long,
-    val status: String?,
     val trackingId: String?,
     val address: AddressDto?
 )
 
 fun Shipment.toResponseDto() = ShipmentResponseDto(
     id = this.id ?: -1,
-    status = this.status,
     trackingId = this.trackingId,
     address = this.shipmentAddress?.toAddressDto()
 )
