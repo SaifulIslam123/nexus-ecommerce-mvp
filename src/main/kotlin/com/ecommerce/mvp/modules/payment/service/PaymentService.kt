@@ -51,15 +51,16 @@ class PaymentService(
                 //deductProductForOrder(order)
             }
 
+            // In PaymentService — system received a FAILED response from payment gateway
             PaymentStatus.FAILED.name -> {
-                order.status = OrderStatus.FAILED
+                order.status = OrderStatus.FAILED  // system-driven
                 payment.status = PaymentStatus.FAILED
             }
 
 
+            // In your PaymentService — user or system deliberately cancelled
             PaymentStatus.CANCELLED.name -> {
-                // Additional logic for failed payment (e.g., notify user)
-                order.status = OrderStatus.CANCELLED
+                order.status = OrderStatus.CANCELLED  // intentional, not an error
                 payment.status = PaymentStatus.CANCELLED
             }
 
@@ -70,9 +71,7 @@ class PaymentService(
         payment.transactionId = requestDto.transactionId
         payment.amount = requestDto.totalAmount
         payment.order = order
-        val savePayment = paymentRepository.save(payment)
-
-        return savePayment.toResponseDto()
+        return paymentRepository.save(payment).let { it.toResponseDto() }
     }
 
 }
