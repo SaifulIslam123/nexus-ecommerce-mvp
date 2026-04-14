@@ -75,5 +75,18 @@ class OrderController(
         return orderService.markAsReceived(id)
     }
 
+    /**
+     * PUT /api/users/orders/{id}/return
+     *
+     * Allows the authenticated user to mark an order as RETURNED.
+     * The order must already be in RECEIVED status; otherwise a 409 Conflict
+     * is returned.
+     *
+     * Allowed transition:  RECEIVED → RETURNED
+     */
+    @PutMapping("/{id}/return")
+    fun markAsReturned(@PathVariable id: Long): OrderResponseDto {
+        return orderService.markAsReturned(id)
+    }
 
 }

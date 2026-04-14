@@ -253,6 +253,38 @@ class OrderService(
         return order.toResponseDto()
     }
 
+    /**
+     * Transitions an order from [OrderStatus.RECEIVED] to [OrderStatus.RETURNED].
+     *
+     * This is a user operation — it signals that the customer wants to return
+     * the package they already confirmed as received.
+     *
+     * Allowed transition:  RECEIVED → RETURNED
+     *
+     * Throws [ResourceNotFoundException] if no order with [orderId] exists or
+     * does not belong to the currently authenticated user.
+     * Throws [BusinessValidationException] if the order is not in RECEIVED status.
+     */
+    @Transactional
+    fun markAsReturned(orderId: Long): OrderResponseDto {
+
+        val email = SecurityContextHolder.getContext().authentication?.name
+            ?: throw ResourceNotFoundException("Authenticated user not found")
+
+        val order = orderRepository.findByIdAndUserEmail(orderId, email)
+            ?: throw ResourceNotFoundException("Order not found with id: $orderId")
+
+        if (order.status != OrderStatus.RECEIVED) {
+            throw BusinessValidationException(
+                "Order can only move to RETURNED from RECEIVED status. Current status: ${order.status}"
+            )
+        }
+
+        order.status = OrderStatus.RETURNED
+
+        return order.toResponseDto()
+    }
+
     private fun validateCartItemForCheckout(isActive: Boolean, quantity: Int, stock: Int) {
         if (!isActive)
             throw BusinessValidationException("This product is currently unavailable for purchase in order")
