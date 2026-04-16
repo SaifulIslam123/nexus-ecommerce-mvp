@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api/admin/orders")
 class AdminOrderController(
     private val orderService: OrderService
 ) {
@@ -22,7 +22,7 @@ class AdminOrderController(
      * Returns every order in the system, sorted newest first.
      * Admin-only endpoint — no user filter is applied.
      */
-    @GetMapping("/orders")
+    @GetMapping
     fun getAllOrders(): List<OrderResponseDto> {
         return orderService.getAllOrdersAdmin()
     }
@@ -35,13 +35,13 @@ class AdminOrderController(
      *
      * Responds with 404 if the order does not exist.
      */
-    @GetMapping("/orders/{id}")
+    @GetMapping("/{id}")
     fun getOrderById(@PathVariable id: Long): OrderResponseDto {
         return orderService.getOrderByIdAdmin(id)
     }
 
     // Expected date format 2026-04-10
-    @GetMapping("/orders/byDate")
+    @GetMapping("/byDate")
     fun getOrdersByDate(
         @RequestParam startDate: LocalDate,
         @RequestParam endDate: LocalDate? = null
@@ -49,7 +49,7 @@ class AdminOrderController(
         return orderService.getOrdersByDate(startDate, endDate)
     }
 
-    @GetMapping("/orders/byStatus")
+    @GetMapping("/byStatus")
     fun getOrdersByStatus(@RequestParam status: OrderStatus): List<OrderResponseDto> {
         return orderService.getOrderByStatus(status)
     }
@@ -64,7 +64,7 @@ class AdminOrderController(
      *
      * Request body: { "status": "SHIPPED" }
      */
-    @PatchMapping("/orders/{id}/status")
+    @PatchMapping("/{id}/status")
     fun updateOrderStatus(
         @PathVariable id: Long,
         @Valid @RequestBody request: UpdateOrderStatusRequest
@@ -80,7 +80,7 @@ class AdminOrderController(
      *
      * Allowed transition:  CONFIRMED → PROCESSING
      */
-    @PutMapping("/orders/{id}/processing")
+    @PutMapping("/{id}/processing")
     fun markAsProcessing(@PathVariable id: Long): OrderResponseDto {
         return orderService.markAsProcessing(id)
     }
@@ -93,7 +93,7 @@ class AdminOrderController(
      *
      * Allowed transition:  PROCESSING → SHIPPED
      */
-    @PutMapping("/orders/{id}/shipped")
+    @PutMapping("/{id}/shipped")
     fun markAsShipped(@PathVariable id: Long): OrderResponseDto {
         return orderService.markAsShipped(id)
     }
@@ -105,7 +105,7 @@ class AdminOrderController(
      *
      * Allowed transition:  RETURNED → REFUNDED
      */
-    @PutMapping("/orders/{id}/refund")
+    @PutMapping("/{id}/refund")
     fun markAsRefunded(@PathVariable id: Long): OrderResponseDto {
         return orderService.markAsRefunded(id)
     }
@@ -116,7 +116,7 @@ class AdminOrderController(
      * Permanently removes an order record.
      * Use with caution — prefer cancellation over deletion in production.
      */
-    @DeleteMapping("/orders/{id}")
+    @DeleteMapping("/{id}")
     fun deleteOrder(@PathVariable id: Long): ResponseEntity<Unit> {
         orderService.deleteById(id)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
