@@ -169,7 +169,38 @@ class UserService(
             //return user.toUserDto()
         }?: throw ResourceNotFoundException("User not found")
 
+    }
 
+    // ── Admin operations ──────────────────────────────────────────────────────
+
+    /**
+     * Admin: Returns every user registered in the system.
+     */
+    fun getAllUsers(): List<UserDto> {
+        return userRepository.findAll().map { it.toUserDto() }
+    }
+
+    /**
+     * Admin: Returns a single user by their ID.
+     * Throws [ResourceNotFoundException] if the user does not exist.
+     */
+    fun getUserById(id: Long): UserDto {
+        val user = userRepository.findById(id)
+            .orElseThrow { ResourceNotFoundException("User not found with id: $id") }
+        return user.toUserDto()
+    }
+
+    /**
+     * Admin: Permanently deletes a user and all their associated data
+     * (cascaded by the entity mappings).
+     * Throws [ResourceNotFoundException] if the user does not exist.
+     */
+    @Transactional
+    fun deleteUser(id: Long) {
+        if (!userRepository.existsById(id)) {
+            throw ResourceNotFoundException("User not found with id: $id")
+        }
+        userRepository.deleteById(id)
     }
 
 }
