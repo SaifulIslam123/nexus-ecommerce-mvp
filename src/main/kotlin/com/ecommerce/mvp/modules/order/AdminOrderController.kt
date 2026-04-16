@@ -1,8 +1,10 @@
 package com.ecommerce.mvp.modules.order
 
 import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
+import com.ecommerce.mvp.modules.order.model.dto.UpdateOrderStatusRequest
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.service.OrderService
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -50,6 +52,24 @@ class AdminOrderController(
     @GetMapping("/orders/byStatus")
     fun getOrdersByStatus(@RequestParam status: OrderStatus): List<OrderResponseDto> {
         return orderService.getOrderByStatus(status)
+    }
+
+    /**
+     * PATCH /api/admin/orders/{id}/status
+     *
+     * General-purpose status updater for admins.
+     * Validates the transition is legal, applies any side-effects
+     * (stock restore, tracking-id generation, etc.) and sends an
+     * email notification to the customer.
+     *
+     * Request body: { "status": "SHIPPED" }
+     */
+    @PatchMapping("/orders/{id}/status")
+    fun updateOrderStatus(
+        @PathVariable id: Long,
+        @Valid @RequestBody request: UpdateOrderStatusRequest
+    ): OrderResponseDto {
+        return orderService.updateOrderStatus(id, request.status)
     }
 
     /**

@@ -23,7 +23,7 @@ import java.time.ZoneOffset
 @Service
 class OrderService(
     private val orderRepository: OrderRepository,
-    private val cartItemRepository: CartItemRepository
+    private val cartItemRepository: CartItemRepository,
 ) {
 
     init {
@@ -217,15 +217,19 @@ class OrderService(
                 "Order can only move to SHIPPED from PROCESSING status. Current status: ${order.status}"
             )
         }
-
-        order.shipment?.let {
-            it.trackingId = TrackingIdGenerator.generateTrackingId()
-        }
+        setOrderToShipped(order)
         order.status = OrderStatus.SHIPPED
 
         return order.toResponseDto()
     }
 
+    private fun setOrderToShipped(order: Order) {
+
+        order.shipment?.let {
+            it.trackingId = TrackingIdGenerator.generateTrackingId()
+        }
+
+    }
 
     /**
      * Transitions an order from [OrderStatus.DELIVERED] to [OrderStatus.RECEIVED].
@@ -348,6 +352,67 @@ class OrderService(
         return orderRepository.findByStatus(status).map { it.toResponseDto() }
     }
 
+    /**
+     * Admin: Transitions an order to any [newStatus] and notifies the customer
+     * by email.  Basic guard rails are applied to avoid nonsensical transitions
+     * (e.g., moving a DELIVERED order back to TO_PAY).
+     *
+     * Allowed transitions (from → to):
+     *   TO_PAY       → CONFIRMED | CANCELLED | FAILED
+     *   CONFIRMED    → PROCESSING | CANCELLED
+     *   PROCESSING   → SHIPPED | CANCELLED
+     *   SHIPPED      → OUT_FOR_DELIVERY
+     *   OUT_FOR_DELIVERY → DELIVERED
+     *   DELIVERED    → RETURNED
+     *   RETURNED     → REFUNDED
+     *
+     * Throws [BusinessValidationException] for any disallowed transition.
+     */
+    @Transactional
+    fun updateOrderStatus(orderId: Long, newStatus: OrderStatus): OrderResponseDto {
+
+        val order = orderRepository.findById(orderId)
+            .orElseThrow { ResourceNotFoundException("Order not found with id: $orderId") }
+
+        val allowed: Set<OrderStatus> = allowedTransitions[order.status]
+            ?: throw BusinessValidationException(
+                "No transitions are allowed from status: ${order.status}"
+            )
+
+        if (newStatus !in allowed) {
+            throw BusinessValidationException(
+                "Cannot transition order from ${order.status} to $newStatus. " +
+                "Allowed next statuses: ${allowed.joinToString()}"
+            )
+        }
+
+        order.status = newStatus
+
+        // Side-effects that mirror dedicated transition methods
+        when (newStatus) {
+            OrderStatus.REFUNDED -> {
+             setOrderToRefunded(order)
+            }
+            OrderStatus.SHIPPED -> {
+                setOrderToShipped(order)
+            }
+            else -> { /* no extra side effects */ }
+        }
+
+        return order.toResponseDto()
+    }
+
+    // Defines which statuses an order may transition INTO from a given status.
+    private val allowedTransitions: Map<OrderStatus, Set<OrderStatus>> = mapOf(
+        OrderStatus.TO_PAY          to setOf(OrderStatus.CONFIRMED, OrderStatus.CANCELLED, OrderStatus.FAILED),
+        OrderStatus.CONFIRMED       to setOf(OrderStatus.PROCESSING, OrderStatus.CANCELLED),
+        OrderStatus.PROCESSING      to setOf(OrderStatus.SHIPPED, OrderStatus.CANCELLED),
+        OrderStatus.SHIPPED         to setOf(OrderStatus.OUT_FOR_DELIVERY),
+        OrderStatus.OUT_FOR_DELIVERY to setOf(OrderStatus.DELIVERED),
+        OrderStatus.DELIVERED       to setOf(OrderStatus.RETURNED),
+        OrderStatus.RETURNED        to setOf(OrderStatus.REFUNDED)
+    )
+
     @Transactional
     fun markAsRefunded(orderId: Long): OrderResponseDto {
 
@@ -362,6 +427,13 @@ class OrderService(
 
         // 1. Update order status
         order.status = OrderStatus.REFUNDED
+        setOrderToRefunded(order)
+
+
+        return order.toResponseDto()
+    }
+
+    private fun setOrderToRefunded(order: Order) {
 
         // 2. Restore stock for every item
         order.orderItems.forEach { item ->
@@ -370,8 +442,6 @@ class OrderService(
 
         // 3. Update payment status
         order.payment?.status = PaymentStatus.REFUNDED
-
-        return order.toResponseDto()
     }
 
 }

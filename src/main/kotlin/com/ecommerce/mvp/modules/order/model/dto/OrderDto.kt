@@ -14,6 +14,13 @@ import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
 
+// ── Admin Status Update ───────────────────────────────────────────────────────
+
+data class UpdateOrderStatusRequest(
+    @field:NotNull(message = "status is required")
+    val status: OrderStatus
+)
+
 // ── Order Item ────────────────────────────────────────────────────────────────
 
 data class ToPayOrderRequest(
