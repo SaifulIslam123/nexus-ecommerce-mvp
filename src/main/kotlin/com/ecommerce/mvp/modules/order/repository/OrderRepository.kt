@@ -1,6 +1,5 @@
 package com.ecommerce.mvp.modules.order.repository
 
-import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.entity.Order
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import jakarta.transaction.Transactional
@@ -10,7 +9,6 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import java.time.Instant
-import java.util.Date
 
 @Repository
 interface OrderRepository : JpaRepository<Order, Long> {
@@ -41,12 +39,25 @@ interface OrderRepository : JpaRepository<Order, Long> {
     fun findByStatus(status: OrderStatus): List<Order>
 
     @Query("SELECT o FROM Order o JOIN FETCH o.shipment s WHERE o.id = :orderId")
-    fun findByOrderId(orderId: Long): Order?
+    fun findByIdWithShipment(orderId: Long): Order?
 
     @Transactional
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Order o SET o.status = :new_status WHERE o.status = :order_status AND FUNCTION('DATEDIFF', CURRENT_TIMESTAMP, o.orderDate) > 15")
     fun updateStatusForDeliveredOrdersOlderThan15Days(@Param("order_status") orderStatus: OrderStatus = OrderStatus.DELIVERED,
                                                       @Param("new_status") newStatus: OrderStatus = OrderStatus.RECEIVED)
+
+    /**
+     * Admin: Fetches all orders with their related data eagerly loaded.
+     * DISTINCT prevents duplicates caused by the one-to-many JOIN on orderItems.
+     */
+    @Query("SELECT DISTINCT o FROM Order o JOIN FETCH o.user JOIN FETCH o.orderItems item JOIN FETCH item.product LEFT JOIN FETCH o.payment LEFT JOIN FETCH o.shipment ORDER BY o.orderDate DESC")
+    fun findAllOrdersWithDetails(): List<Order>
+
+    /**
+     * Admin: Fetches a single order by ID regardless of which user it belongs to.
+     */
+    @Query("SELECT o FROM Order o JOIN FETCH o.user JOIN FETCH o.orderItems item JOIN FETCH item.product LEFT JOIN FETCH o.payment LEFT JOIN FETCH o.shipment WHERE o.id = :orderId")
+    fun findOrderByIdAdmin(@Param("orderId") orderId: Long): Order?
 
 }

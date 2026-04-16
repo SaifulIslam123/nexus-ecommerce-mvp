@@ -13,7 +13,6 @@ import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.model.entity.Shipment
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
 import com.ecommerce.mvp.modules.payment.model.entity.PaymentStatus
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -210,7 +209,7 @@ class OrderService(
     @Transactional
     fun markAsShipped(orderId: Long): OrderResponseDto {
 
-        val order = orderRepository.findByOrderId(orderId)
+        val order = orderRepository.findByIdWithShipment(orderId)
             ?: throw ResourceNotFoundException("Order not found with id: $orderId")
 
         if (order.status != OrderStatus.PROCESSING) {
@@ -302,6 +301,26 @@ class OrderService(
 
     }*/
 
+
+    /**
+     * Admin: Returns every order in the system, sorted newest first.
+     * Uses a dedicated JOIN FETCH query to avoid N+1 problems.
+     */
+    @Transactional(readOnly = true)
+    fun getAllOrdersAdmin(): List<OrderResponseDto> {
+        return orderRepository.findAllOrdersWithDetails().map { it.toResponseDto() }
+    }
+
+    /**
+     * Admin: Returns a single order by ID regardless of which user it belongs to.
+     * Throws [ResourceNotFoundException] if the order does not exist.
+     */
+    @Transactional(readOnly = true)
+    fun getOrderByIdAdmin(orderId: Long): OrderResponseDto {
+        val order = orderRepository.findOrderByIdAdmin(orderId)
+            ?: throw ResourceNotFoundException("Order not found with id: $orderId")
+        return order.toResponseDto()
+    }
 
     /** Admin will use this for getting specific date orders**/
     // Service method

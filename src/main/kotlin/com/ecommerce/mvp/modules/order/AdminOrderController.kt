@@ -3,6 +3,8 @@ package com.ecommerce.mvp.modules.order
 import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.service.OrderService
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 
@@ -11,6 +13,31 @@ import java.time.LocalDate
 class AdminOrderController(
     private val orderService: OrderService
 ) {
+
+    /**
+     * GET /api/admin/orders
+     *
+     * Returns every order in the system, sorted newest first.
+     * Admin-only endpoint — no user filter is applied.
+     */
+    @GetMapping("/orders")
+    fun getAllOrders(): List<OrderResponseDto> {
+        return orderService.getAllOrdersAdmin()
+    }
+
+    /**
+     * GET /api/admin/orders/{id}
+     *
+     * Returns the full details of any single order by ID.
+     * Admin-only — not restricted to the authenticated user's orders.
+     *
+     * Responds with 404 if the order does not exist.
+     */
+    @GetMapping("/orders/{id}")
+    fun getOrderById(@PathVariable id: Long): OrderResponseDto {
+        return orderService.getOrderByIdAdmin(id)
+    }
+
     // Expected date format 2026-04-10
     @GetMapping("/orders/byDate")
     fun getOrdersByDate(
@@ -20,16 +47,18 @@ class AdminOrderController(
         return orderService.getOrdersByDate(startDate, endDate)
     }
 
+    @GetMapping("/orders/byStatus")
+    fun getOrdersByStatus(@RequestParam status: OrderStatus): List<OrderResponseDto> {
+        return orderService.getOrderByStatus(status)
+    }
+
     /**
-     * PUT /api/orders/{id}/processing
+     * PUT /api/admin/orders/{id}/processing
      *
-     * Admin operation. Transitions a CONFIRMED order to PROCESSING,
+     * Transitions a CONFIRMED order to PROCESSING,
      * signalling that the warehouse has started preparing the shipment.
      *
      * Allowed transition:  CONFIRMED → PROCESSING
-     *
-     * Responds with 404 if the order does not exist.
-     * Responds with 409 Conflict if the order is not in CONFIRMED status.
      */
     @PutMapping("/orders/{id}/processing")
     fun markAsProcessing(@PathVariable id: Long): OrderResponseDto {
@@ -37,31 +66,39 @@ class AdminOrderController(
     }
 
     /**
-     * PUT /api/orders/{id}/shipped
+     * PUT /api/admin/orders/{id}/shipped
      *
-     * Admin/courier operation. Transitions a PROCESSING order to SHIPPED
-     * and creates the shipment record with the carrier's tracking number.
+     * Transitions a PROCESSING order to SHIPPED
+     * and assigns the carrier tracking number.
      *
      * Allowed transition:  PROCESSING → SHIPPED
-     *
-     * Responds with 404 if the order does not exist.
-     * Responds with 409 Conflict if the order is not in PROCESSING status.
      */
     @PutMapping("/orders/{id}/shipped")
-    fun markAsShipped(
-        @PathVariable id: Long
-    ): OrderResponseDto {
+    fun markAsShipped(@PathVariable id: Long): OrderResponseDto {
         return orderService.markAsShipped(id)
     }
 
-
-    @GetMapping("/orders/byStatus")
-    fun getOrdersByStatus(@RequestParam status: OrderStatus): List<OrderResponseDto> {
-        return orderService.getOrderByStatus(status)
-    }
-
+    /**
+     * PUT /api/admin/orders/{id}/refund
+     *
+     * Transitions a RETURNED order to REFUNDED and restores stock.
+     *
+     * Allowed transition:  RETURNED → REFUNDED
+     */
     @PutMapping("/orders/{id}/refund")
     fun markAsRefunded(@PathVariable id: Long): OrderResponseDto {
         return orderService.markAsRefunded(id)
+    }
+
+    /**
+     * DELETE /api/admin/orders/{id}
+     *
+     * Permanently removes an order record.
+     * Use with caution — prefer cancellation over deletion in production.
+     */
+    @DeleteMapping("/orders/{id}")
+    fun deleteOrder(@PathVariable id: Long): ResponseEntity<Unit> {
+        orderService.deleteById(id)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 }
