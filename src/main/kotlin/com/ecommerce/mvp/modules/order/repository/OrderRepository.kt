@@ -60,4 +60,28 @@ interface OrderRepository : JpaRepository<Order, Long> {
     @Query("SELECT o FROM Order o JOIN FETCH o.user JOIN FETCH o.orderItems item JOIN FETCH item.product LEFT JOIN FETCH o.payment LEFT JOIN FETCH o.shipment WHERE o.id = :orderId")
     fun findOrderByIdAdmin(@Param("orderId") orderId: Long): Order?
 
+    /** Dashboard: total revenue from non-cancelled/failed orders. */
+    @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.status NOT IN (com.ecommerce.mvp.modules.order.model.entity.OrderStatus.CANCELLED, com.ecommerce.mvp.modules.order.model.entity.OrderStatus.FAILED)")
+    fun sumTotalRevenue(): java.math.BigDecimal
+
+    /** Dashboard: count of orders grouped by status. Returns [status, count] pairs. */
+    @Query("SELECT o.status, COUNT(o) FROM Order o GROUP BY o.status")
+    fun countByStatus(): List<Array<Any>>
+
+    /**
+     * Dashboard: Top-selling products.
+     * Returns rows of [productId, productName, totalQty, totalRevenue].
+     */
+    @Query("""
+        SELECT item.product.id, item.product.name, SUM(item.quantity), SUM(item.price * item.quantity)
+        FROM OrderItem item
+        WHERE item.order.status NOT IN (
+            com.ecommerce.mvp.modules.order.model.entity.OrderStatus.CANCELLED,
+            com.ecommerce.mvp.modules.order.model.entity.OrderStatus.FAILED
+        )
+        GROUP BY item.product.id, item.product.name
+        ORDER BY SUM(item.quantity) DESC
+    """)
+    fun findTopSellingProducts(pageable: org.springframework.data.domain.Pageable): List<Array<Any>>
+
 }
