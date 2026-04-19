@@ -1,5 +1,6 @@
 package com.ecommerce.mvp.security
 
+import com.ecommerce.mvp.common.config.SwaggerProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -21,9 +22,9 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 class SecurityConfig(
     private val customerUserDetailsService: UserDetailsService,
     private val jwtAuthFilter: JwtAuthenticationFilter,
-    private val authenticationEntryPoint: JwtAuthenticationEntryPoint
+    private val authenticationEntryPoint: JwtAuthenticationEntryPoint,
+    private val swaggerProperties: SwaggerProperties
 ) {
-
     @Bean
     fun passwordEncoder(): PasswordEncoder {
         return BCryptPasswordEncoder()
@@ -45,18 +46,12 @@ class SecurityConfig(
 
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+        val publicPaths = (swaggerProperties.publicPaths + "/api/auth/**").toTypedArray()
+
         http
             .csrf { it.disable() }
             .authorizeHttpRequests {
-                it.requestMatchers(
-                        "/api/auth/**",
-                        "/swagger-ui/**",
-                        "/swagger-ui.html",
-                        "/v3/api-docs",
-                        "/v3/api-docs/**",
-                        "/v3/api-docs.yaml",
-                        "/webjars/**"
-                    ).permitAll()
+                it.requestMatchers(*publicPaths).permitAll()
                     .anyRequest().authenticated()
             }
             .exceptionHandling {
