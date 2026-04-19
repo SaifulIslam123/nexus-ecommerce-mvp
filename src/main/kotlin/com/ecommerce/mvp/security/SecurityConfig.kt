@@ -15,8 +15,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher
-
 
 @EnableWebSecurity
 @Configuration
@@ -50,7 +48,15 @@ class SecurityConfig(
         http
             .csrf { it.disable() }
             .authorizeHttpRequests {
-                it.requestMatchers(AntPathRequestMatcher("/api/auth/**")).permitAll()
+                it.requestMatchers(
+                        "/api/auth/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/v3/api-docs",
+                        "/v3/api-docs/**",
+                        "/v3/api-docs.yaml",
+                        "/webjars/**"
+                    ).permitAll()
                     .anyRequest().authenticated()
             }
             .exceptionHandling {

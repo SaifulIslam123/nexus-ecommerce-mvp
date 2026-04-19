@@ -10,10 +10,12 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
 @RestControllerAdvice
 class ResponseWrapperAdvice : ResponseBodyAdvice<Any> {
 
+    private val excludedPaths = listOf("/v3/api-docs", "/swagger-ui", "/swagger-resources", "/webjars")
+
     override fun supports(
         returnType: MethodParameter,
         converterType: Class<out HttpMessageConverter<*>>
-    ): Boolean = true // Wrap all responses
+    ): Boolean = true
 
     override fun beforeBodyWrite(
         body: Any?,
@@ -25,6 +27,10 @@ class ResponseWrapperAdvice : ResponseBodyAdvice<Any> {
     ): Any? {
         // Prevent double wrapping or wrapping the error response itself
         if (body is ApiResponse<*>) return body
+
+        // Skip wrapping for Swagger / OpenAPI endpoints
+        val path = request.uri.path
+        if (excludedPaths.any { path.startsWith(it) }) return body
 
         return ApiResponse(
             success = true,
