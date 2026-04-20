@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 
 @RestController
-@RequestMapping("/api/courier")
+@RequestMapping("/api/v1/courier")
 class CourierController(
     private val courierService: CourierService
 ) {

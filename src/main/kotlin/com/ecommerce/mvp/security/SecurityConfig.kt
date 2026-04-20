@@ -46,7 +46,7 @@ class SecurityConfig(
 
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-        val publicPaths = (swaggerProperties.publicPaths + "/api/auth/**").toTypedArray()
+        val publicPaths = (swaggerProperties.publicPaths + "/api/v1/auth/**").toTypedArray()
 
         http
             .csrf { it.disable() }

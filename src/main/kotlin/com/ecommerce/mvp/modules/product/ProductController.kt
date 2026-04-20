@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*
 import java.math.BigDecimal
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/api/v1/products")
 class ProductController(
     private val productService: ProductService
 ) {

@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/users/orders")
+@RequestMapping("/api/v1/users/orders")
 class OrderController(
     private val orderService: OrderService
 ) {
