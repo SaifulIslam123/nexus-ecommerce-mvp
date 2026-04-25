@@ -7,6 +7,8 @@ import com.ecommerce.mvp.modules.product.repository.TagRepository
 import com.ecommerce.mvp.modules.tag.dto.TagRequestDto
 import com.ecommerce.mvp.modules.tag.dto.TagResponseDto
 import com.ecommerce.mvp.modules.tag.dto.toResponseDto
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -21,6 +23,12 @@ class TagService(
     @Transactional(readOnly = true)
     fun getAllTags(): List<TagResponseDto> {
         return tagRepository.findAll().map { it.toResponseDto() }
+    }
+
+    @Transactional(readOnly = true)
+    fun getAllTags(page: Int, size: Int): Page<TagResponseDto> {
+        val pageable = PageRequest.of(page, size)
+        return tagRepository.findAll(pageable).map { it.toResponseDto() }
     }
 
     /**

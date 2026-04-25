@@ -16,6 +16,9 @@ import com.ecommerce.mvp.modules.payment.model.entity.PaymentStatus
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -58,6 +61,18 @@ class OrderService(
 
         return orderRepository.findAllByUserEmail(email)
             .map { it.toResponseDto() }
+    }
+
+    @Transactional(readOnly = true)
+    fun getMyOrders(page: Int, size: Int): Page<OrderResponseDto> {
+        val email = SecurityContextHolder.getContext().authentication?.name
+            ?: throw ResourceNotFoundException("Authenticated user not found")
+
+        val allOrders = orderRepository.findAllByUserEmail(email).map { it.toResponseDto() }
+        val pageable = PageRequest.of(page, size)
+        val start = (page * size).coerceAtMost(allOrders.size)
+        val end = (start + size).coerceAtMost(allOrders.size)
+        return PageImpl(allOrders.subList(start, end), pageable, allOrders.size.toLong())
     }
 
     /**
@@ -313,6 +328,15 @@ class OrderService(
     @Transactional(readOnly = true)
     fun getAllOrdersAdmin(): List<OrderResponseDto> {
         return orderRepository.findAllOrdersWithDetails().map { it.toResponseDto() }
+    }
+
+    @Transactional(readOnly = true)
+    fun getAllOrdersAdmin(page: Int, size: Int): Page<OrderResponseDto> {
+        val allOrders = orderRepository.findAllOrdersWithDetails().map { it.toResponseDto() }
+        val pageable = PageRequest.of(page, size)
+        val start = (page * size).coerceAtMost(allOrders.size)
+        val end = (start + size).coerceAtMost(allOrders.size)
+        return PageImpl(allOrders.subList(start, end), pageable, allOrders.size.toLong())
     }
 
     /**

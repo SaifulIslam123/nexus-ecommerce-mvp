@@ -3,6 +3,7 @@ import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.dto.ToPayOrderRequest
 import com.ecommerce.mvp.modules.order.service.OrderService
 import jakarta.validation.Valid
+import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -21,8 +22,11 @@ class OrderController(
      * and shipment information.
      */
     @GetMapping
-    fun getMyOrders(): List<OrderResponseDto> {
-        return orderService.getMyOrders()
+    fun getMyOrders(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "10") size: Int
+    ): Page<OrderResponseDto> {
+        return orderService.getMyOrders(page, size)
     }
 
     /**

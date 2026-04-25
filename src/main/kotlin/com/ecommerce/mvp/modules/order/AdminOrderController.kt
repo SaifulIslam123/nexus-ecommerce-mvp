@@ -5,6 +5,7 @@ import com.ecommerce.mvp.modules.order.model.dto.UpdateOrderStatusRequest
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.service.OrderService
 import jakarta.validation.Valid
+import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -23,8 +24,11 @@ class AdminOrderController(
      * Admin-only endpoint — no user filter is applied.
      */
     @GetMapping
-    fun getAllOrders(): List<OrderResponseDto> {
-        return orderService.getAllOrdersAdmin()
+    fun getAllOrders(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "10") size: Int
+    ): Page<OrderResponseDto> {
+        return orderService.getAllOrdersAdmin(page, size)
     }
 
     /**

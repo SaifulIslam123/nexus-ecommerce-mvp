@@ -4,6 +4,7 @@ import com.ecommerce.mvp.modules.tag.dto.TagRequestDto
 import com.ecommerce.mvp.modules.tag.dto.TagResponseDto
 import com.ecommerce.mvp.modules.tag.service.TagService
 import jakarta.validation.Valid
+import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -19,8 +20,11 @@ class TagController(
      * Returns all available tags.
      */
     @GetMapping
-    fun getAllTags(): List<TagResponseDto> {
-        return tagService.getAllTags()
+    fun getAllTags(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "10") size: Int
+    ): Page<TagResponseDto> {
+        return tagService.getAllTags(page, size)
     }
 
     /**

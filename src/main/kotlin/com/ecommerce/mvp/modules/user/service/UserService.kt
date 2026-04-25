@@ -13,6 +13,9 @@ import com.ecommerce.mvp.modules.user.model.entity.User
 import com.ecommerce.mvp.modules.user.repository.UserRepository
 import com.ecommerce.mvp.repository.RoleRepository
 import jakarta.annotation.PostConstruct
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import com.ecommerce.mvp.modules.user.model.dto.UserProfileUpdateDto
@@ -176,8 +179,9 @@ class UserService(
     /**
      * Admin: Returns every user registered in the system.
      */
-    fun getAllUsers(): List<UserDto> {
-        return userRepository.findAll().map { it.toUserDto() }
+    fun getAllUsers(page: Int = 0, size: Int = 10, sort: String = "id", direction: String = "ASC"): Page<UserDto> {
+        val pageable = PageRequest.of(page, size, Sort.Direction.valueOf(direction.uppercase()), sort)
+        return userRepository.findAll(pageable).map { it.toUserDto() }
     }
 
     /**
