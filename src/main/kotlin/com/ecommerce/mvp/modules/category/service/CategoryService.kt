@@ -1,5 +1,6 @@
 package com.ecommerce.mvp.modules.category.service
 
+import com.ecommerce.mvp.common.cache.CacheNames
 import com.ecommerce.mvp.common.exception.ResourceAlreadyExistException
 import com.ecommerce.mvp.common.exception.ResourceNotFoundException
 import com.ecommerce.mvp.modules.category.dto.CategoryDto
@@ -9,6 +10,9 @@ import com.ecommerce.mvp.modules.category.dto.toEntity
 import com.ecommerce.mvp.modules.category.dto.toTreeDto
 import com.ecommerce.mvp.modules.category.entity.Category
 import com.ecommerce.mvp.modules.category.repository.CategoryRepository
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.cache.annotation.Caching
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -21,6 +25,7 @@ class CategoryService(
         return categoryRepository.findAll()
     }
 
+    @Cacheable(cacheNames = [CacheNames.CATEGORIES], key = "'tree'")
     @Transactional
     fun getCategoryTree(): List<CategoryTreeResponseDto> {
         return categoryRepository.findAllByParentIsNull().map { it.toTreeDto() }
@@ -30,10 +35,15 @@ class CategoryService(
         return categoryRepository.findByName(name).orElse(null)
     }
 
+    @Cacheable(cacheNames = [CacheNames.CATEGORIES_SINGLE], key = "#id")
     fun findById(id: Long): Category? {
         return categoryRepository.findById(id).orElse(null)
     }
 
+    @Caching(evict = [
+        CacheEvict(cacheNames = [CacheNames.CATEGORIES], key = "'tree'"),
+        CacheEvict(cacheNames = [CacheNames.CATEGORIES_SINGLE], allEntries = true)
+    ])
     @Transactional
     fun createCategory(categoryDto: CategoryDto): CategoryDto {
         // Check if category with same name already exists
@@ -46,6 +56,10 @@ class CategoryService(
         return savedCategory.toDto()
     }
 
+    @Caching(evict = [
+        CacheEvict(cacheNames = [CacheNames.CATEGORIES], key = "'tree'"),
+        CacheEvict(cacheNames = [CacheNames.CATEGORIES_SINGLE], key = "#id")
+    ])
     @Transactional
     fun updateCategory(id: Long, categoryDto: CategoryDto): CategoryDto {
         val existingCategory = categoryRepository.findById(id).orElse(null)
@@ -66,6 +80,10 @@ class CategoryService(
         return existingCategory.toDto()
     }
 
+    @Caching(evict = [
+        CacheEvict(cacheNames = [CacheNames.CATEGORIES], key = "'tree'"),
+        CacheEvict(cacheNames = [CacheNames.CATEGORIES_SINGLE], key = "#id")
+    ])
     @Transactional
     fun deleteById(id: Long) {
         if (!categoryRepository.existsById(id)) {

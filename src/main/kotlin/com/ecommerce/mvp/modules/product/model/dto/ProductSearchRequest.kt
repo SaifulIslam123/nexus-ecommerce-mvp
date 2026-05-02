@@ -25,4 +25,16 @@ data class ProductSearchRequest(
     val size: Int = 20,
     val sort: String = "createdDate",
     val direction: String = "desc"
-)
+) {
+    /**
+     * Deterministic cache key derived from all search parameters.
+     * Sorted dynamic-attribute entries ensure key stability regardless of Map iteration order.
+     */
+    fun cacheKey(): String {
+        val attrs = dynamicAttributes.entries
+            .sortedBy { it.key }
+            .joinToString(",") { "${it.key}=${it.value}" }
+        return "kw=${keyword}_cat=${categoryIds}_min=${minPrice}_max=${maxPrice}" +
+               "_tags=${tags?.sorted()}_p=${page}_s=${size}_sort=${sort}_dir=${direction}_attrs=${attrs}"
+    }
+}

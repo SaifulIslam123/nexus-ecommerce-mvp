@@ -1,5 +1,6 @@
 package com.ecommerce.mvp.modules.product.service
 
+import com.ecommerce.mvp.common.cache.CacheNames
 import com.ecommerce.mvp.common.exception.ResourceNotFoundException
 import com.ecommerce.mvp.modules.category.repository.CategoryRepository
 import com.ecommerce.mvp.modules.product.model.dto.ProductCreateRequestDto
@@ -13,6 +14,9 @@ import com.ecommerce.mvp.modules.product.repository.ProductRepository
 import com.ecommerce.mvp.modules.product.repository.ProductSpecification
 import com.ecommerce.mvp.modules.product.repository.TagRepository
 import jakarta.transaction.Transactional
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.cache.annotation.Caching
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -36,18 +40,21 @@ class ProductService(
         productRepository.save(newProduct)
     }
 
+    @Cacheable(cacheNames = [CacheNames.PRODUCTS], key = "#id")
     fun getProductById(id: Long): ProductResponseDto {
         val product = productRepository.findById(id)
             .orElseThrow { ResourceNotFoundException("Product not found with id: $id") }
         return product.toResponseDto()
     }
 
+    @Cacheable(cacheNames = [CacheNames.PRODUCTS], key = "#id")
     fun getProductDetail(id: Long): ProductResponseDto {
         val product = productRepository.findById(id)
             .orElseThrow { ResourceNotFoundException("Product not found with id: $id") }
         return product.toResponseDto()
     }
 
+    @Cacheable(cacheNames = [CacheNames.PRODUCTS_SEARCH], key = "#request.cacheKey()")
     @Transactional
     fun searchProducts(request: ProductSearchRequest): Page<ProductResponseDto> {
         val direction = if (request.direction.equals("asc", ignoreCase = true))
@@ -60,6 +67,7 @@ class ProductService(
             .map { it.toResponseDto() }
     }
 
+    @Cacheable(cacheNames = [CacheNames.PRODUCTS_RECOMMENDATIONS], key = "#id")
     @Transactional
     fun getRecommendedProduct(id: Long): List<ProductResponseDto> {
 
@@ -81,6 +89,10 @@ class ProductService(
      * Admin: Creates a brand-new product.
      * Tags are looked up by name and created on the fly if they do not yet exist.
      */
+    @Caching(evict = [
+        CacheEvict(cacheNames = [CacheNames.PRODUCTS_SEARCH], allEntries = true),
+        CacheEvict(cacheNames = [CacheNames.PRODUCTS_RECOMMENDATIONS], allEntries = true)
+    ])
     @Transactional
     fun createProduct(requestDto: ProductCreateRequestDto): ProductResponseDto {
 
@@ -106,6 +118,11 @@ class ProductService(
      * Only non-null fields in the request are applied.
      * When [ProductUpdateRequestDto.tags] is provided the entire tag list is replaced.
      */
+    @Caching(evict = [
+        CacheEvict(cacheNames = [CacheNames.PRODUCTS], key = "#id"),
+        CacheEvict(cacheNames = [CacheNames.PRODUCTS_SEARCH], allEntries = true),
+        CacheEvict(cacheNames = [CacheNames.PRODUCTS_RECOMMENDATIONS], key = "#id")
+    ])
     @Transactional
     fun updateProduct(id: Long, requestDto: ProductUpdateRequestDto): ProductResponseDto {
 
@@ -136,6 +153,11 @@ class ProductService(
      * Admin: Permanently deletes a product by ID.
      * Throws [ResourceNotFoundException] if the product does not exist.
      */
+    @Caching(evict = [
+        CacheEvict(cacheNames = [CacheNames.PRODUCTS], key = "#id"),
+        CacheEvict(cacheNames = [CacheNames.PRODUCTS_SEARCH], allEntries = true),
+        CacheEvict(cacheNames = [CacheNames.PRODUCTS_RECOMMENDATIONS], key = "#id")
+    ])
     @Transactional
     fun deleteProduct(id: Long) {
         if (!productRepository.existsById(id)) {
@@ -148,6 +170,11 @@ class ProductService(
      * Admin: Toggles the [Product.isActive] flag.
      * Active → Inactive, Inactive → Active.
      */
+    @Caching(evict = [
+        CacheEvict(cacheNames = [CacheNames.PRODUCTS], key = "#id"),
+        CacheEvict(cacheNames = [CacheNames.PRODUCTS_SEARCH], allEntries = true),
+        CacheEvict(cacheNames = [CacheNames.PRODUCTS_RECOMMENDATIONS], key = "#id")
+    ])
     @Transactional
     fun toggleProductActive(id: Long): ProductResponseDto {
         val product = productRepository.findById(id)
