@@ -1,5 +1,6 @@
 package com.ecommerce.mvp.security
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
@@ -12,18 +13,17 @@ import java.util.*
 @Component
 class JwtUtil {
 
+    @Value("\${app.jwt.secret}")
+    private lateinit var secret: String
 
-    companion object {
-        // IMPORTANT: This key should be strong (256-bit) and stored in properties!
-        // This is a Base64 encoded sample key
-        private const val SECRET = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437"
-    }
+    @Value("\${app.jwt.expiration-ms}")
+    private var expirationMs: Long = 36_000_000
 
     fun generateToken(userEmail: String): String {
         return Jwts.builder()
             .setSubject(userEmail)
             .setIssuedAt(Date(System.currentTimeMillis()))
-            .setExpiration(Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours
+            .setExpiration(Date(System.currentTimeMillis() + expirationMs))
             .signWith(getSignKey(), SignatureAlgorithm.HS256)
             .compact()
     }
@@ -58,7 +58,7 @@ class JwtUtil {
     }
 
     private fun getSignKey(): Key {
-        val keyBytes = Decoders.BASE64.decode(SECRET)
+        val keyBytes = Decoders.BASE64.decode(secret)
         return Keys.hmacShaKeyFor(keyBytes)
     }
 }
