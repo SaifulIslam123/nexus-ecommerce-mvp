@@ -1,3 +1,10 @@
 # Ignore IntelliJ IDEA project settings
 .idea/
 target/
+
+# Environment variable files – contain secrets, never commit
+.env
+*.env
+
+# Profile-specific overrides that may contain local secrets
+src/main/resources/application-local.properties
