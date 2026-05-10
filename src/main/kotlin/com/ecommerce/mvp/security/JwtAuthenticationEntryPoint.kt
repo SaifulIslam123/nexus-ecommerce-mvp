@@ -19,7 +19,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver
 @Component
 class JwtAuthenticationEntryPoint(
     // "handlerExceptionResolver" is the default composite resolver bean name
-    @Qualifier("handlerExceptionResolver")
+    @param:Qualifier("handlerExceptionResolver")
     private val resolver: HandlerExceptionResolver
 ) : AuthenticationEntryPoint {
 
