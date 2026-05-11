@@ -15,7 +15,7 @@ class RoleController(private val roleService: RoleService) {
 
     @PostMapping("/create")
     fun createUser(@RequestBody role: Role): ResponseEntity<Any> {
-        val savedRole = roleService.save(role)
+        val savedRole = roleService.saveRole(role)
         return ResponseEntity.status(HttpStatus.CREATED).body(role)
     }
 

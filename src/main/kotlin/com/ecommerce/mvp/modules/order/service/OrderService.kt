@@ -29,9 +29,6 @@ class OrderService(
     private val cartItemRepository: CartItemRepository,
 ) {
 
-    init {
-        println("DEBUG REPO CLASS: " + this.orderRepository.javaClass.name);
-    }
 
     fun findById(id: Long): Order? {
         return orderRepository.findById(id).orElse(null)

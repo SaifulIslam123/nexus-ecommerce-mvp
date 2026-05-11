@@ -4,12 +4,10 @@ import com.ecommerce.mvp.common.AppConstant.MAX_Address
 import com.ecommerce.mvp.common.AppConstant.MIN_Address
 import com.ecommerce.mvp.common.exception.BusinessValidationException
 import com.ecommerce.mvp.common.exception.ResourceNotFoundException
-import com.ecommerce.mvp.modules.role.model.entity.ERole
 import com.ecommerce.mvp.modules.role.model.entity.Role
 import com.ecommerce.mvp.modules.user.model.dto.AddressDto
 import com.ecommerce.mvp.modules.user.model.dto.UserDto
 import com.ecommerce.mvp.modules.user.model.dto.toEntity
-import com.ecommerce.mvp.modules.user.model.entity.User
 import com.ecommerce.mvp.modules.user.repository.UserRepository
 import com.ecommerce.mvp.repository.RoleRepository
 import jakarta.annotation.PostConstruct
@@ -19,7 +17,6 @@ import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import com.ecommerce.mvp.modules.user.model.dto.UserProfileUpdateDto
-import com.ecommerce.mvp.modules.user.model.dto.toAddressDto
 import com.ecommerce.mvp.modules.user.model.dto.toUserDto
 import com.ecommerce.mvp.modules.user.model.entity.Address
 import org.springframework.security.core.context.SecurityContextHolder
@@ -36,18 +33,6 @@ class UserService(
     @PostConstruct
     fun init() {
         this.dbRoleList = roleRepository.findAll()
-    }
-
-    @Transactional
-    fun createUser(user: User): User {
-
-        val userRole = dbRoleList.find { it.name == ERole.USER }
-        println("userRole: $userRole")
-
-        //val roleUer = roleRepository.getReferenceById(1L)
-        userRole?.let { user.userRoles = mutableSetOf(it) }
-        return userRepository.save(user)
-
     }
 
     @Transactional
