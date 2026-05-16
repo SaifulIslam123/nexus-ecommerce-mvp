@@ -1,34 +1,31 @@
 package com.ecommerce.mvp.security
 
-import com.ecommerce.mvp.common.config.SwaggerProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
-import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
-import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 
+/**
+ * Shared security infrastructure beans (all profiles).
+ *
+ * Profile-specific filter chains live in:
+ *  - [DevSecurityConfig]  (@Profile("dev"))
+ *  - [ProdSecurityConfig] (@Profile("prod"))
+ */
 @EnableWebSecurity
 @Configuration
 class SecurityConfig(
-    private val customerUserDetailsService: UserDetailsService,
-    private val jwtAuthFilter: JwtAuthenticationFilter,
-    private val authenticationEntryPoint: JwtAuthenticationEntryPoint,
-    private val swaggerProperties: SwaggerProperties
+    private val customerUserDetailsService: UserDetailsService
 ) {
+
     @Bean
-    fun passwordEncoder(): PasswordEncoder {
-        return BCryptPasswordEncoder()
-    }
+    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
     @Bean
     fun authenticationProvider(): AuthenticationProvider {
@@ -40,29 +37,6 @@ class SecurityConfig(
 
     @Bean
     @Throws(Exception::class)
-    fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager {
-        return config.authenticationManager
-    }
-
-    @Bean
-    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-        val publicPaths = (swaggerProperties.publicPaths + "/api/v1/auth/**").toTypedArray()
-
-        http
-            .csrf { it.disable() }
-            .authorizeHttpRequests {
-                it.requestMatchers(*publicPaths).permitAll()
-                    .anyRequest().authenticated()
-            }
-            .exceptionHandling {
-                it.authenticationEntryPoint(authenticationEntryPoint)
-            }
-            .httpBasic(Customizer.withDefaults())
-            .sessionManagement {
-                it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            }
-            .addFilterAfter(jwtAuthFilter, BasicAuthenticationFilter::class.java)
-
-        return http.build()
-    }
+    fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager =
+        config.authenticationManager
 }

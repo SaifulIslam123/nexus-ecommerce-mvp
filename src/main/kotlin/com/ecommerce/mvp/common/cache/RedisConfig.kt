@@ -10,6 +10,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import org.springframework.data.redis.cache.RedisCacheConfiguration
 import org.springframework.data.redis.cache.RedisCacheManager
 import org.springframework.data.redis.connection.RedisConnectionFactory
@@ -27,8 +28,10 @@ import java.time.Duration
  *  - Null-value caching disabled (avoids storing "not found" as cached entries)
  *  - Key prefix: <cacheName>::<key>  (Spring default)
  */
+/** Redis cache manager is only wired in the PROD environment. In DEV, [spring.cache.type=none] is used instead. */
 @Configuration
 @EnableCaching
+@Profile("prod")
 class RedisConfig {
 
     /**

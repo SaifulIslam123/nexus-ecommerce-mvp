@@ -8,8 +8,11 @@ import io.swagger.v3.oas.models.security.SecurityRequirement
 import io.swagger.v3.oas.models.security.SecurityScheme
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 
+/** Swagger / OpenAPI UI is only exposed in the DEV environment. */
 @Configuration
+@Profile("dev")
 class OpenApiConfig {
 
     @Bean
