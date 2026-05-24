@@ -28,9 +28,8 @@ class AdminProductController(
     @PostMapping
     fun createProduct(
         @Valid @RequestBody requestDto: ProductCreateRequestDto
-    ): ResponseEntity<ProductResponseDto> {
-        val created = productService.createProduct(requestDto)
-        return ResponseEntity.status(HttpStatus.CREATED).body(created)
+    ): ProductResponseDto {
+       return productService.createProduct(requestDto)
     }
 
     /**

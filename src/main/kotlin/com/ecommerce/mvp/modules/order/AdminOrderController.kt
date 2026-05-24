@@ -28,7 +28,7 @@ class AdminOrderController(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "10") size: Int
     ): Page<OrderResponseDto> {
-        return orderService.getAllOrdersAdmin(page, size)
+        return orderService.getMyOrders(page, size)
     }
 
     /**
@@ -41,7 +41,7 @@ class AdminOrderController(
      */
     @GetMapping("/{id}")
     fun getOrderById(@PathVariable id: Long): OrderResponseDto {
-        return orderService.getOrderByIdAdmin(id)
+        return orderService.getOrderById(id)
     }
 
     // Expected date format 2026-04-10

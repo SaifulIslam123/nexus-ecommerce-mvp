@@ -46,20 +46,6 @@ class OrderService(
         orderRepository.deleteById(id)
     }
 
-    /**
-     * Returns every order that belongs to the currently authenticated user,
-     * sorted from newest to oldest.
-     * Throws [ResourceNotFoundException] if no authenticated user is found.
-     */
-    @Transactional(readOnly = true)
-    fun getMyOrders(): List<OrderResponseDto> {
-        val email = SecurityContextHolder.getContext().authentication?.name
-            ?: throw ResourceNotFoundException("Authenticated user not found")
-
-        return orderRepository.findAllByUserEmail(email)
-            .map { it.toResponseDto() }
-    }
-
     @Transactional(readOnly = true)
     fun getMyOrders(page: Int, size: Int): Page<OrderResponseDto> {
         val email = SecurityContextHolder.getContext().authentication?.name
@@ -123,7 +109,7 @@ class OrderService(
             ?: throw ResourceNotFoundException("Authenticated user not found")
 
         val cartItem =
-            cartItemRepository.findByIdAndUserEmailAndUserAddressId(
+            cartItemRepository.findByIdAndUserEmailIfAddressOwned(
                 requestDto.cartItemId!!,
                 email,
                 requestDto.addressId!!
@@ -312,40 +298,6 @@ class OrderService(
             throw BusinessValidationException("Requested quantity ($quantity) exceeds available stock ($stock)")
     }
 
-    //TODO: Handle multiple cart items
-    /*fun initiateOrders(cartItemRequestDtoList: List<CartItemRequestDto>): List<Order> {
-
-    }*/
-
-
-    /**
-     * Admin: Returns every order in the system, sorted newest first.
-     * Uses a dedicated JOIN FETCH query to avoid N+1 problems.
-     */
-    @Transactional(readOnly = true)
-    fun getAllOrdersAdmin(): List<OrderResponseDto> {
-        return orderRepository.findAllOrdersWithDetails().map { it.toResponseDto() }
-    }
-
-    @Transactional(readOnly = true)
-    fun getAllOrdersAdmin(page: Int, size: Int): Page<OrderResponseDto> {
-        val allOrders = orderRepository.findAllOrdersWithDetails().map { it.toResponseDto() }
-        val pageable = PageRequest.of(page, size)
-        val start = (page * size).coerceAtMost(allOrders.size)
-        val end = (start + size).coerceAtMost(allOrders.size)
-        return PageImpl(allOrders.subList(start, end), pageable, allOrders.size.toLong())
-    }
-
-    /**
-     * Admin: Returns a single order by ID regardless of which user it belongs to.
-     * Throws [ResourceNotFoundException] if the order does not exist.
-     */
-    @Transactional(readOnly = true)
-    fun getOrderByIdAdmin(orderId: Long): OrderResponseDto {
-        val order = orderRepository.findOrderByIdAdmin(orderId)
-            ?: throw ResourceNotFoundException("Order not found with id: $orderId")
-        return order.toResponseDto()
-    }
 
     /** Admin will use this for getting specific date orders**/
     // Service method
@@ -357,7 +309,7 @@ class OrderService(
         val start: Instant = startDate.atStartOfDay(ZoneOffset.UTC).toInstant()
 
         endDate?.let {
-            val end: Instant = it.atStartOfDay(ZoneOffset.UTC).toInstant()
+            val end: Instant = it.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant()
             return orderRepository.findByOrderDateBetween(start, end)
                 .map { it.toResponseDto() }
         } ?: run {
