@@ -3,6 +3,7 @@ package com.ecommerce.mvp.modules.product.model.dto
 import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import java.math.BigDecimal
 
@@ -17,7 +18,7 @@ data class ProductCreateRequestDto(
 
     @field:NotNull(message = "Price is required")
     @field:DecimalMin(value = "0.01", message = "Price must be greater than 0")
-    val price: BigDecimal,
+    val price: BigDecimal = BigDecimal.ZERO,
 
     @field:Min(value = 0, message = "Stock cannot be negative")
     val stock: Int = 0,
@@ -25,7 +26,7 @@ data class ProductCreateRequestDto(
     val description: String? = null,
 
     @field:NotNull(message = "Category ID is required")
-    val categoryId: Long,
+    val categoryId: Long = -1,
 
     @field:NotNull(message = "Tag ID is required")
     val tags: List<Long> = emptyList(),

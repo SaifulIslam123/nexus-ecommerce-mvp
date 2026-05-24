@@ -17,7 +17,7 @@ interface CartItemRepository : JpaRepository<CartItem, Long> {
     @Query("SELECT ci FROM CartItem ci JOIN ci.cart c JOIN c.user u WHERE u.email = :email AND ci.id = :itemId")
     fun findByIdAndUserEmail(itemId: Long, email: String): CartItem?
 
-    @Query("SELECT ci FROM CartItem ci JOIN ci.cart c JOIN c.user u JOIN u.addresses ad WHERE u.email = :email AND ci.id = :itemId AND ad.id = :addressId")
-    fun findByIdAndUserEmailAndUserAddressId(itemId: Long, email: String, addressId: Long): CartItem?
+    @Query("SELECT ci FROM CartItem ci JOIN ci.cart c JOIN c.user u JOIN u.addresses ad WHERE u.email = :email AND ci.id = :id AND ad.id = :addressId")
+    fun findByIdAndUserEmailIfAddressOwned(id: Long, email: String, addressId: Long): CartItem?
 }
 
