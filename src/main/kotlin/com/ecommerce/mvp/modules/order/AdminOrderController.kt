@@ -20,6 +20,20 @@ class AdminOrderController(
     /**
      * GET /api/admin/orders
      *
+     * Returns admin created orders in the system, sorted newest first.
+     * Admin-only endpoint — no user filter is applied.
+     */
+    @GetMapping("/my")
+    fun getAllMyOrders(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "10") size: Int
+    ): Page<OrderResponseDto> {
+        return orderService.getMyOrders(page, size)
+    }
+
+    /**
+     * GET /api/admin/orders
+     *
      * Returns every order in the system, sorted newest first.
      * Admin-only endpoint — no user filter is applied.
      */
@@ -28,7 +42,7 @@ class AdminOrderController(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "10") size: Int
     ): Page<OrderResponseDto> {
-        return orderService.getMyOrders(page, size)
+        return orderService.getAdminAllOrders(page, size)
     }
 
     /**

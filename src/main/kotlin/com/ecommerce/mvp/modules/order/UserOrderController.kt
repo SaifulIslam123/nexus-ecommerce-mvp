@@ -22,7 +22,7 @@ class OrderController(
      * and shipment information.
      */
     @GetMapping
-    fun getMyOrders(
+    fun getAllMyOrders(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "10") size: Int
     ): Page<OrderResponseDto> {
@@ -40,8 +40,8 @@ class OrderController(
      * belong to the current user.
      */
     @GetMapping("/{id}")
-    fun getOrder(@PathVariable id: Long): OrderResponseDto {
-        return orderService.getOrderById(id)
+    fun getOrderById(@PathVariable id: Long): OrderResponseDto {
+        return orderService.getUserOrderById(id)
     }
 
     /**

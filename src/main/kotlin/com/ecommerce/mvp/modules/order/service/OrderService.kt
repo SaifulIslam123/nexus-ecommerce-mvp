@@ -13,6 +13,7 @@ import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.model.entity.Shipment
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
 import com.ecommerce.mvp.modules.payment.model.entity.PaymentStatus
+import com.ecommerce.mvp.modules.role.model.entity.ERole
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -30,18 +31,6 @@ class OrderService(
 ) {
 
 
-    fun findById(id: Long): Order? {
-        return orderRepository.findById(id).orElse(null)
-    }
-
-    fun findAll(): List<Order> {
-        return orderRepository.findAll()
-    }
-
-    fun save(order: Order): Order {
-        return orderRepository.save(order)
-    }
-
     fun deleteById(id: Long) {
         orderRepository.deleteById(id)
     }
@@ -58,6 +47,22 @@ class OrderService(
         return PageImpl(allOrders.subList(start, end), pageable, allOrders.size.toLong())
     }
 
+    @Transactional(readOnly = true)
+    fun getAdminAllOrders(page: Int, size: Int): Page<OrderResponseDto> {
+        val authentication = SecurityContextHolder.getContext().authentication
+            ?: throw ResourceNotFoundException("Authenticated user not found")
+
+        if (authentication.authorities.none { it.authority.equals(ERole.ADMIN.name, ignoreCase = true) }) {
+            throw BusinessValidationException("Access denied: Admin role required")
+        }
+
+        val allOrders = orderRepository.findAll().map { it.toResponseDto() }
+        val pageable = PageRequest.of(page, size)
+        val start = (page * size).coerceAtMost(allOrders.size)
+        val end = (start + size).coerceAtMost(allOrders.size)
+        return PageImpl(allOrders.subList(start, end), pageable, allOrders.size.toLong())
+    }
+
     /**
      * Returns the full details of a single order identified by [orderId].
      * The order is fetched only when it belongs to the currently authenticated
@@ -67,6 +72,17 @@ class OrderService(
      */
     @Transactional(readOnly = true)
     fun getOrderById(orderId: Long): OrderResponseDto {
+        SecurityContextHolder.getContext().authentication?.name
+            ?: throw ResourceNotFoundException("Authenticated user not found")
+
+        val order = orderRepository.findById(orderId).orElse(null)
+            ?: throw ResourceNotFoundException("Order not found with id: $orderId")
+
+        return order.toResponseDto()
+    }
+
+    @Transactional(readOnly = true)
+    fun getUserOrderById(orderId: Long): OrderResponseDto {
         val email = SecurityContextHolder.getContext().authentication?.name
             ?: throw ResourceNotFoundException("Authenticated user not found")
 
