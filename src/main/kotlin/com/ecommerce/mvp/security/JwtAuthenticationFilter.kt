@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component
@@ -14,10 +15,8 @@ import java.io.IOException
 @Component
 class JwtAuthenticationFilter(
     private val jwtUtil: JwtUtil,
-    private val userDetailsService: CustomUserDetailsService,
     private val tokenBlacklistService: TokenBlacklistService
 ) : OncePerRequestFilter() {
-
 
     @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(
@@ -43,12 +42,15 @@ class JwtAuthenticationFilter(
         val username = jwtUtil.extractUserEmail(jwt)
 
         if (SecurityContextHolder.getContext().authentication == null) {
-            val userDetails = userDetailsService.loadUserByUsername(username)
+            // Extract roles directly from the JWT — no DB round-trip required.
+            // Each role string already has the "ROLE_" prefix added by JwtUtil.extractRoles().
 
+            if (jwtUtil.validateToken(jwt, username)) {
+                val authorities = jwtUtil.extractRoles(jwt)
+                    .map { SimpleGrantedAuthority(it) }
 
-            if (jwtUtil.validateToken(jwt, userDetails.username)) {
                 val authToken = UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.authorities
+                    username, null, authorities
                 )
                 authToken.details = WebAuthenticationDetailsSource().buildDetails(request)
                 SecurityContextHolder.getContext().authentication = authToken
