@@ -1,6 +1,8 @@
 package com.ecommerce.mvp.modules.order
+
 import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.dto.ToPayOrderRequest
+import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.service.OrderService
 import jakarta.validation.Valid
 import org.springframework.data.domain.Page
@@ -46,33 +48,22 @@ class ShopperOrderController(
         return orderService.getUserOrderById(id)
     }
 
-    /**
-     * PUT /api/orders/{id}/cancel
-     *
-     * Cancels an order that belongs to the authenticated user.
-     * Only orders with status PENDING or PAID can be cancelled.
-     * Restores the reserved stock for every line item in the order.
-     *
-     * Responds with 204 No Content on success.
-     * Responds with 404 if the order does not exist or does not belong to
-     * the current user, and 409 Conflict if the status does not allow
-     * cancellation.
-     */
-    @PutMapping("/{id}/cancel")
-    fun cancelOrder(@PathVariable id: Long): OrderResponseDto {
-        return orderService.cancelOrder(id)
-    }
 
     @PostMapping("/toPayOrder")
     fun toPayOrder(
-        @Valid @RequestBody toPayOrderRequest:ToPayOrderRequest
+        @Valid @RequestBody toPayOrderRequest: ToPayOrderRequest
     ): OrderResponseDto {
-        return orderService.toPayOrder( toPayOrderRequest)
+        return orderService.toPayOrder(toPayOrderRequest)
+    }
+
+    @PutMapping("/{id}/cancel")
+    fun cancelOrder(@PathVariable id: Long): OrderResponseDto {
+        return orderService.shopperUpdateOrderStatus(id, OrderStatus.CANCELLED)
     }
 
     @PutMapping("/{id}/received")
     fun markAsReceived(@PathVariable id: Long): OrderResponseDto {
-        return orderService.markAsReceived(id)
+        return orderService.shopperUpdateOrderStatus(id, OrderStatus.RECEIVED)
     }
 
     /**
@@ -86,7 +77,7 @@ class ShopperOrderController(
      */
     @PutMapping("/{id}/return")
     fun markAsReturned(@PathVariable id: Long): OrderResponseDto {
-        return orderService.markAsReturned(id)
+        return orderService.shopperUpdateOrderStatus(id, OrderStatus.RETURNED)
     }
 
 }

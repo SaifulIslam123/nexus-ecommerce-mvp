@@ -88,27 +88,6 @@ class OrderService(
         return order.toResponseDto()
     }
 
-    @Transactional
-    fun cancelOrder(orderId: Long): OrderResponseDto {
-        val email = SecurityContextHolder.getContext().authentication?.name
-            ?: throw ResourceNotFoundException("Authenticated user not found")
-
-        val order = orderRepository.findByIdAndUserEmail(orderId, email)
-            ?: throw ResourceNotFoundException("Order not found with id: $orderId")
-
-        if (order.status == OrderStatus.TO_PAY || order.status == OrderStatus.CONFIRMED) {
-            order.status = OrderStatus.CANCELLED
-
-            order.orderItems.forEach { order ->
-                order.product?.let { it.stock += order.quantity }
-            }
-            return order.toResponseDto()
-        } else {
-            throw BusinessValidationException("Cannot cancel an order that has already been ${order.status}")
-        }
-    }
-
-
     /*
     *
     * Checkout Start
@@ -178,69 +157,6 @@ class OrderService(
 
     }
 
-    /**
-     * Transitions an order from [OrderStatus.DELIVERED] to [OrderStatus.RECEIVED].
-     *
-     * This is user operation — it signals that the package has been
-     * successfully received by the customer from courier.
-     *
-     * Allowed transition:  DELIVERED → RECEIVED
-     *
-     * Throws [ResourceNotFoundException] if no order with [orderId] exists.
-     * Throws [BusinessValidationException] if the order is not in OUT_FOR_DELIVERY status.
-     */
-    @Transactional
-    fun markAsReceived(orderId: Long): OrderResponseDto {
-        val email = SecurityContextHolder.getContext().authentication?.name
-            ?: throw ResourceNotFoundException("Authenticated user not found")
-
-        val order = orderRepository.findByIdAndUserEmail(orderId, email)
-            ?: throw ResourceNotFoundException("Order not found with id: $orderId")
-
-        if (order.status != OrderStatus.DELIVERED) {
-            throw BusinessValidationException(
-                "Order can only move to RECEIVED from DELIVERED status. Current status: ${order.status}"
-            )
-        }
-
-        order.status = OrderStatus.RECEIVED
-        // Keep the Shipment status string in sync with the order status
-        //order.shipment?.status = OrderStatus.DELIVERED.name
-
-        return order.toResponseDto()
-    }
-
-    /**
-     * Transitions an order from [OrderStatus.RECEIVED] to [OrderStatus.RETURNED].
-     *
-     * This is a user operation — it signals that the customer wants to return
-     * the package they already confirmed as received.
-     *
-     * Allowed transition:  RECEIVED → RETURNED
-     *
-     * Throws [ResourceNotFoundException] if no order with [orderId] exists or
-     * does not belong to the currently authenticated user.
-     * Throws [BusinessValidationException] if the order is not in RECEIVED status.
-     */
-    @Transactional
-    fun markAsReturned(orderId: Long): OrderResponseDto {
-
-        val email = SecurityContextHolder.getContext().authentication?.name
-            ?: throw ResourceNotFoundException("Authenticated user not found")
-
-        val order = orderRepository.findByIdAndUserEmail(orderId, email)
-            ?: throw ResourceNotFoundException("Order not found with id: $orderId")
-
-        if (order.status != OrderStatus.RECEIVED) {
-            throw BusinessValidationException(
-                "Order can only move to RETURNED from RECEIVED status. Current status: ${order.status}"
-            )
-        }
-
-        order.status = OrderStatus.RETURNED
-
-        return order.toResponseDto()
-    }
 
     private fun validateCartItemForCheckout(isActive: Boolean, quantity: Int, stock: Int) {
         if (!isActive)
@@ -276,6 +192,27 @@ class OrderService(
         return orderRepository.findByStatus(status).map { it.toResponseDto() }
     }
 
+    @Transactional
+    fun shopperUpdateOrderStatus(orderId: Long, status: OrderStatus): OrderResponseDto {
+        val email = SecurityContextHolder.getContext().authentication?.name
+            ?: throw ResourceNotFoundException("Authenticated user not found")
+
+        val order = orderRepository.findByIdAndUserEmail(orderId, email)
+            ?: throw ResourceNotFoundException("Order not found with id: $orderId")
+
+        return updateOrderStatus(order, status)
+    }
+
+    @Transactional
+    fun adminUpdateOrderStatus(orderId: Long, status: OrderStatus): OrderResponseDto {
+
+        val order = orderRepository.findById(orderId)
+            .orElseThrow { ResourceNotFoundException("Order not found with id: $orderId") }
+
+        return updateOrderStatus(order, status)
+    }
+
+
     /**
      * Admin: Transitions an order to any [newStatus] and notifies the customer
      * by email.  Basic guard rails are applied to avoid nonsensical transitions
@@ -293,10 +230,7 @@ class OrderService(
      * Throws [BusinessValidationException] for any disallowed transition.
      */
     @Transactional
-    fun updateOrderStatus(orderId: Long, newStatus: OrderStatus): OrderResponseDto {
-
-        val order = orderRepository.findById(orderId)
-            .orElseThrow { ResourceNotFoundException("Order not found with id: $orderId") }
+    fun updateOrderStatus(order: Order, newStatus: OrderStatus): OrderResponseDto {
 
         val allowed: Set<OrderStatus> = allowedTransitions[order.status]
             ?: throw BusinessValidationException(
@@ -306,7 +240,7 @@ class OrderService(
         if (newStatus !in allowed) {
             throw BusinessValidationException(
                 "Cannot transition order from ${order.status} to $newStatus. " +
-                "Allowed next statuses: ${allowed.joinToString()}"
+                        "Allowed next statuses: ${allowed.joinToString()}"
             )
         }
 
@@ -315,12 +249,21 @@ class OrderService(
         // Side-effects that mirror dedicated transition methods
         when (newStatus) {
             OrderStatus.REFUNDED -> {
-             setOrderToRefunded(order)
+                setOrderToRefunded(order)
             }
+
             OrderStatus.SHIPPED -> {
                 setOrderToShipped(order)
             }
-            else -> { /* no extra side effects */ }
+
+            OrderStatus.CANCELLED -> {
+                order.orderItems.forEach { order ->
+                    order.product?.let { it.stock += order.quantity }
+                }
+            }
+
+            else -> { /* no extra side effects */
+            }
         }
 
         return order.toResponseDto()
@@ -328,13 +271,14 @@ class OrderService(
 
     // Defines which statuses an order may transition INTO from a given status.
     private val allowedTransitions: Map<OrderStatus, Set<OrderStatus>> = mapOf(
-        OrderStatus.TO_PAY          to setOf(OrderStatus.CONFIRMED, OrderStatus.CANCELLED, OrderStatus.FAILED),
-        OrderStatus.CONFIRMED       to setOf(OrderStatus.PROCESSING, OrderStatus.CANCELLED),
-        OrderStatus.PROCESSING      to setOf(OrderStatus.SHIPPED, OrderStatus.CANCELLED),
-        OrderStatus.SHIPPED         to setOf(OrderStatus.OUT_FOR_DELIVERY),
+        OrderStatus.TO_PAY to setOf(OrderStatus.CONFIRMED, OrderStatus.CANCELLED, OrderStatus.FAILED),
+        OrderStatus.CONFIRMED to setOf(OrderStatus.PROCESSING, OrderStatus.CANCELLED),
+        OrderStatus.PROCESSING to setOf(OrderStatus.SHIPPED, OrderStatus.CANCELLED),
+        OrderStatus.SHIPPED to setOf(OrderStatus.OUT_FOR_DELIVERY),
         OrderStatus.OUT_FOR_DELIVERY to setOf(OrderStatus.DELIVERED),
-        OrderStatus.DELIVERED       to setOf(OrderStatus.RETURNED),
-        OrderStatus.RETURNED        to setOf(OrderStatus.REFUNDED)
+        OrderStatus.DELIVERED to setOf(OrderStatus.RETURNED, OrderStatus.RECEIVED),
+        OrderStatus.RECEIVED to setOf(OrderStatus.RETURNED, OrderStatus.REFUNDED),
+        OrderStatus.RETURNED to setOf(OrderStatus.REFUNDED)
     )
 
     private fun setOrderToRefunded(order: Order) {

@@ -89,7 +89,7 @@ class AdminOrderController(
         @PathVariable id: Long,
         @Valid @RequestBody request: UpdateOrderStatusRequest
     ): OrderResponseDto {
-        return orderService.updateOrderStatus(id, request.status)
+        return orderService.adminUpdateOrderStatus(id, request.status)
     }
 
     /**
@@ -102,7 +102,7 @@ class AdminOrderController(
      */
     @PutMapping("/{id}/processing")
     fun markAsProcessing(@PathVariable id: Long): OrderResponseDto {
-        return orderService.updateOrderStatus(id, OrderStatus.PROCESSING)
+        return orderService.adminUpdateOrderStatus(id, OrderStatus.PROCESSING)
     }
 
     /**
@@ -115,7 +115,7 @@ class AdminOrderController(
      */
     @PutMapping("/{id}/shipped")
     fun markAsShipped(@PathVariable id: Long): OrderResponseDto {
-        return orderService.updateOrderStatus(id, OrderStatus.SHIPPED)
+        return orderService.adminUpdateOrderStatus(id, OrderStatus.SHIPPED)
     }
 
     /**
@@ -127,7 +127,7 @@ class AdminOrderController(
      */
     @PutMapping("/{id}/refund")
     fun markAsRefunded(@PathVariable id: Long): OrderResponseDto {
-        return orderService.updateOrderStatus(id, OrderStatus.REFUNDED)
+        return orderService.adminUpdateOrderStatus(id, OrderStatus.REFUNDED)
     }
 
     /**
