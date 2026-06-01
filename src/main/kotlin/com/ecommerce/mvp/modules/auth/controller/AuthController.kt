@@ -3,6 +3,7 @@ package com.ecommerce.mvp.modules.auth.controller
 import com.ecommerce.mvp.modules.auth.model.AuthRequest
 import com.ecommerce.mvp.modules.auth.model.LoginResponseDto
 import com.ecommerce.mvp.modules.user.model.dto.UserDto
+import com.ecommerce.mvp.modules.user.repository.UserRepository
 import com.ecommerce.mvp.modules.user.service.UserService
 import com.ecommerce.mvp.security.JwtUtil
 import com.ecommerce.mvp.security.TokenBlacklistService
@@ -10,13 +11,17 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.web.bind.annotation.*
+
 
 @RestController
 @RequestMapping("/api/v1/auth")
 class AuthController(
     private val userService: UserService,
+    private val userRepository: UserRepository,
     private val authenticationManager: AuthenticationManager,
     private val jwtUtil: JwtUtil,
     private val passwordEncoder: BCryptPasswordEncoder,
@@ -25,15 +30,19 @@ class AuthController(
 
     @PostMapping("/login")
     fun login(@RequestBody request: AuthRequest): LoginResponseDto {
-        // Authenticate the user
-        authenticationManager.authenticate(
+        // Authenticate the user — throws on bad credentials
+        val authentication = authenticationManager.authenticate(
             UsernamePasswordAuthenticationToken(request.username, request.password)
         )
+        val userDetails: UserDetails = authentication.principal as UserDetails
 
-        // If authentication successful, generate token
-        val token = jwtUtil.generateToken(request.username)
-        return LoginResponseDto(token)
+        val authorities: MutableList<String> = userDetails.authorities
+            .map { it.authority }
+            .toMutableList()
 
+        jwtUtil.generateToken(request.username, authorities).also {
+            return LoginResponseDto(it)
+        }
     }
 
     @PostMapping("/register")
