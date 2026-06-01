@@ -170,69 +170,6 @@ class OrderService(
         return saveOrder.toResponseDto()
     }
 
-    /**
-     * Transitions an order from [OrderStatus.CONFIRMED] to [OrderStatus.PROCESSING].
-     *
-     * This is an admin operation — it signals that the warehouse has started
-     * picking, packing, or manufacturing the items for the given order.
-     *
-     * Allowed transition:  CONFIRMED → PROCESSING
-     *
-     * Throws [ResourceNotFoundException] if no order with [orderId] exists.
-     * Throws [BusinessValidationException] if the order is not in CONFIRMED status.
-     */
-    @Transactional
-    fun markAsProcessing(orderId: Long): OrderResponseDto {
-
-        val order = orderRepository.findById(orderId)
-            .orElseThrow { throw ResourceNotFoundException("Order not found with id: $orderId") }
-
-
-        if (order.status != OrderStatus.CONFIRMED) {
-            throw BusinessValidationException(
-                "Order can only move to PROCESSING from CONFIRMED status. Current status: ${order.status}"
-            )
-        }
-
-        order.status = OrderStatus.PROCESSING
-
-        return order.toResponseDto()
-    }
-
-    /**
-     * Transitions an order from [OrderStatus.PROCESSING] to [OrderStatus.SHIPPED]
-     * and creates the associated [Shipment] record for the order.
-     *
-     * This is an admin/courier operation — it signals that the package has been
-     * handed over to the shipping carrier with a tracking number.
-     *
-     * Allowed transition:  PROCESSING → SHIPPED
-     *
-     * Because [Order.shipment] is declared with [CascadeType.ALL], assigning the
-     * new [Shipment] to the managed [Order] entity is enough — Hibernate will
-     * INSERT the shipment row automatically when the transaction commits,
-     * without needing a separate shipment repository call.
-     *
-     * Throws [ResourceNotFoundException] if no order with [orderId] exists.
-     * Throws [BusinessValidationException] if the order is not in PROCESSING status.
-     */
-    @Transactional
-    fun markAsShipped(orderId: Long): OrderResponseDto {
-
-        val order = orderRepository.findByIdWithShipment(orderId)
-            ?: throw ResourceNotFoundException("Order not found with id: $orderId")
-
-        if (order.status != OrderStatus.PROCESSING) {
-            throw BusinessValidationException(
-                "Order can only move to SHIPPED from PROCESSING status. Current status: ${order.status}"
-            )
-        }
-        setOrderToShipped(order)
-        order.status = OrderStatus.SHIPPED
-
-        return order.toResponseDto()
-    }
-
     private fun setOrderToShipped(order: Order) {
 
         order.shipment?.let {
@@ -399,26 +336,6 @@ class OrderService(
         OrderStatus.DELIVERED       to setOf(OrderStatus.RETURNED),
         OrderStatus.RETURNED        to setOf(OrderStatus.REFUNDED)
     )
-
-    @Transactional
-    fun markAsRefunded(orderId: Long): OrderResponseDto {
-
-        val order = orderRepository.findById(orderId)
-            .orElseThrow { ResourceNotFoundException("Order not found with id: $orderId") }
-
-        if (order.status != OrderStatus.RETURNED) {
-            throw BusinessValidationException(
-                "Order can only move to REFUNDED from RETURNED status. Current status: ${order.status}"
-            )
-        }
-
-        // 1. Update order status
-        order.status = OrderStatus.REFUNDED
-        setOrderToRefunded(order)
-
-
-        return order.toResponseDto()
-    }
 
     private fun setOrderToRefunded(order: Order) {
 
