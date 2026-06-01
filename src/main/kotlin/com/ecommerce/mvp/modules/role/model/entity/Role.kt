@@ -22,7 +22,7 @@ class Role : BaseEntityAudit() {
 }
 
 enum class ERole {
-    USER,
+    SHOPPER,
     ADMIN,
     MODERATOR,
     COURIER

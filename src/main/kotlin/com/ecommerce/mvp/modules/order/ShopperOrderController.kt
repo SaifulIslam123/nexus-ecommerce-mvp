@@ -6,11 +6,13 @@ import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/v1/users/orders")
-class OrderController(
+@RequestMapping("/api/v1/shopper/orders")
+@PreAuthorize("hasRole('SHOPPER')")
+class ShopperOrderController(
     private val orderService: OrderService
 ) {
     /**
@@ -66,12 +68,6 @@ class OrderController(
         @Valid @RequestBody toPayOrderRequest:ToPayOrderRequest
     ): OrderResponseDto {
         return orderService.toPayOrder( toPayOrderRequest)
-    }
-
-    @DeleteMapping
-    fun deleteOrders(@RequestBody requestDto: Long): ResponseEntity<Unit> {
-        orderService.deleteById(requestDto)
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 
     @PutMapping("/{id}/received")

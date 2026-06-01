@@ -8,22 +8,24 @@ import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/v1/admin/orders")
+@PreAuthorize("hasRole('ADMIN')")  // All endpoints in this controller require ADMIN role
 class AdminOrderController(
     private val orderService: OrderService
 ) {
 
     /**
-     * GET /api/admin/orders
+     * GET /api/admin/orders/my
      *
      * Returns admin created orders in the system, sorted newest first.
      * Admin-only endpoint — no user filter is applied.
      */
-    @GetMapping("/my")
+    @GetMapping
     fun getAllMyOrders(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "10") size: Int
@@ -37,12 +39,12 @@ class AdminOrderController(
      * Returns every order in the system, sorted newest first.
      * Admin-only endpoint — no user filter is applied.
      */
-    @GetMapping
-    fun getAllOrders(
+    @GetMapping("/allSystem")
+    fun getAllSystemOrders(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "10") size: Int
     ): Page<OrderResponseDto> {
-        return orderService.getAdminAllOrders(page, size)
+        return orderService.getAllSystemOrders(page, size)
     }
 
     /**

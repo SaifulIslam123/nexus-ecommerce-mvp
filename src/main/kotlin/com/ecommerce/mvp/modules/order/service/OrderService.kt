@@ -13,7 +13,6 @@ import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.model.entity.Shipment
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
 import com.ecommerce.mvp.modules.payment.model.entity.PaymentStatus
-import com.ecommerce.mvp.modules.role.model.entity.ERole
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -48,13 +47,10 @@ class OrderService(
     }
 
     @Transactional(readOnly = true)
-    fun getAdminAllOrders(page: Int, size: Int): Page<OrderResponseDto> {
-        val authentication = SecurityContextHolder.getContext().authentication
-            ?: throw ResourceNotFoundException("Authenticated user not found")
+    fun getAllSystemOrders(page: Int, size: Int): Page<OrderResponseDto> {
 
-        if (authentication.authorities.none { it.authority.equals(ERole.ADMIN.name, ignoreCase = true) }) {
-            throw BusinessValidationException("Access denied: Admin role required")
-        }
+        SecurityContextHolder.getContext().authentication
+            ?: throw ResourceNotFoundException("Authenticated user not found")
 
         val allOrders = orderRepository.findAll().map { it.toResponseDto() }
         val pageable = PageRequest.of(page, size)
@@ -258,9 +254,11 @@ class OrderService(
      */
     @Transactional
     fun markAsReceived(orderId: Long): OrderResponseDto {
+        val email = SecurityContextHolder.getContext().authentication?.name
+            ?: throw ResourceNotFoundException("Authenticated user not found")
 
-        val order = orderRepository.findById(orderId)
-            .orElseThrow { throw ResourceNotFoundException("Order not found with id: $orderId") }
+        val order = orderRepository.findByIdAndUserEmail(orderId, email)
+            ?: throw ResourceNotFoundException("Order not found with id: $orderId")
 
         if (order.status != OrderStatus.DELIVERED) {
             throw BusinessValidationException(
