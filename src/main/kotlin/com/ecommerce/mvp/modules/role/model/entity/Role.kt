@@ -15,15 +15,10 @@ class Role : BaseEntityAudit() {
 
     @ManyToMany(mappedBy = "userRoles")
     private val users: MutableSet<User> = mutableSetOf()
-
-
-
-
 }
 
 enum class ERole {
     SHOPPER,
     ADMIN,
-    MODERATOR,
     COURIER
 }
