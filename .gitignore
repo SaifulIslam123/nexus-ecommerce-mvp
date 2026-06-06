@@ -1,6 +1,13 @@
 # Ignore IntelliJ IDEA project settings
 .idea/
+
+# Maven
 target/
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
 
 # Environment variable files – contain secrets, never commit
 .env

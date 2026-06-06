@@ -6,19 +6,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # Run (dev profile — no Redis required)
-./mvnw spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=dev"
+./gradlew bootRun --args="--spring.profiles.active=dev"
 
 # Run (prod profile — requires Redis and MySQL env vars from .env)
-./mvnw spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=prod"
+./gradlew bootRun --args="--spring.profiles.active=prod"
 
 # Build JAR
-./mvnw clean package
+./gradlew clean bootJar
 
 # Run all tests
-./mvnw test
+./gradlew test
 
 # Run a single test class
-./mvnw test -Dtest=MyTestClass
+./gradlew test --tests "com.ecommerce.mvp.MyTestClass"
 ```
 
 ## Architecture
