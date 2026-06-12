@@ -16,20 +16,17 @@ class JwtUtil {
     @Value("\${app.jwt.secret}")
     private lateinit var secret: String
 
-    @Value("\${app.jwt.expiration-ms}")
-    private var expirationMs: Long = 36_000_000
+    @Value("\${app.jwt.access-token-expiration-ms}")
+    private var accessTokenExpirationMs: Long = 900_000
 
-    /**
-     * Generates a signed JWT embedding the user's email as subject and their
-     * roles as the standard "roles" claim.  Consumers can decode the token
-     * without a DB round-trip to know which roles the bearer holds.
-     */
-    fun generateToken(userEmail: String, roles: MutableList<String> = mutableListOf()): String {
+    fun getAccessTokenExpirationMs(): Long = accessTokenExpirationMs
+
+    fun generateAccessToken(userEmail: String, roles: MutableList<String> = mutableListOf()): String {
         return Jwts.builder()
             .setSubject(userEmail)
-            .claim("roles", roles)           // e.g. ["ADMIN", "USER"]
+            .claim("roles", roles)
             .setIssuedAt(Date(System.currentTimeMillis()))
-            .setExpiration(Date(System.currentTimeMillis() + expirationMs))
+            .setExpiration(Date(System.currentTimeMillis() + accessTokenExpirationMs))
             .signWith(getSignKey(), SignatureAlgorithm.HS256)
             .compact()
     }
