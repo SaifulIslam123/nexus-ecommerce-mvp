@@ -88,10 +88,20 @@ class GlobalExceptionHandler {
             message = ex.message ?: "Invalid request data"
         )
     }
+
+    @ExceptionHandler(InvalidRefreshTokenException::class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    fun handleInvalidRefreshToken(ex: InvalidRefreshTokenException, request: HttpServletRequest): ApiResponse<Unit> {
+        return ApiResponse(
+            success = false,
+            message = ex.message ?: "Invalid or expired refresh token"
+        )
+    }
 }
 
 
 class ResourceNotFoundException(message: String) : RuntimeException(message)
 class BusinessValidationException(message: String) : RuntimeException(message)
 class ResourceAlreadyExistException(message: String) : RuntimeException(message)
+class InvalidRefreshTokenException(message: String) : RuntimeException(message)
 
