@@ -3,12 +3,10 @@ package com.ecommerce.mvp.modules.auth.service
 import com.ecommerce.mvp.common.exception.InvalidRefreshTokenException
 import com.ecommerce.mvp.modules.auth.model.entity.RefreshToken
 import com.ecommerce.mvp.modules.auth.repository.RefreshTokenRepository
-import com.ecommerce.mvp.modules.user.model.entity.User
 import com.ecommerce.mvp.modules.user.repository.UserRepository
 import com.ecommerce.mvp.security.CustomUserDetails
 import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.UUID
@@ -29,28 +27,24 @@ class RefreshTokenService(
     @Transactional
     fun createRefreshToken(user: CustomUserDetails): String {
         val token = RefreshToken().apply {
-            refreshToken =  UUID.randomUUID().toString()
+            refreshToken = UUID.randomUUID().toString()
             this.user = userRepository.getReferenceById(user.id)
             expiresAt = Instant.now().plusMillis(refreshTokenExpirationMs)
         }
-        refreshTokenRepository.save(token).also {
-            return it.refreshToken
-        }
+        return refreshTokenRepository.save(token).refreshToken
     }
 
     @Transactional
     fun rotateRefreshToken(tokenId: String): RefreshResult {
-        val old = refreshTokenRepository.findByIdAndRevokedFalse(tokenId)
+        val old = refreshTokenRepository.findByRefreshTokenAndRevokedFalse(tokenId)
             .orElseThrow { InvalidRefreshTokenException("Invalid or expired refresh token. Need to login again") }
 
         if (old.expiresAt.isBefore(Instant.now())) {
             old.revoked = true
-         //   refreshTokenRepository.save(old)
             throw InvalidRefreshTokenException("Invalid or expired refresh token. Need to login again")
         }
 
         old.revoked = true
-        //refreshTokenRepository.save(old)
 
         val user = old.user!!
         val roles = user.userRoles.map { it.name!!.name }
@@ -71,7 +65,7 @@ class RefreshTokenService(
 
     @Transactional
     fun revokeToken(tokenId: String) {
-        refreshTokenRepository.findById(tokenId).ifPresent { token ->
+        refreshTokenRepository.findByRefreshToken(tokenId).ifPresent { token ->
             if (!token.revoked) {
                 token.revoked = true
                 refreshTokenRepository.save(token)

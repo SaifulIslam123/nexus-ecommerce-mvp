@@ -10,9 +10,11 @@ import java.time.Instant
 import java.util.Optional
 
 @Repository
-interface RefreshTokenRepository : JpaRepository<RefreshToken, String> {
+interface RefreshTokenRepository : JpaRepository<RefreshToken, Long> {
 
-    fun findByIdAndRevokedFalse(id: String): Optional<RefreshToken>
+    fun findByRefreshTokenAndRevokedFalse(refreshToken: String): Optional<RefreshToken>
+
+    fun findByRefreshToken(refreshToken: String): Optional<RefreshToken>
 
     @Modifying
     @Transactional
