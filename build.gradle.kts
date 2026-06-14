@@ -1,8 +1,19 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.mysql:mysql-connector-j:9.4.0")
+        classpath("org.flywaydb:flyway-mysql:10.20.1")
+    }
+}
+
 plugins {
     id("org.springframework.boot") version "3.4.11"
     id("io.spring.dependency-management") version "1.1.7"
+    id("org.flywaydb.flyway") version "10.20.1"
     kotlin("jvm") version "2.2.0"
     kotlin("plugin.spring") version "2.2.0"
     kotlin("plugin.jpa") version "2.2.0"
@@ -48,6 +59,16 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+}
+
+flyway {
+    url = System.getenv("DB_URL") ?: "jdbc:mysql://localhost:3306/ecommerce_dev?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+    user = System.getenv("DB_USERNAME") ?: "root"
+    password = System.getenv("DB_PASSWORD") ?: "localhost@123456"
+    schemas = arrayOf(System.getenv("DB_SCHEMA") ?: "ecommerce_dev")
+    locations = arrayOf("filesystem:src/main/resources/db/migration")
+    cleanDisabled = false
 }
 
 allOpen {

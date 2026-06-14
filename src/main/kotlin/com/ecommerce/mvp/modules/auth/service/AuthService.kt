@@ -6,11 +6,11 @@ import com.ecommerce.mvp.modules.auth.model.RefreshRequest
 import com.ecommerce.mvp.modules.user.repository.UserRepository
 import com.ecommerce.mvp.security.CustomUserDetails
 import com.ecommerce.mvp.security.JwtUtil
-import jakarta.validation.Valid
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.bind.annotation.RequestBody
 
+@Service
 class AuthService(
     private val userRepository: UserRepository,
     private val refreshTokenService: RefreshTokenService,
