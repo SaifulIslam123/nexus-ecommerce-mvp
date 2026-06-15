@@ -1,0 +1,46 @@
+Api Endpoints:
+
+1. Authentication & IAM Module [Develop in phase -2]
+- POST	/auth/refresh	Public	Rotates the Refresh Token (Security Best Practice).
+- POST	/auth/forgot-password	Public	Initiates reset flow via email link.
+- POST	/auth/reset-password	Public	Completes password reset with token.
+
+2. User Profile & Address Module
+- work on User's user role update [Admin permission required]
+- Work on User's profile image upload and management
+
+3. Product Catalog Module
+- GET	/products works on caching  for better performance.
+- Image add and management for products
+- POST   /products/register  Admin can add new product to the catalog
+
+4. Shopping Cart Module (Ephemeral)
+- Use Redis cache for speed (Merges "Guest Cart" with "User Cart" upon login.)
+
+5. Order & Checkout Module (Transactional)
+- Think about implementing a "Save for Later" feature in the shopping cart.
+- Think about diffrentiate between "DELIVERED" and "COMPLETED" orders for better order management.
+    /** Final logistics step: Package received by customer */
+    DELIVERED,
+    /** Final accounting step: Order is closed, no more returns/refunds possible */
+    COMPLETED
+- More deeply work with CANCEL order status, mainly on how many cases user can CANCEL order
+- Both for admin and courier, /orders/byStatus user pagination with sort by date desending
+
+
+Things pending:
+
+ Api versioning [Done]
+ Build env variant(dev/prod) [Done]
+ Logger
+ Redis [Done]
+ Handle Redis Failures at Runtime
+ Flyway [Done]
+
+
+
+
+
+
+
+

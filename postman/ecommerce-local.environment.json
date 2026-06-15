@@ -1,0 +1,85 @@
+{
+  "_postman_id": "666def84-c042-41ac-953f-583d9207ca3c",
+  "name": "ecommerce-local",
+  "values": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "admin_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "product_id",
+      "value": "1",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "category_id",
+      "value": "1",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "tag_id",
+      "value": "1",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "cart_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "cart_item_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "order_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "address_id",
+      "value": "1",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "target_user_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "schema": "https://schema.getpostman.com/json/environment/v2.1.0/environment.json"
+}
