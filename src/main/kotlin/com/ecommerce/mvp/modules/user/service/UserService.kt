@@ -9,7 +9,7 @@ import com.ecommerce.mvp.modules.user.model.dto.AddressDto
 import com.ecommerce.mvp.modules.user.model.dto.UserDto
 import com.ecommerce.mvp.modules.user.model.dto.toEntity
 import com.ecommerce.mvp.modules.user.repository.UserRepository
-import com.ecommerce.mvp.repository.RoleRepository
+import com.ecommerce.mvp.modules.role.repository.RoleRepository
 import jakarta.annotation.PostConstruct
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest

@@ -1,7 +1,7 @@
-package com.ecommerce.mvp.repository
+package com.ecommerce.mvp.modules.role.repository
 
-import com.ecommerce.mvp.modules.role.model.entity.ERole
 import com.ecommerce.mvp.modules.role.model.entity.Role
+import com.ecommerce.mvp.security.ERole
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.Optional

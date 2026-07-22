@@ -1,7 +1,7 @@
 package com.ecommerce.mvp.modules.role.service
 
 import com.ecommerce.mvp.modules.role.model.entity.Role
-import com.ecommerce.mvp.repository.RoleRepository
+import com.ecommerce.mvp.modules.role.repository.RoleRepository
 import org.springframework.stereotype.Service
 
 @Service
