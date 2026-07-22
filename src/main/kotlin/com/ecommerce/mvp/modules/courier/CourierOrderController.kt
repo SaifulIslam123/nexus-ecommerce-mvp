@@ -3,13 +3,13 @@ package com.ecommerce.mvp.modules.courier
 import com.ecommerce.mvp.modules.courier.service.CourierService
 import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
+import com.ecommerce.mvp.security.IsCourier
 import org.springframework.data.domain.Page
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/courier/orders")
-@PreAuthorize("hasRole('COURIER')")
+@IsCourier
 class CourierOrderController(
     private val courierService: CourierService,
 ) {

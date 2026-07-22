@@ -4,6 +4,7 @@ import com.ecommerce.mvp.modules.product.model.dto.ProductCreateRequestDto
 import com.ecommerce.mvp.modules.product.model.dto.ProductResponseDto
 import com.ecommerce.mvp.modules.product.model.dto.ProductUpdateRequestDto
 import com.ecommerce.mvp.modules.product.service.ProductService
+import com.ecommerce.mvp.security.IsAdmin
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/admin/products")
+@IsAdmin
 class AdminProductController(
     private val productService: ProductService
 ) {

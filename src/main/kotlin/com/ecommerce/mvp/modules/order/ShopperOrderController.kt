@@ -4,16 +4,14 @@ import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.dto.ToPayOrderRequest
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.service.OrderService
+import com.ecommerce.mvp.security.IsShopper
 import jakarta.validation.Valid
 import org.springframework.data.domain.Page
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/shopper/orders")
-@PreAuthorize("hasRole('SHOPPER')")
+@IsShopper
 class ShopperOrderController(
     private val orderService: OrderService
 ) {

@@ -7,10 +7,10 @@ import com.ecommerce.mvp.modules.admin.service.DashboardService
 import com.ecommerce.mvp.modules.user.model.dto.UserDto
 import com.ecommerce.mvp.modules.user.repository.UserRepository
 import com.ecommerce.mvp.modules.user.service.UserService
+import com.ecommerce.mvp.security.IsAdmin
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/admin")
+@IsAdmin
 class AdminController(
     private val dashboardService: DashboardService,
     private val userService: UserService,

@@ -4,17 +4,17 @@ import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.dto.UpdateOrderStatusRequest
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.service.OrderService
+import com.ecommerce.mvp.security.IsAdmin
 import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/v1/admin/orders")
-@PreAuthorize("hasRole('ADMIN')")  // All endpoints in this controller require ADMIN role
+@IsAdmin
 class AdminOrderController(
     private val orderService: OrderService
 ) {
