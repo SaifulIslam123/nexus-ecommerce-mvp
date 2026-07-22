@@ -30,7 +30,7 @@ class CustomUserDetailsService(
             SimpleGrantedAuthority("ROLE_${role.name?.name}")
         }*/
         user.userRoles.map { role ->
-            authorities.add(SimpleGrantedAuthority("ROLE_${role.name?.name}"))
+            authorities.add(SimpleGrantedAuthority("$ROLE_PREFIX${role.name?.name}"))
         }
         /*return org.springframework.security.core.userdetails.User
             .withUsername(user.email)

@@ -44,7 +44,7 @@ class JwtUtil {
     fun extractRoles(token: String): List<String> {
         val claims = extractAllClaims(token)
         val roles = claims["roles"] as? List<String> ?: emptyList()
-        return roles.map { if (it.startsWith("ROLE_")) it else "ROLE_$it" }
+        return roles.map { if (it.startsWith(ROLE_PREFIX)) it else "$ROLE_PREFIX$it" }
     }
 
     fun validateToken(token: String, username: String): Boolean {

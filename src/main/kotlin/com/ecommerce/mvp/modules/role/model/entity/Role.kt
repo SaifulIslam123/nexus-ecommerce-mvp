@@ -2,6 +2,7 @@ package com.ecommerce.mvp.modules.role.model.entity
 
 import com.ecommerce.mvp.common.entity.audit.BaseEntityAudit
 import com.ecommerce.mvp.modules.user.model.entity.User
+import com.ecommerce.mvp.security.ERole
 import jakarta.persistence.*
 
 
@@ -17,8 +18,3 @@ class Role : BaseEntityAudit() {
     private val users: MutableSet<User> = mutableSetOf()
 }
 
-enum class ERole {
-    SHOPPER,
-    ADMIN,
-    COURIER
-}
