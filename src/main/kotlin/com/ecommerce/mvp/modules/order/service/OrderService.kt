@@ -149,13 +149,7 @@ class OrderService(
         return saveOrder.toResponseDto()
     }
 
-    private fun setOrderToShipped(order: Order) {
 
-        order.shipment?.let {
-            it.trackingId = TrackingIdGenerator.generateTrackingId()
-        }
-
-    }
 
 
     private fun validateCartItemForCheckout(isActive: Boolean, quantity: Int, stock: Int) {
@@ -249,11 +243,21 @@ class OrderService(
         // Side-effects that mirror dedicated transition methods
         when (newStatus) {
             OrderStatus.REFUNDED -> {
-                setOrderToRefunded(order)
+
+                //  Restore stock for every item
+                order.orderItems.forEach { item ->
+                    item.product?.let { it.stock += item.quantity }
+                }
+
+                //  Update payment status
+                order.payment?.status = PaymentStatus.REFUNDED
             }
 
             OrderStatus.SHIPPED -> {
-                setOrderToShipped(order)
+
+                order.shipment?.let {
+                    it.trackingId = TrackingIdGenerator.generateTrackingId()
+                }
             }
 
             OrderStatus.CANCELLED -> {
@@ -281,16 +285,6 @@ class OrderService(
         OrderStatus.RETURNED to setOf(OrderStatus.REFUNDED)
     )
 
-    private fun setOrderToRefunded(order: Order) {
-
-        // 2. Restore stock for every item
-        order.orderItems.forEach { item ->
-            item.product?.let { it.stock += item.quantity }
-        }
-
-        // 3. Update payment status
-        order.payment?.status = PaymentStatus.REFUNDED
-    }
 
 }
 
