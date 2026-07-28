@@ -2,6 +2,7 @@ package com.ecommerce.mvp.common.exception
 
 import com.ecommerce.mvp.common.response.ApiResponse
 import jakarta.servlet.http.HttpServletRequest
+import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -95,6 +96,15 @@ class GlobalExceptionHandler {
         return ApiResponse(
             success = false,
             message = ex.message ?: "Invalid or expired refresh token"
+        )
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException::class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    fun handleOptimisticLockingFailure(ex: OptimisticLockingFailureException, request: HttpServletRequest): ApiResponse<Unit> {
+        return ApiResponse(
+            success = false,
+            message = ex.message ?: "Resource has been modified by another transaction"
         )
     }
 }

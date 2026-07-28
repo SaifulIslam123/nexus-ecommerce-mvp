@@ -37,6 +37,9 @@ open class Product : BaseEntityAudit() {
     )
     var tags: MutableSet<Tag> = mutableSetOf()
 
+    @Version
+    var version: Long = 0
+
     /*@OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     var images: MutableSet<ProductImage> = mutableSetOf()*/
 
