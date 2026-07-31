@@ -34,6 +34,7 @@ class OrderService(
         orderRepository.deleteById(id)
     }
 
+    //TODO: Change to DB-Level pagination 
     @Transactional(readOnly = true)
     fun getMyOrders(page: Int, size: Int): Page<OrderResponseDto> {
         val email = SecurityContextHolder.getContext().authentication?.name
@@ -107,12 +108,22 @@ class OrderService(
             )
                 ?: throw ResourceNotFoundException("Cart Item not found")
 
+
         cartItem.product?.let {
-            validateCartItemForCheckout(
-                isActive = it.isActive,
-                quantity = cartItem.quantity,
-                stock = it.stock
+
+            if (!it.isActive)
+                throw BusinessValidationException("This product is currently unavailable for purchase in order")
+            if (cartItem.quantity > it.stock)
+                throw BusinessValidationException("Requested quantity (${cartItem.quantity}) exceeds available stock (${it.stock})")
+
+            // Atomic decrement — either succeeds or fails atomically at DB level
+            val updated = cartItemRepository.decrementStockIfAvailable(
+                it.id ?: 0,
+                cartItem.quantity
             )
+            if (updated == 0) {
+                throw BusinessValidationException("Stock was just sold out, please try again")
+            }
         } ?: throw ResourceNotFoundException("Cart Item does not have any product")
 
 
@@ -141,22 +152,11 @@ class OrderService(
 
         toPayOrder.shipment = shipment
         toPayOrder.orderItems.add(orderItem)
-        cartItem.product?.let { it.stock -= cartItem.quantity }
         cartItem.cart?.cartItems?.remove(cartItem)
 
         val saveOrder = orderRepository.save(toPayOrder)
 
         return saveOrder.toResponseDto()
-    }
-
-
-
-
-    private fun validateCartItemForCheckout(isActive: Boolean, quantity: Int, stock: Int) {
-        if (!isActive)
-            throw BusinessValidationException("This product is currently unavailable for purchase in order")
-        if (quantity > stock)
-            throw BusinessValidationException("Requested quantity ($quantity) exceeds available stock ($stock)")
     }
 
 
