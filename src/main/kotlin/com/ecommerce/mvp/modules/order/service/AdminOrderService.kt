@@ -17,7 +17,7 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 
 
-@Service
+@Service("adminOrderService")
 class AdminOrderService(
     private val orderRepository: OrderRepository,
 ) : OrderService(orderRepository) {
@@ -94,7 +94,7 @@ class AdminOrderService(
     @Transactional
     fun adminUpdateOrderStatus(orderId: Long, status: OrderStatus): OrderResponseDto {
 
-        val order = orderRepository.findByIdForAdminUpdate(orderId)
+        val order = orderRepository.findOrderById(orderId)
             ?: throw ResourceNotFoundException("Order not found with id: $orderId")
 
         if (order.status == OrderStatus.REFUNDED) {

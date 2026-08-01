@@ -64,7 +64,7 @@ interface OrderRepository : JpaRepository<Order, Long> {
      * Admin: Fetches a single order by ID regardless of which user it belongs to.
      */
     @Query("SELECT o FROM Order o JOIN FETCH o.user JOIN FETCH o.orderItems item JOIN FETCH item.product LEFT JOIN FETCH o.payment LEFT JOIN FETCH o.shipment WHERE o.id = :orderId")
-    fun findOrderByIdAdmin(@Param("orderId") orderId: Long): Order?
+    fun findOrderByIdCourier(@Param("orderId") orderId: Long): Order?
 
     /** Dashboard: total revenue from non-cancelled/failed orders. */
     @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.status NOT IN (com.ecommerce.mvp.modules.order.model.entity.OrderStatus.CANCELLED, com.ecommerce.mvp.modules.order.model.entity.OrderStatus.FAILED)")
@@ -92,6 +92,6 @@ interface OrderRepository : JpaRepository<Order, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints(QueryHint(name = "javax.persistence.lock.timeout", value = "3000"))
-    fun findByIdForAdminUpdate(id: Long): Order?
+    fun findOrderById(id: Long): Order?
 
 }

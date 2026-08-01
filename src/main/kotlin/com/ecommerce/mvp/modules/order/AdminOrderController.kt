@@ -4,9 +4,10 @@ import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.dto.UpdateOrderStatusRequest
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.service.AdminOrderService
-import com.ecommerce.mvp.modules.order.service.OrderService
 import com.ecommerce.mvp.security.IsAdmin
 import jakarta.validation.Valid
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -16,9 +17,14 @@ import java.time.LocalDate
 @RestController
 @RequestMapping("/api/v1/admin/orders")
 @IsAdmin
-class AdminOrderController(
-    private val orderService: AdminOrderService
-) {
+class AdminOrderController{
+
+    private final val orderService: AdminOrderService
+
+    @Autowired
+    constructor(@Qualifier("adminOrderService") orderService: AdminOrderService) {
+        this.orderService = orderService
+    }
 
     /**
      * GET /api/admin/orders/my

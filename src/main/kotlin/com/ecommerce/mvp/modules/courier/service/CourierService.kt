@@ -49,7 +49,7 @@ class CourierService(
 
     @Transactional(readOnly = true)
     fun getOrderByIdForCourier(id: Long): OrderResponseDto {
-        val order = orderRepository.findOrderByIdAdmin(id)
+        val order = orderRepository.findOrderByIdCourier(id)
             ?: throw ResourceNotFoundException("Order not found with id: $id")
         return order.toResponseDto()
     }

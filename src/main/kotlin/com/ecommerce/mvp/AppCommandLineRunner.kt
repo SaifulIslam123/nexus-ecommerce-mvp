@@ -6,6 +6,7 @@ import com.ecommerce.mvp.modules.product.service.ProductService
 import com.ecommerce.mvp.modules.role.service.RoleService
 import com.ecommerce.mvp.modules.user.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.CommandLineRunner
 import org.springframework.stereotype.Component
 
@@ -17,9 +18,6 @@ class AppCommandLineRunner : CommandLineRunner {
 
     @Autowired
     private lateinit var userService: UserService
-
-    @Autowired
-    private lateinit var orderService: OrderService
 
     @Autowired
     private lateinit var roleService: RoleService
