@@ -200,8 +200,12 @@ class OrderService(
     @Transactional
     fun adminUpdateOrderStatus(orderId: Long, status: OrderStatus): OrderResponseDto {
 
-        val order = orderRepository.findById(orderId)
-            .orElseThrow { ResourceNotFoundException("Order not found with id: $orderId") }
+        val order = orderRepository.findByIdForAdminUpdate(orderId)
+            ?: throw ResourceNotFoundException("Order not found with id: $orderId")
+
+        if (order.status == OrderStatus.REFUNDED) {
+            throw BusinessValidationException("Cannot update status of a refunded order.")
+        }
 
         return updateOrderStatus(order, status)
     }

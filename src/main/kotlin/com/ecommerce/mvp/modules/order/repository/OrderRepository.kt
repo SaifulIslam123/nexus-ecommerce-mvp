@@ -2,10 +2,14 @@ package com.ecommerce.mvp.modules.order.repository
 
 import com.ecommerce.mvp.modules.order.model.entity.Order
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
+import jakarta.persistence.LockModeType
+import jakarta.persistence.QueryHint
 import jakarta.transaction.Transactional
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.jpa.repository.QueryHints
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import java.time.Instant
@@ -85,5 +89,9 @@ interface OrderRepository : JpaRepository<Order, Long> {
         ORDER BY SUM(item.quantity) DESC
     """)
     fun findTopSellingProducts(pageable: org.springframework.data.domain.Pageable): List<Array<Any>>
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints(QueryHint(name = "javax.persistence.lock.timeout", value = "3000"))
+    fun findByIdForAdminUpdate(id: Long): Order?
 
 }

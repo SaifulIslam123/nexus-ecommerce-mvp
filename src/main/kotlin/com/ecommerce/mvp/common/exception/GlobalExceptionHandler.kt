@@ -2,8 +2,11 @@ package com.ecommerce.mvp.common.exception
 
 import com.ecommerce.mvp.common.response.ApiResponse
 import jakarta.servlet.http.HttpServletRequest
+import org.springframework.dao.CannotAcquireLockException
 import org.springframework.dao.OptimisticLockingFailureException
+import org.springframework.dao.PessimisticLockingFailureException
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.validation.FieldError
@@ -11,6 +14,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import java.time.LocalDateTime
 import java.util.stream.Collectors
 
 
@@ -105,6 +109,25 @@ class GlobalExceptionHandler {
         return ApiResponse(
             success = false,
             message = ex.message ?: "Resource has been modified by another transaction"
+        )
+    }
+
+    @ExceptionHandler(CannotAcquireLockException::class)
+    @ResponseStatus(HttpStatus.REQUEST_TIMEOUT)
+    fun handleLockTimeout(ex: CannotAcquireLockException, request: HttpServletRequest): ApiResponse<Unit> {
+        return ApiResponse(
+            success = false,
+            message = "The system is currently handling a high volume of inventory updates. Please try again shortly."
+        )
+    }
+
+    @ExceptionHandler(PessimisticLockingFailureException::class)
+    @ResponseStatus(HttpStatus.REQUEST_TIMEOUT)
+    fun handleLockTimeout(ex: PessimisticLockingFailureException, request: HttpServletRequest): ApiResponse<Unit> {
+        return ApiResponse(
+            success = false,
+            message = ex.message
+                ?: "The system is currently handling a high volume of inventory updates. Please try again shortly."
         )
     }
 }
