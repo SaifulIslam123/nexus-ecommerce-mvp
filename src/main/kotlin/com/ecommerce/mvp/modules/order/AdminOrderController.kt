@@ -3,6 +3,7 @@ package com.ecommerce.mvp.modules.order
 import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.dto.UpdateOrderStatusRequest
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
+import com.ecommerce.mvp.modules.order.service.AdminOrderService
 import com.ecommerce.mvp.modules.order.service.OrderService
 import com.ecommerce.mvp.security.IsAdmin
 import jakarta.validation.Valid
@@ -16,7 +17,7 @@ import java.time.LocalDate
 @RequestMapping("/api/v1/admin/orders")
 @IsAdmin
 class AdminOrderController(
-    private val orderService: OrderService
+    private val orderService: AdminOrderService
 ) {
 
     /**

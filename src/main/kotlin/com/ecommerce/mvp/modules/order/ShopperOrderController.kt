@@ -4,6 +4,7 @@ import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.dto.ToPayOrderRequest
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.service.OrderService
+import com.ecommerce.mvp.modules.order.service.ShopperOrderService
 import com.ecommerce.mvp.security.IsShopper
 import jakarta.validation.Valid
 import org.springframework.data.domain.Page
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/v1/shopper/orders")
 @IsShopper
 class ShopperOrderController(
-    private val orderService: OrderService
+    private val orderService: ShopperOrderService
 ) {
     /**
      * GET /api/orders
