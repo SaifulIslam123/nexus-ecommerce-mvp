@@ -194,6 +194,10 @@ class OrderService(
         val order = orderRepository.findByIdAndUserEmail(orderId, email)
             ?: throw ResourceNotFoundException("Order not found with id: $orderId")
 
+        if (order.status == OrderStatus.CANCELLED) {
+            throw BusinessValidationException("Cannot update status of a cancelled order.")
+        }
+
         return updateOrderStatus(order, status)
     }
 
