@@ -15,14 +15,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/v1/shopper/orders")
 @IsShopper
-class ShopperOrderController {
-
-    private final val orderService: ShopperOrderService
-
-    @Autowired
-    constructor(@Qualifier("shopperOrderService") shopperOrderService: ShopperOrderService) {
-        this.orderService = shopperOrderService
-    }
+class ShopperOrderController(private val orderService: ShopperOrderService) {
 
     /**
      * GET /api/orders

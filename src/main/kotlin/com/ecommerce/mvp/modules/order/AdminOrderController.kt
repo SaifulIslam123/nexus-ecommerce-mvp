@@ -17,14 +17,8 @@ import java.time.LocalDate
 @RestController
 @RequestMapping("/api/v1/admin/orders")
 @IsAdmin
-class AdminOrderController{
+class AdminOrderController(private val orderService: AdminOrderService) {
 
-    private final val orderService: AdminOrderService
-
-    @Autowired
-    constructor(@Qualifier("adminOrderService") orderService: AdminOrderService) {
-        this.orderService = orderService
-    }
 
     /**
      * GET /api/admin/orders/my

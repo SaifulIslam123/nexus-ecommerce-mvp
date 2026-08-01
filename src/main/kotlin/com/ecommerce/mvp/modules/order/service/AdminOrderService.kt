@@ -17,7 +17,7 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 
 
-@Service("adminOrderService")
+@Service
 class AdminOrderService(
     private val orderRepository: OrderRepository,
 ) : OrderService(orderRepository) {
