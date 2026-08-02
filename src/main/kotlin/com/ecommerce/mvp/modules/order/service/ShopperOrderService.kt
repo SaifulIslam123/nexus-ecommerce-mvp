@@ -69,13 +69,12 @@ class ShopperOrderService (
                 throw BusinessValidationException("Requested quantity (${cartItem.quantity}) exceeds available stock (${it.stock})")
 
             // Atomic decrement — either succeeds or fails atomically at DB level
-            val updated = cartItemRepository.decrementStockIfAvailable(
-                it.id ?: 0,
-                cartItem.quantity
-            )
-            if (updated == 0) {
-                throw BusinessValidationException("Stock was just sold out, please try again")
+            cartItemRepository.decrementStockIfAvailable(it.id ?: 0, cartItem.quantity).also {
+                if (it == 0) {
+                    throw BusinessValidationException("Stock was just sold out, please try again")
+                }
             }
+
         } ?: throw ResourceNotFoundException("Cart Item does not have any product")
 
 
