@@ -6,13 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
+import java.util.Optional
 
 @Repository
 interface ProductRepository : JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
-        /*@Query("SELECT p FROM Product u WHERE u.status = :status")
-        fun findById(id: Long): List<Product>*/
-        fun findByCategoryId(id: Long): List<Product>
+
         fun findAllByCategory(category: Category): List<Product>
 
         /** Dashboard: products whose stock is at or below the given threshold. */
@@ -21,4 +20,7 @@ interface ProductRepository : JpaRepository<Product, Long>, JpaSpecificationExec
 
         /** Dashboard: total count of active products. */
         fun countByIsActiveTrue(): Long
+
+        fun findByIdAndIsActiveTrue(productId: Long): Optional<Product>
+
 }

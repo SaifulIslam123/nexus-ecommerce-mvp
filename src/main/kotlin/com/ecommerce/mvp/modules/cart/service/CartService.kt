@@ -64,7 +64,7 @@ class CartService(
         user.cart?.let { userCart ->
 
             requestDto.productId?.let { productId ->
-                val requestProduct = productRepository.findById(productId)
+                val requestProduct = productRepository.findByIdAndIsActiveTrue(productId)
                     .orElseThrow { ResourceNotFoundException("Product not found with id: ${productId}") }
 
                 validateQuantityStock(requestDto.quantity, requestProduct.stock)
