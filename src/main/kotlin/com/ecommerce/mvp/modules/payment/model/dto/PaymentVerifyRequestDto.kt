@@ -14,6 +14,7 @@ data class PaymentVerifyRequestDto(
     val status: String? ,
     @field:NotNull(message = "Payment staus not found")
     var totalAmount: BigDecimal = BigDecimal.ZERO,
+    val failedReason: String? = null,
 
     )
 

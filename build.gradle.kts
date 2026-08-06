@@ -17,6 +17,7 @@ plugins {
     kotlin("jvm") version "2.2.0"
     kotlin("plugin.spring") version "2.2.0"
     kotlin("plugin.jpa") version "2.2.0"
+    kotlin("plugin.lombok") version "2.2.0"
 }
 
 group = "com.ecommerce.mvp"
@@ -59,11 +60,13 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(kotlin("test"))
 
 }
 
 flyway {
-    url = System.getenv("DB_URL") ?: "jdbc:mysql://localhost:3306/ecommerce_dev?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+    url = System.getenv("DB_URL")
+        ?: "jdbc:mysql://localhost:3306/ecommerce_dev?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
     user = System.getenv("DB_USERNAME") ?: "root"
     password = System.getenv("DB_PASSWORD") ?: "localhost@123456"
     schemas = arrayOf(System.getenv("DB_SCHEMA") ?: "ecommerce_dev")

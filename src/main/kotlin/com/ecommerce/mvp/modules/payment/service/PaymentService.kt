@@ -1,6 +1,7 @@
 package com.ecommerce.mvp.modules.payment.service
 
 import com.ecommerce.mvp.common.exception.BusinessValidationException
+import com.ecommerce.mvp.common.exception.PaymentFailedException
 import com.ecommerce.mvp.common.exception.ResourceNotFoundException
 import com.ecommerce.mvp.modules.order.model.dto.PaymentResponseDto
 import com.ecommerce.mvp.modules.order.model.dto.toResponseDto
@@ -48,13 +49,14 @@ class PaymentService(
                 payment.status = PaymentStatus.COMPLETED
 
                 // Additional logic for successful payment (e.g., send confirmation email)
-                //deductProductForOrder(order)
             }
 
             // In PaymentService — system received a FAILED response from payment gateway
             PaymentStatus.FAILED.name -> {
                 order.status = OrderStatus.FAILED  // system-driven
                 payment.status = PaymentStatus.FAILED
+                restoreStockForOrder(order)  // restore stock for cancelled order
+                throw PaymentFailedException(requestDto.failedReason ?: "Payment failed, try again later")
             }
 
 
@@ -62,6 +64,7 @@ class PaymentService(
             PaymentStatus.CANCELLED.name -> {
                 order.status = OrderStatus.CANCELLED  // intentional, not an error
                 payment.status = PaymentStatus.CANCELLED
+                restoreStockForOrder(order)  // restore stock for cancelled order
             }
 
             else -> throw BusinessValidationException("Invalid payment status: ${requestDto.status}")
@@ -71,7 +74,14 @@ class PaymentService(
         payment.transactionId = requestDto.transactionId
         payment.amount = requestDto.totalAmount
         payment.order = order
-        return paymentRepository.save(payment).let { it.toResponseDto() }
+        return paymentRepository.save(payment).toResponseDto()
     }
 
+    private fun restoreStockForOrder(order: Order) {
+        order.orderItems.forEach { orderItem ->
+            orderItem.product?.let { product ->
+                product.stock += orderItem.quantity
+            }
+        }
+    }
 }
