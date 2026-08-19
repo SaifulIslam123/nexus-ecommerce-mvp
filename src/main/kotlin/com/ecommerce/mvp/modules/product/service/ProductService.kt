@@ -3,31 +3,34 @@ package com.ecommerce.mvp.modules.product.service
 import com.ecommerce.mvp.common.cache.CacheNames
 import com.ecommerce.mvp.common.exception.ResourceNotFoundException
 import com.ecommerce.mvp.modules.category.repository.CategoryRepository
+import com.ecommerce.mvp.modules.order.model.entity.OrderItem
 import com.ecommerce.mvp.modules.product.model.dto.ProductCreateRequestDto
 import com.ecommerce.mvp.modules.product.model.dto.ProductResponseDto
 import com.ecommerce.mvp.modules.product.model.dto.ProductSearchRequest
 import com.ecommerce.mvp.modules.product.model.dto.ProductUpdateRequestDto
 import com.ecommerce.mvp.modules.product.model.dto.toResponseDto
 import com.ecommerce.mvp.modules.product.model.entity.Product
-import com.ecommerce.mvp.modules.product.model.entity.Tag
 import com.ecommerce.mvp.modules.product.repository.ProductRepository
 import com.ecommerce.mvp.modules.product.repository.ProductSpecification
 import com.ecommerce.mvp.modules.product.repository.TagRepository
-import jakarta.transaction.Transactional
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.cache.annotation.Caching
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 
 @Service
 class ProductService(
     private val productRepository: ProductRepository,
     private val categoryRepository: CategoryRepository,
-    private val tagRepository: TagRepository
+    private val tagRepository: TagRepository,
+    private val redisTemplate: StringRedisTemplate
 ) {
 
     @Transactional
@@ -182,5 +185,19 @@ class ProductService(
         product.isActive = !product.isActive
         return product.toResponseDto()
     }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    fun restoreStockAtomic(orderItems: MutableSet<OrderItem>) {
+
+        orderItems.forEach { item ->
+            val productId = item.product?.id ?: throw ResourceNotFoundException("Product missing")
+            productRepository.incrementStockById(productId, item.quantity)
+
+
+
+
+        }
+    }
+
 }
 
