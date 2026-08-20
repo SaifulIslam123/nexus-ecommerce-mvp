@@ -10,6 +10,7 @@ import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
 import com.ecommerce.mvp.modules.payment.model.entity.PaymentStatus
 import com.ecommerce.mvp.modules.product.service.ProductService
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.data.domain.Page
@@ -17,11 +18,11 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 
 
-open class OrderService(
-    private val orderRepository: OrderRepository,
-    private val productService: ProductService,
-) {
+abstract class OrderService {
 
+    abstract val orderRepository: OrderRepository
+
+    abstract val productService: ProductService
 
     //TODO: Change to DB-Level pagination 
     //@Transactional(readOnly = true)

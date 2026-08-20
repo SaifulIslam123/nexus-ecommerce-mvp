@@ -6,6 +6,7 @@ import com.ecommerce.mvp.modules.order.model.dto.OrderResponseDto
 import com.ecommerce.mvp.modules.order.model.dto.toResponseDto
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
+import com.ecommerce.mvp.modules.product.service.ProductService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
@@ -19,8 +20,11 @@ import java.time.ZoneOffset
 
 @Service
 class AdminOrderService(
-    private val orderRepository: OrderRepository,
-) : OrderService(orderRepository) {
+    override val orderRepository: OrderRepository,
+    override val productService: ProductService
+) : OrderService() {
+
+
 
     fun deleteById(id: Long) {
         orderRepository.deleteById(id)

@@ -11,6 +11,7 @@ import com.ecommerce.mvp.modules.order.model.entity.OrderItem
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.model.entity.Shipment
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
+import com.ecommerce.mvp.modules.product.service.ProductService
 import org.springframework.data.domain.Page
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
@@ -20,9 +21,10 @@ import java.time.ZoneOffset
 
 @Service
 class ShopperOrderService (
-    private val orderRepository: OrderRepository,
+    override val orderRepository: OrderRepository,
+    override val productService: ProductService,
     private val cartItemRepository: CartItemRepository,
-) : OrderService(orderRepository) {
+) : OrderService() {
 
     //TODO: Change to DB-Level pagination
     @Transactional(readOnly = true)
