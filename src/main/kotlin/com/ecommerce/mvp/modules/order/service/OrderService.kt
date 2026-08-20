@@ -9,6 +9,7 @@ import com.ecommerce.mvp.modules.order.model.entity.Order
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
 import com.ecommerce.mvp.modules.payment.model.entity.PaymentStatus
+import com.ecommerce.mvp.modules.product.service.ProductService
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.data.domain.Page
@@ -16,7 +17,10 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 
 
-open class OrderService(private val orderRepository: OrderRepository) {
+open class OrderService(
+    private val orderRepository: OrderRepository,
+    private val productService: ProductService,
+) {
 
 
     //TODO: Change to DB-Level pagination 
@@ -71,9 +75,7 @@ open class OrderService(private val orderRepository: OrderRepository) {
             OrderStatus.REFUNDED -> {
 
                 //  Restore stock for every item
-                order.orderItems.forEach { item ->
-                    item.product?.let { it.stock += item.quantity }
-                }
+                productService.restoreStockAtomic(order.orderItems)  // ensure atomicity at DB level
 
                 //  Update payment status
                 order.payment?.status = PaymentStatus.REFUNDED
@@ -87,9 +89,8 @@ open class OrderService(private val orderRepository: OrderRepository) {
             }
 
             OrderStatus.CANCELLED -> {
-                order.orderItems.forEach { order ->
-                    order.product?.let { it.stock += order.quantity }
-                }
+                //  Restore stock for every item
+                productService.restoreStockAtomic(order.orderItems)  // ensure atomicity at DB level
             }
 
             else -> { /* no extra side effects */

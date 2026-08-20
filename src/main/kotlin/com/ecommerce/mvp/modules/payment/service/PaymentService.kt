@@ -12,14 +12,18 @@ import com.ecommerce.mvp.modules.payment.model.dto.PaymentVerifyRequestDto
 import com.ecommerce.mvp.modules.payment.model.entity.Payment
 import com.ecommerce.mvp.modules.payment.model.entity.PaymentStatus
 import com.ecommerce.mvp.modules.payment.repository.PaymentRepository
+import com.ecommerce.mvp.modules.product.service.ProductService
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.interceptor.TransactionInterceptor
 
 @Service
 class PaymentService(
     private val orderRepository: OrderRepository,
-    private val paymentRepository: PaymentRepository
+    private val paymentRepository: PaymentRepository,
+    private val productService: ProductService
 ) {
 
 
@@ -55,7 +59,7 @@ class PaymentService(
             PaymentStatus.FAILED.name -> {
                 order.status = OrderStatus.FAILED  // system-driven
                 payment.status = PaymentStatus.FAILED
-                restoreStockForOrder(order)  // restore stock for cancelled order
+                productService.restoreStockAtomic(order.orderItems)  // restore stock for cancelled order
                 throw PaymentFailedException(requestDto.failedReason ?: "Payment failed, try again later")
             }
 
@@ -64,7 +68,7 @@ class PaymentService(
             PaymentStatus.CANCELLED.name -> {
                 order.status = OrderStatus.CANCELLED  // intentional, not an error
                 payment.status = PaymentStatus.CANCELLED
-                restoreStockForOrder(order)  // restore stock for cancelled order
+                productService.restoreStockAtomic(order.orderItems)  // restore stock for cancelled order
             }
 
             else -> throw BusinessValidationException("Invalid payment status: ${requestDto.status}")
@@ -77,11 +81,4 @@ class PaymentService(
         return paymentRepository.save(payment).toResponseDto()
     }
 
-    private fun restoreStockForOrder(order: Order) {
-        order.orderItems.forEach { orderItem ->
-            orderItem.product?.let { product ->
-                product.stock += orderItem.quantity
-            }
-        }
-    }
 }
