@@ -4,7 +4,9 @@ import com.ecommerce.mvp.modules.category.entity.Category
 import com.ecommerce.mvp.modules.product.model.entity.Product
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import java.util.Optional
 
@@ -23,4 +25,7 @@ interface ProductRepository : JpaRepository<Product, Long>, JpaSpecificationExec
 
         fun findByIdAndIsActiveTrue(productId: Long): Optional<Product>
 
+        @Modifying
+        @Query("UPDATE Product p SET p.stock = p.stock + :stock WHERE p.id = :id")
+        fun incrementStockById(@Param("id") id: Long, @Param("stock") stock: Int): Int
 }

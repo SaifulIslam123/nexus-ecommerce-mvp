@@ -193,8 +193,24 @@ class ProductService(
             val productId = item.product?.id ?: throw ResourceNotFoundException("Product missing")
             productRepository.incrementStockById(productId, item.quantity)
 
+            // Evict product-related cache entries in Redis so stale stock values aren't served.
+            // Spring's RedisCacheManager default key format is: <cacheName>::<key>
+            // In prod a global prefix (ecommerce:) may be added via configuration, so delete both
+            // prefixed and non-prefixed keys to cover both environments.
+            val productCacheKey = "${CacheNames.PRODUCTS}::${productId}"
+            val productRecCacheKey = "${CacheNames.PRODUCTS_RECOMMENDATIONS}::${productId}"
 
+            try {
+                // delete without global prefix
+                redisTemplate.delete(productCacheKey)
+                redisTemplate.delete(productRecCacheKey)
 
+                /*// also attempt with the prod prefix used in application-prod.properties
+                redisTemplate.delete("ecommerce:$productCacheKey")
+                redisTemplate.delete("ecommerce:$productRecCacheKey")*/
+            } catch (ex: Exception) {
+                // Cache eviction failure should not block stock restoration; swallow the exception.
+            }
 
         }
     }
