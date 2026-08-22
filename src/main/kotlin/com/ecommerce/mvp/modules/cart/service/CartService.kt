@@ -64,10 +64,9 @@ class CartService(
         user.cart?.let { userCart ->
 
             requestDto.productId?.let { productId ->
-                val requestProduct = productRepository.findByIdAndIsActiveTrue(productId)
-                    .orElseThrow { ResourceNotFoundException("Product not found with id: ${productId}") }
+                val requestProduct = productRepository.findById(productId).orElseThrow { ResourceNotFoundException("Product not found with id: ${productId}") }
 
-                validateQuantityStock(requestDto.quantity, requestProduct.stock)
+                validateProduct(requestDto.quantity, requestProduct.stock, requestProduct.isActive)
 
                 val cartItem = CartItem().apply {
                     product = requestProduct
@@ -105,7 +104,7 @@ class CartService(
         val product = cartItem.product
             ?: throw ResourceNotFoundException("Product associated with cart item not found")
 
-       validateQuantityStock(requestDto.quantity, product.stock)
+        validateProduct(requestDto.quantity, product.stock, product.isActive)
 
         cartItem.quantity = requestDto.quantity
 
@@ -158,11 +157,16 @@ class CartService(
         //return cart.toResponseDto()
     }
 
-    private fun validateQuantityStock(requestStock: Int, productStock: Int) {
+    private fun validateProduct(requestStock: Int, productStock: Int, isActive: Boolean) {
+
+        if (!isActive) {
+            throw BusinessValidationException("Currently this product is not active")
+        }
 
         if (requestStock > productStock) {
             throw BusinessValidationException("Requested quantity (${requestStock}) exceeds available stock (${productStock})")
         }
     }
+
 }
 

@@ -18,12 +18,12 @@ interface ProductRepository : JpaRepository<Product, Long>, JpaSpecificationExec
 
         /** Dashboard: products whose stock is at or below the given threshold. */
         @Query("SELECT p FROM Product p WHERE p.stock <= :threshold AND p.isActive = true ORDER BY p.stock ASC")
-        fun findLowStockProducts(@org.springframework.data.repository.query.Param("threshold") threshold: Int): List<Product>
+        fun findLowStockProducts(@Param("threshold") threshold: Int): List<Product>
 
         /** Dashboard: total count of active products. */
         fun countByIsActiveTrue(): Long
 
-        fun findByIdAndIsActiveTrue(productId: Long): Optional<Product>
+        fun findByIdAndIsActiveTrueAndStockGreaterThanEqual(id: Long, quantity: Int): Optional<Product>
 
         @Modifying
         @Query("UPDATE Product p SET p.stock = p.stock + :stock WHERE p.id = :id")
