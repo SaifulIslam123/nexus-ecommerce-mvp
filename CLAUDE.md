@@ -87,7 +87,7 @@ Admin order updates go through `AdminOrderController`; shopper-facing order acti
 - **Tag entity** lives in `modules/product/model/entity/Tag.kt` even though `TagController`/`TagService` are in `modules/tag/`.
 - **Data seeding** runs via `AppCommandLineRunner` on startup (dev only) — `CategoryTagProductDataSeederService` populates initial catalogue data.
 - **Schedulers**: `OrderScheduler` runs daily at midnight — auto-transitions orders older than 15 days from `DELIVERED` → `RECEIVED`. `TokenCleanupScheduler` runs daily at 02:00 — purges expired and revoked refresh tokens from the DB.
-- **Login vs request auth**: `CustomUserDetailsService` loads the user from DB only during `/auth/login` (Spring Security auth provider). All subsequent requests are validated stateless from the JWT without a DB call.
+- **Login vs request auth**: `AppUserDetailsService` loads the user from DB only during `/auth/login` (Spring Security auth provider). All subsequent requests are validated stateless from the JWT without a DB call.
 
 ## Testing
 

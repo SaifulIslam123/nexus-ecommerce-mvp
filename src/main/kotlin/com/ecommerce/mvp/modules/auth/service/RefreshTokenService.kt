@@ -4,7 +4,7 @@ import com.ecommerce.mvp.common.exception.InvalidRefreshTokenException
 import com.ecommerce.mvp.modules.auth.model.entity.RefreshToken
 import com.ecommerce.mvp.modules.auth.repository.RefreshTokenRepository
 import com.ecommerce.mvp.modules.user.repository.UserRepository
-import com.ecommerce.mvp.security.CustomUserDetails
+import com.ecommerce.mvp.security.AppSecurityUserDetails
 import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -25,10 +25,10 @@ class RefreshTokenService(
 ) {
 
     @Transactional
-    fun createRefreshToken(user: CustomUserDetails): String {
+    fun createRefreshToken(user: AppSecurityUserDetails): String {
         val token = RefreshToken().apply {
             refreshToken = UUID.randomUUID().toString()
-            this.user = userRepository.getReferenceById(user.id)
+            this.user = userRepository.getReferenceById(user.getUserId())
             expiresAt = Instant.now().plusMillis(refreshTokenExpirationMs)
         }
         return refreshTokenRepository.save(token).refreshToken

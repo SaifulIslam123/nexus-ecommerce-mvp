@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 
 
 @Service
-class CustomUserDetailsService(
+class AppSecurityUserDetailsService(
     private val userRepository: UserRepository
 ) : UserDetailsService {
 
@@ -38,12 +38,14 @@ class CustomUserDetailsService(
             .authorities(authorities)
             .build()*/
 
-        return CustomUserDetails(
+        /*return CustomUserDetails(
             id = user.id ?: -1,
             email = user.email ?: "",
             password = user.password ?: "",
             authorities = authorities.filterNotNull()
-        )
+        )*/
+
+        return AppSecurityUserDetails(user, authorities.filterNotNull())
 
     }
 }

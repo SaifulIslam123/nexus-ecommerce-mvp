@@ -7,16 +7,13 @@ import com.ecommerce.mvp.modules.auth.model.RefreshRequest
 import com.ecommerce.mvp.modules.auth.service.AuthService
 import com.ecommerce.mvp.modules.auth.service.RefreshTokenService
 import com.ecommerce.mvp.modules.user.model.dto.UserDto
-import com.ecommerce.mvp.modules.user.repository.UserRepository
 import com.ecommerce.mvp.modules.user.service.UserService
-import com.ecommerce.mvp.security.CustomUserDetails
 import com.ecommerce.mvp.security.JwtUtil
 import com.ecommerce.mvp.security.TokenBlacklistService
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.web.bind.annotation.*
 

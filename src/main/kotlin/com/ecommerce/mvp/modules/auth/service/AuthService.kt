@@ -4,8 +4,9 @@ import com.ecommerce.mvp.modules.auth.model.AuthRequest
 import com.ecommerce.mvp.modules.auth.model.LoginResponseDto
 import com.ecommerce.mvp.modules.auth.model.RefreshRequest
 import com.ecommerce.mvp.modules.user.repository.UserRepository
-import com.ecommerce.mvp.security.CustomUserDetails
+import com.ecommerce.mvp.security.AppSecurityUserDetails
 import com.ecommerce.mvp.security.JwtUtil
+import com.ecommerce.mvp.security.currentUserEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -19,9 +20,8 @@ class AuthService(
 
     @Transactional
     fun login(request: AuthRequest): LoginResponseDto {
-        //val userDetails: UserDetails = authentication.principal as UserDetails
 
-        val userDetails = SecurityContextHolder.getContext().authentication.principal as CustomUserDetails
+        val userDetails = SecurityContextHolder.getContext().authentication.principal as AppSecurityUserDetails
 
         val authorities = userDetails.authorities.map { it.authority }.toMutableList()
         val accessToken = jwtUtil.generateAccessToken(request.username, authorities)
