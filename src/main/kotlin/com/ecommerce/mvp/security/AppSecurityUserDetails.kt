@@ -5,17 +5,6 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 
-
-/*data class CustomUserDetails(
-    val id: Long,
-    val email: String,
-    @get:JvmName("userPassword")
-    val password: String,
-    @get:JvmName("userAuthorities")
-    val authorities: Collection<GrantedAuthority>
-) : User(email, password, authorities)*/
-
-
 val currentUserEntity: User?
     get() {
         val principal = SecurityContextHolder.getContext().authentication?.principal
