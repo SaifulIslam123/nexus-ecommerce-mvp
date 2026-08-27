@@ -2,14 +2,14 @@ package com.ecommerce.mvp.modules.order.repository
 
 import com.ecommerce.mvp.modules.order.model.entity.Order
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
+import com.ecommerce.mvp.modules.user.model.entity.User
 import jakarta.persistence.LockModeType
 import jakarta.persistence.QueryHint
 import jakarta.transaction.Transactional
-import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.data.jpa.repository.Lock
-import org.springframework.data.jpa.repository.Modifying
-import org.springframework.data.jpa.repository.Query
-import org.springframework.data.jpa.repository.QueryHints
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.data.jpa.repository.*
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import java.time.Instant
@@ -37,8 +37,11 @@ interface OrderRepository : JpaRepository<Order, Long> {
      * a product. payment and shipment use LEFT JOIN FETCH since they are
      * optional associations.
      */
-    @Query("SELECT DISTINCT o FROM Order o JOIN FETCH o.user u JOIN FETCH o.orderItems item JOIN FETCH item.product LEFT JOIN FETCH o.payment LEFT JOIN FETCH o.shipment WHERE u.email = :email ORDER BY o.orderDate DESC")
-    fun findAllByUserEmail(email: String): List<Order>
+
+    //@Query("SELECT DISTINCT o FROM Order o JOIN FETCH o.user u JOIN FETCH o.orderItems item JOIN FETCH item.product LEFT JOIN FETCH o.payment LEFT JOIN FETCH o.shipment WHERE u.email = :email ORDER BY o.orderDate DESC")
+    fun findAllByUserEmail(email: String, pageable: Pageable): Page<Order>
+
+
 
     fun findByStatus(status: OrderStatus): List<Order>
 
@@ -88,10 +91,20 @@ interface OrderRepository : JpaRepository<Order, Long> {
         GROUP BY item.product.id, item.product.name
         ORDER BY SUM(item.quantity) DESC
     """)
-    fun findTopSellingProducts(pageable: org.springframework.data.domain.Pageable): List<Array<Any>>
+    fun findTopSellingProducts(pageable: Pageable): List<Array<Any>>
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints(QueryHint(name = "javax.persistence.lock.timeout", value = "3000"))
     fun findOrderById(id: Long): Order?
+
+    // 1. Sorts and paginates just the IDs in the database
+    @Query("""SELECT o.id FROM Order o WHERE o.user = :user""",
+        countQuery = """SELECT COUNT(o) FROM Order o WHERE o.user = :user""")
+    fun findOrderIdsByUser(user: User, pageable: Pageable): Page<Long>?
+
+    // 2. Fetches collections for those IDs, maintaining the sorted order
+    @Query("SELECT DISTINCT o FROM Order o LEFT JOIN FETCH o.orderItems item LEFT JOIN FETCH item.product LEFT JOIN FETCH o.payment payment LEFT JOIN FETCH o.shipment shipment WHERE o.id IN :ids")
+    fun findOrdersByIds(@Param("ids") ids: MutableList<Long>, sort: Sort): MutableList<Order>
+
 
 }

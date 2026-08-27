@@ -10,12 +10,12 @@ import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
 import com.ecommerce.mvp.modules.payment.model.entity.PaymentStatus
 import com.ecommerce.mvp.modules.product.service.ProductService
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
+import org.springframework.transaction.annotation.Transactional
+import com.ecommerce.mvp.security.currentUserEntity
+import org.springframework.data.domain.PageImpl
 
 
 abstract class OrderService {
@@ -24,17 +24,21 @@ abstract class OrderService {
 
     abstract val productService: ProductService
 
-    //TODO: Change to DB-Level pagination 
-    //@Transactional(readOnly = true)
-    open fun getMyOrders(page: Int, size: Int): Page<OrderResponseDto> {
-        val email = SecurityContextHolder.getContext().authentication?.name
-            ?: throw ResourceNotFoundException("Authenticated user not found")
 
-        val allOrders = orderRepository.findAllByUserEmail(email).map { it.toResponseDto() }
-        val pageable = PageRequest.of(page, size)
-        val start = (page * size).coerceAtMost(allOrders.size)
-        val end = (start + size).coerceAtMost(allOrders.size)
-        return PageImpl(allOrders.subList(start, end), pageable, allOrders.size.toLong())
+    open fun getMyOrders(page: Int, size: Int): Page<OrderResponseDto> {
+
+        val user = currentUserEntity ?: throw IllegalStateException("Authenticated user not found")
+
+        val sort = Sort.by("orderDate").descending()
+        val pageable = PageRequest.of(page, size, sort)
+        val allOrdersIds = orderRepository.findOrderIdsByUser(user, pageable)
+
+        allOrdersIds?.takeIf { it.content.isNotEmpty() }?.let {
+            val allOrders = orderRepository.findOrdersByIds(sort = sort, ids = it.content).map { it.toResponseDto() }
+
+            return PageImpl(allOrders, pageable, allOrdersIds.totalElements)
+        } ?: throw ResourceNotFoundException("No orders found ")
+
     }
 
 
