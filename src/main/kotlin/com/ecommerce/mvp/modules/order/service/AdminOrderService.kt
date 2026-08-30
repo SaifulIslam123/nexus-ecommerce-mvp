@@ -7,9 +7,11 @@ import com.ecommerce.mvp.modules.order.model.dto.toResponseDto
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
 import com.ecommerce.mvp.modules.product.service.ProductService
+import com.ecommerce.mvp.security.currentUserEntity
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -39,14 +41,15 @@ class AdminOrderService(
     @Transactional(readOnly = true)
     fun getAllSystemOrders(page: Int, size: Int): Page<OrderResponseDto> {
 
-        SecurityContextHolder.getContext().authentication
-            ?: throw ResourceNotFoundException("Authenticated user not found")
+        val sort = Sort.by("orderDate").descending()
+        val pageable = PageRequest.of(page, size, sort)
+        val allOrdersIds = orderRepository.findAllOrderIds( pageable)
 
-        val allOrders = orderRepository.findAll().map { it.toResponseDto() }
-        val pageable = PageRequest.of(page, size)
-        val start = (page * size).coerceAtMost(allOrders.size)
-        val end = (start + size).coerceAtMost(allOrders.size)
-        return PageImpl(allOrders.subList(start, end), pageable, allOrders.size.toLong())
+        allOrdersIds?.takeIf { it.content.isNotEmpty() }?.let {
+            val allOrders = orderRepository.findOrdersByIds(sort = sort, ids = it.content).map { it.toResponseDto() }
+
+            return PageImpl(allOrders, pageable, allOrdersIds.totalElements)
+        } ?: throw ResourceNotFoundException("No orders found ")
     }
 
     /**

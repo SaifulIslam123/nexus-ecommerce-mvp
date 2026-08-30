@@ -106,5 +106,6 @@ interface OrderRepository : JpaRepository<Order, Long> {
     @Query("SELECT DISTINCT o FROM Order o LEFT JOIN FETCH o.orderItems item LEFT JOIN FETCH item.product LEFT JOIN FETCH o.payment payment LEFT JOIN FETCH o.shipment shipment WHERE o.id IN :ids")
     fun findOrdersByIds(@Param("ids") ids: MutableList<Long>, sort: Sort): MutableList<Order>
 
-
+    @Query("""SELECT o.id FROM Order o""", countQuery = """SELECT COUNT(o) FROM Order o""")
+    fun findAllOrderIds(pageable: Pageable): Page<Long>?
 }
