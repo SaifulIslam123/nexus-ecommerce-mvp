@@ -3,6 +3,7 @@ package com.ecommerce.mvp.modules.tag
 import com.ecommerce.mvp.modules.tag.dto.TagRequestDto
 import com.ecommerce.mvp.modules.tag.dto.TagResponseDto
 import com.ecommerce.mvp.modules.tag.service.TagService
+import com.ecommerce.mvp.security.IsAdmin
 import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/tags")
+@IsAdmin
 class TagController(
     private val tagService: TagService
 ) {

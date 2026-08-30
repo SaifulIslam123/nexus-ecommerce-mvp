@@ -5,6 +5,7 @@ import com.ecommerce.mvp.modules.category.dto.CategoryDto
 import com.ecommerce.mvp.modules.category.dto.CategoryTreeResponseDto
 import com.ecommerce.mvp.modules.category.dto.toDto
 import com.ecommerce.mvp.modules.category.service.CategoryService
+import com.ecommerce.mvp.security.IsAdmin
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/categories")
+@IsAdmin
 class CategoryController(
     private val categoryService: CategoryService
 ) {

@@ -2,6 +2,7 @@ package com.ecommerce.mvp.modules.role.controller
 
 import com.ecommerce.mvp.modules.role.model.entity.Role
 import com.ecommerce.mvp.modules.role.service.RoleService
+import com.ecommerce.mvp.security.IsAdmin
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/roles")
+@IsAdmin
 class RoleController(private val roleService: RoleService) {
 
     @PostMapping("/create")

@@ -14,7 +14,7 @@ class PaymentController(private val paymentService: PaymentService) {
 
 
 
-    @PostMapping("/payments/webhook")
+    @PostMapping("/webhook")
     fun verifyOrder(@RequestBody requestDto: PaymentVerifyRequestDto): PaymentResponseDto {
         return paymentService.verifyPayment(requestDto)
     }

@@ -30,10 +30,14 @@ class PaymentService(
     @Transactional
     fun verifyPayment(requestDto: PaymentVerifyRequestDto): PaymentResponseDto {
 
+        if (requestDto.orderId == null || requestDto.orderId <= 0) {
+            throw BusinessValidationException("Invalid orderId: ${requestDto.orderId}")
+        }
+
         val email = SecurityContextHolder.getContext().authentication?.name
             ?: throw ResourceNotFoundException("Authenticated user not found")
 
-        val order = orderRepository.findByIdAndUserEmail(requestDto.orderId!!, email)
+        val order = orderRepository.findByIdAndUserEmail(requestDto.orderId, email)
             ?: throw ResourceNotFoundException("Order not found")
 
         if (order.totalAmount != requestDto.totalAmount) {
