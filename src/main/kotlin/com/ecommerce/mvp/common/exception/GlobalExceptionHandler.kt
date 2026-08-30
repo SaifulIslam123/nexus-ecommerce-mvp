@@ -70,7 +70,7 @@ class GlobalExceptionHandler {
     fun handleGeneric(ex: Exception, request: HttpServletRequest): ApiResponse<Unit> {
         return ApiResponse(
             success = false,
-            message = ex.message.toString()
+            message = "An unexpected error occurred"
         )
     }
 

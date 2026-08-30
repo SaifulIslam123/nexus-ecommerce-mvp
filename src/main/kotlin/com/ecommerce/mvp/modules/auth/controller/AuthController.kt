@@ -31,9 +31,9 @@ class AuthController(
 ) {
 
     @PostMapping("/login")
-    fun login(@RequestBody request: AuthRequest): LoginResponseDto {
+    fun login(@Valid @RequestBody request: AuthRequest): LoginResponseDto {
         authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken(request.username, request.password)
+            UsernamePasswordAuthenticationToken(request.userEmail, request.password)
         )
 
         return authService.login(request)

@@ -6,7 +6,6 @@ import com.ecommerce.mvp.modules.auth.model.RefreshRequest
 import com.ecommerce.mvp.modules.user.repository.UserRepository
 import com.ecommerce.mvp.security.AppSecurityUserDetails
 import com.ecommerce.mvp.security.JwtUtil
-import com.ecommerce.mvp.security.currentUserEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -24,7 +23,7 @@ class AuthService(
         val userDetails = SecurityContextHolder.getContext().authentication.principal as AppSecurityUserDetails
 
         val authorities = userDetails.authorities.map { it.authority }.toMutableList()
-        val accessToken = jwtUtil.generateAccessToken(request.username, authorities)
+        val accessToken = jwtUtil.generateAccessToken(request.userEmail, authorities)
 
         val refreshToken = refreshTokenService.createRefreshToken(userDetails)
 
