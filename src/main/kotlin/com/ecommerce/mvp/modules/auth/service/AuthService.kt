@@ -23,7 +23,7 @@ class AuthService(
         val userDetails = SecurityContextHolder.getContext().authentication.principal as AppSecurityUserDetails
 
         val authorities = userDetails.authorities.map { it.authority }.toMutableList()
-        val accessToken = jwtUtil.generateAccessToken(request.userEmail, authorities)
+        val accessToken = jwtUtil.generateAccessToken(request.userEmail!!, authorities)
 
         val refreshToken = refreshTokenService.createRefreshToken(userDetails)
 
