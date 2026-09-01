@@ -1,6 +1,5 @@
 package com.ecommerce.mvp.modules.user.repository
 
-import com.ecommerce.mvp.modules.user.model.entity.Address
 import com.ecommerce.mvp.modules.user.model.entity.User
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -18,7 +17,7 @@ interface UserRepository : JpaRepository<User, Long> {
     @Query("SELECT user FROM User user JOIN FETCH user.addresses address WHERE user.email = :email")
     fun findByUserEmailWithAddresses(email: String?): User?
 
-
+    fun existsByEmail(email: String): Boolean
     //fun findByIdAndUserIdAndDeletedAtIsNull(id: Long, userId: Long): Address?
 
 }

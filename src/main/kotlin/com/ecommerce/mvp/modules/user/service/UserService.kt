@@ -38,9 +38,11 @@ class UserService(
     @Transactional
     fun registerUser(userDto: UserDto): UserDto {
 
+        if (userRepository.existsByEmail(userDto.email!!)) {
+            throw BusinessValidationException("Email is already in use")
+        }
+
         val requestRoleList: MutableList<Role> = mutableListOf()
-
-
 
         userDto.userRoles?.forEach { roleName ->
 
