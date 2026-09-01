@@ -3,6 +3,7 @@ package com.ecommerce.mvp.common.exception
 import com.ecommerce.mvp.common.response.ApiResponse
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.dao.CannotAcquireLockException
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.dao.PessimisticLockingFailureException
 import org.springframework.http.HttpStatus
@@ -103,7 +104,10 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(OptimisticLockingFailureException::class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    fun handleOptimisticLockingFailure(ex: OptimisticLockingFailureException, request: HttpServletRequest): ApiResponse<Unit> {
+    fun handleOptimisticLockingFailure(
+        ex: OptimisticLockingFailureException,
+        request: HttpServletRequest
+    ): ApiResponse<Unit> {
         return ApiResponse(
             success = false,
             message = ex.message ?: "Resource has been modified by another transaction"
@@ -135,6 +139,24 @@ class GlobalExceptionHandler {
         return ApiResponse(
             success = false,
             message = ex.message.toString()
+        )
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException::class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    fun handleDataIntegrityViolation(
+        ex: DataIntegrityViolationException,
+        request: HttpServletRequest
+    ): ApiResponse<Unit> {
+
+
+        // Log the root cause message securely internally
+        var errorMessage: String =
+            "Database conflict: The requested operation violates database rules (e.g., duplicate entry or invalid reference)."
+
+        return ApiResponse(
+            success = false,
+            message = "Data integrity violation occurred"
         )
     }
 }
