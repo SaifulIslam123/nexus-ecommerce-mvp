@@ -6,6 +6,7 @@ import org.springframework.dao.CannotAcquireLockException
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.dao.PessimisticLockingFailureException
+import org.springframework.dao.QueryTimeoutException
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -157,6 +158,23 @@ class GlobalExceptionHandler {
         return ApiResponse(
             success = false,
             message = "Data integrity violation occurred"
+        )
+    }
+
+    @ExceptionHandler(QueryTimeoutException::class)
+    @ResponseStatus(HttpStatus.GATEWAY_TIMEOUT)
+    fun handleQueryTimeout(
+        ex: QueryTimeoutException, request: HttpServletRequest
+    ): ApiResponse<Unit> {
+
+
+        // Log the root cause message securely internally
+        var errorMessage: String =
+            "Database conflict: The requested operation violates database rules (e.g., duplicate entry or invalid reference)."
+
+        return ApiResponse(
+            success = false,
+            message = "The database query took too long to respond. Please try again later."
         )
     }
 }

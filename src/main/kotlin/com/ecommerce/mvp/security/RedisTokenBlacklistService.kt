@@ -1,5 +1,8 @@
 package com.ecommerce.mvp.security
 
+import com.ecommerce.mvp.common.cache.RedisCacheErrorHandler
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Service
@@ -31,17 +34,28 @@ class RedisTokenBlacklistService(
         private const val KEY_PREFIX = "token:blacklist:"
     }
 
-    override fun blacklist(token: String) {
-        val expiry   = jwtUtil.extractExpiration(token).toInstant()
-        val ttl      = Duration.between(Instant.now(), expiry)
+    private val logger: Logger = LoggerFactory.getLogger(RedisTokenBlacklistService::class.java)
 
-        // Only store the key if the token hasn't already expired
-        if (!ttl.isNegative && !ttl.isZero) {
-            redisTemplate.opsForValue().set(KEY_PREFIX + token, "1", ttl)
+    override fun blacklist(token: String) {
+        try {
+            val expiry = jwtUtil.extractExpiration(token).toInstant()
+            val ttl = Duration.between(Instant.now(), expiry)
+            if (!ttl.isNegative) {
+                redisTemplate.opsForValue().set(KEY_PREFIX + token, "1", ttl)
+            }
+        } catch (ex: Exception) {
+            logger.error("Redis error on blacklist", ex)
+            // Fail-open: log and continue, or fail-closed: throw
         }
     }
 
-    override fun isBlacklisted(token: String): Boolean =
-        redisTemplate.hasKey(KEY_PREFIX + token) == true
+    override fun isBlacklisted(token: String): Boolean {
+        return try {
+            redisTemplate.hasKey(KEY_PREFIX + token) == true
+        } catch (ex: Exception) {
+            logger.error("Redis error on blacklist check", ex)
+            false  // Fail-open: assume not blacklisted
+        }
+    }
 }
 

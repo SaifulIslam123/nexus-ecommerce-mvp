@@ -13,6 +13,9 @@ import com.ecommerce.mvp.modules.product.model.entity.Product
 import com.ecommerce.mvp.modules.product.repository.ProductRepository
 import com.ecommerce.mvp.modules.product.repository.ProductSpecification
 import com.ecommerce.mvp.modules.product.repository.TagRepository
+import com.ecommerce.mvp.security.RedisTokenBlacklistService
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.cache.annotation.Caching
@@ -32,6 +35,8 @@ class ProductService(
     private val tagRepository: TagRepository,
     private val redisTemplate: StringRedisTemplate
 ) {
+
+    private val logger: Logger = LoggerFactory.getLogger(RedisTokenBlacklistService::class.java)
 
     @Transactional
     fun insertSampleProduct() {
@@ -209,6 +214,7 @@ class ProductService(
                 redisTemplate.delete("ecommerce:$productCacheKey")
                 redisTemplate.delete("ecommerce:$productRecCacheKey")*/
             } catch (ex: Exception) {
+                logger.error("Redis error on product:$productId cache eviction", ex)
                 // Cache eviction failure should not block stock restoration; swallow the exception.
             }
 
