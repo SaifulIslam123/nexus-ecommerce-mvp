@@ -22,7 +22,7 @@ data class Order(
     @Column(nullable = false)
     var status: OrderStatus,
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     var user: User? = null,
 

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/categories")
-@IsAdmin
+
 class CategoryController(
     private val categoryService: CategoryService
 ) {
@@ -30,19 +30,22 @@ class CategoryController(
     }
 
     @PostMapping("/create")
+    @IsAdmin
     fun createCategory(@Valid @RequestBody categoryDto: CategoryDto): CategoryDto {
         return categoryService.createCategory(categoryDto)
     }
 
     @PutMapping("/{id}")
+    @IsAdmin
     fun updateCategory(
         @PathVariable id: Long,
-        @RequestBody categoryDto: CategoryDto
+        @Valid @RequestBody categoryDto: CategoryDto
     ): CategoryDto {
         return categoryService.updateCategory(id, categoryDto)
     }
 
     @DeleteMapping("/{id}")
+    @IsAdmin
     fun deleteCategory(@PathVariable id: Long): ResponseEntity<Unit> {
         categoryService.deleteById(id)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()

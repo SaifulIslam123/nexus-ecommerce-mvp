@@ -3,6 +3,7 @@ package com.ecommerce.mvp.modules.payment
 import com.ecommerce.mvp.modules.order.model.dto.PaymentResponseDto
 import com.ecommerce.mvp.modules.payment.model.dto.PaymentVerifyRequestDto
 import com.ecommerce.mvp.modules.payment.service.PaymentService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -15,7 +16,7 @@ class PaymentController(private val paymentService: PaymentService) {
 
 
     @PostMapping("/webhook")
-    fun verifyOrder(@RequestBody requestDto: PaymentVerifyRequestDto): PaymentResponseDto {
+    fun verifyOrder(@Valid @RequestBody requestDto: PaymentVerifyRequestDto): PaymentResponseDto {
         return paymentService.verifyPayment(requestDto)
     }
 }

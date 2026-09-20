@@ -36,7 +36,7 @@ class ProductService(
     private val redisTemplate: StringRedisTemplate
 ) {
 
-    private val logger: Logger = LoggerFactory.getLogger(RedisTokenBlacklistService::class.java)
+    private val logger: Logger = LoggerFactory.getLogger(ProductService::class.java)
 
     @Transactional
     fun insertSampleProduct() {
@@ -50,13 +50,6 @@ class ProductService(
 
     @Cacheable(cacheNames = [CacheNames.PRODUCTS], key = "#id")
     fun getProductById(id: Long): ProductResponseDto {
-        val product = productRepository.findById(id)
-            .orElseThrow { ResourceNotFoundException("Product not found with id: $id") }
-        return product.toResponseDto()
-    }
-
-    @Cacheable(cacheNames = [CacheNames.PRODUCTS], key = "#id")
-    fun getProductDetail(id: Long): ProductResponseDto {
         val product = productRepository.findById(id)
             .orElseThrow { ResourceNotFoundException("Product not found with id: $id") }
         return product.toResponseDto()

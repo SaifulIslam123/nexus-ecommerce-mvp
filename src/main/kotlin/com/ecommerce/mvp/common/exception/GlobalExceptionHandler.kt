@@ -23,7 +23,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException::class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    fun handleResourceNotFound(ex: ResourceNotFoundException, request: HttpServletRequest): ApiResponse<Unit> {
+    fun handleResourceNotFound(ex: ResourceNotFoundException): ApiResponse<Unit> {
         return ApiResponse(
             success = false,
             message = ex.message ?: "Resource not found"
@@ -34,7 +34,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun handleValidation(ex: MethodArgumentNotValidException, request: HttpServletRequest): ApiResponse<Unit> {
+    fun handleValidation(ex: MethodArgumentNotValidException): ApiResponse<Unit> {
 
         val errorMsg = ex.bindingResult
             .fieldErrors
@@ -51,7 +51,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(UsernameNotFoundException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    fun handleUsernameNotFound(ex: UsernameNotFoundException, request: HttpServletRequest): ApiResponse<Unit> {
+    fun handleUsernameNotFound(ex: UsernameNotFoundException): ApiResponse<Unit> {
         return ApiResponse(
             success = false,
             message = ex.message.toString()
@@ -60,7 +60,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthenticationException::class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    fun handleUnauthorized(ex: AuthenticationException, request: HttpServletRequest): ApiResponse<Unit> {
+    fun handleUnauthorized(ex: AuthenticationException): ApiResponse<Unit> {
         return ApiResponse(
             success = false,
             message = ex.message ?: "Authentication is required to access this resource"
@@ -69,7 +69,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    fun handleGeneric(ex: Exception, request: HttpServletRequest): ApiResponse<Unit> {
+    fun handleGeneric(ex: Exception): ApiResponse<Unit> {
         return ApiResponse(
             success = false,
             message = "An unexpected error occurred"
@@ -78,7 +78,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessValidationException::class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    fun handleBusinessValidation(ex: BusinessValidationException, request: HttpServletRequest): ApiResponse<Unit> {
+    fun handleBusinessValidation(ex: BusinessValidationException): ApiResponse<Unit> {
         return ApiResponse(
             success = false,
             message = ex.message ?: "Invalid request data"
@@ -87,7 +87,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceAlreadyExistException::class)
     @ResponseStatus(value = HttpStatus.CONFLICT)
-    fun handleResourceAlreadyExist(ex: ResourceAlreadyExistException, request: HttpServletRequest): ApiResponse<Unit> {
+    fun handleResourceAlreadyExist(ex: ResourceAlreadyExistException): ApiResponse<Unit> {
         return ApiResponse(
             success = false,
             message = ex.message ?: "Invalid request data"
@@ -96,7 +96,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidRefreshTokenException::class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    fun handleInvalidRefreshToken(ex: InvalidRefreshTokenException, request: HttpServletRequest): ApiResponse<Unit> {
+    fun handleInvalidRefreshToken(ex: InvalidRefreshTokenException): ApiResponse<Unit> {
         return ApiResponse(
             success = false,
             message = ex.message ?: "Invalid or expired refresh token"
@@ -117,7 +117,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(CannotAcquireLockException::class)
     @ResponseStatus(HttpStatus.REQUEST_TIMEOUT)
-    fun handleLockTimeout(ex: CannotAcquireLockException, request: HttpServletRequest): ApiResponse<Unit> {
+    fun handleLockTimeout(ex: CannotAcquireLockException): ApiResponse<Unit> {
         return ApiResponse(
             success = false,
             message = "The system is currently handling a high volume of inventory updates. Please try again shortly."
@@ -126,7 +126,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(PessimisticLockingFailureException::class)
     @ResponseStatus(HttpStatus.REQUEST_TIMEOUT)
-    fun handleLockTimeout(ex: PessimisticLockingFailureException, request: HttpServletRequest): ApiResponse<Unit> {
+    fun handleLockTimeout(ex: PessimisticLockingFailureException): ApiResponse<Unit> {
         return ApiResponse(
             success = false,
             message = ex.message
@@ -135,8 +135,8 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(PaymentFailedException::class)
-    @ResponseStatus(HttpStatus.REQUEST_TIMEOUT)
-    fun handlePaymentFailed(ex: PaymentFailedException, request: HttpServletRequest): ApiResponse<Unit> {
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    fun handlePaymentFailed(ex: PaymentFailedException): ApiResponse<Unit> {
         return ApiResponse(
             success = false,
             message = ex.message.toString()
@@ -164,7 +164,7 @@ class GlobalExceptionHandler {
     @ExceptionHandler(QueryTimeoutException::class)
     @ResponseStatus(HttpStatus.GATEWAY_TIMEOUT)
     fun handleQueryTimeout(
-        ex: QueryTimeoutException, request: HttpServletRequest
+        ex: QueryTimeoutException
     ): ApiResponse<Unit> {
 
 

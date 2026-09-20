@@ -6,10 +6,10 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
 @Component
-class OrderScheduler {
+class OrderScheduler(private  var orderRepository: OrderRepository) {
 
-    @Autowired
-    private lateinit var orderRepository: OrderRepository
+    /*@Autowired
+    private lateinit var orderRepository: OrderRepository*/
 
 
     /**
