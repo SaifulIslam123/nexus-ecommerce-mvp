@@ -32,7 +32,6 @@ class AdminOrderService(
         orderRepository.deleteById(id)
     }
 
-    //TODO: Change to DB-Level pagination
     @Transactional(readOnly = true)
     override fun getMyOrders(page: Int, size: Int): Page<OrderResponseDto> {
         return super.getMyOrders(page, size)
