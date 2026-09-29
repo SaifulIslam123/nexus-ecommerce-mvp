@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -16,6 +17,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver
 class RateLimitFilter(
     private val rateLimitService: RateLimitService,
     @Value("\${app.jwt.secret}") private val secretKey: String,
+    @param:Qualifier("handlerExceptionResolver")
     private val handlerExceptionResolver: HandlerExceptionResolver
 ) : OncePerRequestFilter() {
 
