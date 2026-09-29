@@ -177,6 +177,15 @@ class GlobalExceptionHandler {
             message = "The database query took too long to respond. Please try again later."
         )
     }
+
+    @ExceptionHandler(RateLimitException::class)
+    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+    fun handleRateLimit(ex: RateLimitException): ApiResponse<Unit> {
+        return ApiResponse(
+            success = false,
+            message = ex.message ?: "Rate limit exceeded"
+        )
+    }
 }
 
 
@@ -185,4 +194,4 @@ class BusinessValidationException(message: String) : RuntimeException(message)
 class ResourceAlreadyExistException(message: String) : RuntimeException(message)
 class InvalidRefreshTokenException(message: String) : RuntimeException(message)
 class PaymentFailedException(message: String) : RuntimeException(message)
-
+class RateLimitException(message: String) : RuntimeException(message)

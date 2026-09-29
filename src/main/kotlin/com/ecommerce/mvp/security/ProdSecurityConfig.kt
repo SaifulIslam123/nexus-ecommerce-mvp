@@ -7,6 +7,7 @@ import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 
 /**
@@ -21,6 +22,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @Profile("prod")
 class ProdSecurityConfig(
     private val jwtAuthFilter: JwtAuthenticationFilter,
+    private val rateLimitFilter: RateLimitFilter,
     private val authenticationEntryPoint: JwtAuthenticationEntryPoint
 ) {
 
@@ -46,6 +48,7 @@ class ProdSecurityConfig(
                 it.contentTypeOptions(Customizer.withDefaults())
                 it.frameOptions { fo -> fo.deny() }
             }
+            .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter::class.java)
             .addFilterAfter(jwtAuthFilter, BasicAuthenticationFilter::class.java)
 
         return http.build()
