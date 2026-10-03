@@ -186,6 +186,15 @@ class GlobalExceptionHandler {
             message = ex.message ?: "Rate limit exceeded"
         )
     }
+
+    @ExceptionHandler(InvalidPasswordResetTokenException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleInvalidPasswordResetToken(ex: InvalidPasswordResetTokenException): ApiResponse<Unit> {
+        return ApiResponse(
+            success = false,
+            message = "Invalid or expired token"
+        )
+    }
 }
 
 
