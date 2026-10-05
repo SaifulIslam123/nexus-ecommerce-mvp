@@ -44,9 +44,9 @@ class PasswordResetService(
             throw BusinessValidationException("Invalid email format")
         }
 
-        if (!rateLimitService.isForgotPasswordAllowed(normalizedEmail, clientIp)) {
+        /*if (!rateLimitService.isForgotPasswordAllowed(normalizedEmail, clientIp)) {
             throw RateLimitException("Rate limit exceeded. Please try again later.")
-        }
+        }*/
 
         val user = userRepository.findByUserEmail(normalizedEmail)
             ?: userRepository.findAll().firstOrNull { it.email.equals(normalizedEmail, ignoreCase = true) }

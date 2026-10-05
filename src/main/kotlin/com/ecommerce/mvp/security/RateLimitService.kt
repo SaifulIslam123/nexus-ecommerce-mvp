@@ -9,11 +9,6 @@ class RateLimitService(
     private val redisTemplate: StringRedisTemplate
 ) {
 
-    companion object {
-        private const val FORGOT_PASSWORD_EMAIL_LIMIT = 3L
-        private const val FORGOT_PASSWORD_IP_LIMIT = 10L
-        private const val FORGOT_PASSWORD_WINDOW_SECONDS = 3600L
-    }
 
     /**
      * Lua script — runs atomically in Redis (no race conditions).
@@ -61,8 +56,8 @@ class RateLimitService(
         return isForgotPasswordAllowed(
             email = email,
             ip = ip,
-            emailLimit = FORGOT_PASSWORD_EMAIL_LIMIT,
-            ipLimit = FORGOT_PASSWORD_IP_LIMIT
+            emailLimit = RateLimitConstants.FORGOT_PASSWORD_EMAIL_LIMIT,
+            ipLimit = RateLimitConstants.FORGOT_PASSWORD_IP_LIMIT
         )
     }
 
@@ -78,12 +73,12 @@ class RateLimitService(
         val emailAllowed = isAllowed(
             key = "forgot-password:email:$normalizedEmail",
             limit = emailLimit,
-            windowSeconds = FORGOT_PASSWORD_WINDOW_SECONDS
+            windowSeconds = RateLimitConstants.FORGOT_PASSWORD_WINDOW_SECONDS
         )
         val ipAllowed = isAllowed(
             key = "forgot-password:ip:$normalizedIp",
             limit = ipLimit,
-            windowSeconds = FORGOT_PASSWORD_WINDOW_SECONDS
+            windowSeconds = RateLimitConstants.FORGOT_PASSWORD_WINDOW_SECONDS
         )
 
         return emailAllowed && ipAllowed

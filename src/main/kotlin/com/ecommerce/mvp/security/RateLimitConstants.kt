@@ -16,4 +16,8 @@ object RateLimitConstants {
 
     // Redis key prefix — avoids clashing with your other Redis data
     const val KEY_PREFIX = "rate_limit"
+
+     const val FORGOT_PASSWORD_EMAIL_LIMIT = 3L
+     const val FORGOT_PASSWORD_IP_LIMIT = 10L
+     const val FORGOT_PASSWORD_WINDOW_SECONDS = 3600L
 }

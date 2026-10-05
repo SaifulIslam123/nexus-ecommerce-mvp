@@ -26,7 +26,7 @@ class RateLimitFilter(
         "/api/v1/auth/login",
         "/api/v1/auth/register",
         "/api/v1/auth/forgot-password",
-        "/api/v1/auth/reset-password"
+       // "/api/v1/auth/reset-password"
     )
 
     override fun doFilterInternal(
@@ -36,47 +36,89 @@ class RateLimitFilter(
     ) {
         val path = request.requestURI
         val clientIp = resolveClientIp(request)
-
+        val matchedEndpoint = sensitiveEndpoints.firstOrNull { path.startsWith(it) }
         // Decide: which key and which limit to apply
-        val (rateLimitKey, limit, window) = when {
+        //val (rateLimitKey, limit, window) = when {
+        val rateLimitInfo: RateLimitInfo = when {
+
 
             // Sensitive endpoints → always IP-based, tight limit
-            sensitiveEndpoints.any { path.startsWith(it) } -> Triple(
+            /*sensitiveEndpoints.any { path.startsWith(it) } -> Triple(
                 "sensitive:$clientIp",
                 RateLimitConstants.SENSITIVE_LIMIT,
                 RateLimitConstants.SENSITIVE_WINDOW_SECONDS
-            )
+            )*/
+
+            matchedEndpoint.isNullOrEmpty().not() -> {
+                when (matchedEndpoint) {
+
+                    "/api/v1/auth/forgot-password" -> {
+                        val email = request.getParameter("email") ?: ""
+                        val allowed = rateLimitService.isForgotPasswordAllowed(email, clientIp)
+                        val currentCountEmail = rateLimitService.getCurrentCount("forgot_password_email:$email")
+                        val currentCountIp = rateLimitService.getCurrentCount("forgot_password_ip:$clientIp")
+                        RateLimitInfo(
+                            allowed = allowed,
+                            currentCount = maxOf(currentCountEmail, currentCountIp),
+                            remaining = maxOf(0L, RateLimitConstants.FORGOT_PASSWORD_EMAIL_LIMIT - currentCountEmail
+                            ).coerceAtMost(maxOf(0L, RateLimitConstants.FORGOT_PASSWORD_IP_LIMIT - currentCountIp)),
+                            window = RateLimitConstants.FORGOT_PASSWORD_WINDOW_SECONDS,
+                            limit = RateLimitConstants.FORGOT_PASSWORD_EMAIL_LIMIT.coerceAtMost(RateLimitConstants.FORGOT_PASSWORD_IP_LIMIT))
+                    }
+
+                    else -> {
+                        val allowed = rateLimitService.isAllowed(
+                            "sensitive:$clientIp",
+                            RateLimitConstants.SENSITIVE_LIMIT,
+                            RateLimitConstants.SENSITIVE_WINDOW_SECONDS
+                        )
+                        val currentCount = rateLimitService.getCurrentCount("sensitive:$clientIp")
+                        RateLimitInfo(
+                            allowed = allowed,
+                            currentCount = currentCount,
+                            remaining = maxOf(0L, RateLimitConstants.SENSITIVE_LIMIT - currentCount),
+                            window = RateLimitConstants.SENSITIVE_WINDOW_SECONDS,
+                            limit = RateLimitConstants.SENSITIVE_LIMIT
+                        )
+                    }
+                }
+            }
+
 
             // Authenticated request → use userId from JWT
             else -> {
                 val userId = extractUserIdFromJwt(request)
                 if (userId != null) {
-                    Triple(
-                        "auth:$userId",
-                        RateLimitConstants.AUTH_LIMIT,
-                        RateLimitConstants.AUTH_WINDOW_SECONDS
+                    RateLimitInfo(
+                        allowed = rateLimitService.isAllowed("auth:$userId", RateLimitConstants.AUTH_LIMIT, RateLimitConstants.AUTH_WINDOW_SECONDS),
+                        currentCount = rateLimitService.getCurrentCount("auth:$userId"),
+                        remaining = maxOf(0L, RateLimitConstants.AUTH_LIMIT - rateLimitService.getCurrentCount("auth:$userId")),
+                        window = RateLimitConstants.AUTH_WINDOW_SECONDS,
+                        limit = RateLimitConstants.AUTH_LIMIT
                     )
                 } else {
                     // No valid JWT → treat as public, IP-based
-                    Triple(
-                        "public:$clientIp",
-                        RateLimitConstants.PUBLIC_LIMIT,
-                        RateLimitConstants.PUBLIC_WINDOW_SECONDS
+                    RateLimitInfo(
+                        allowed = rateLimitService.isAllowed("public:$clientIp", RateLimitConstants.PUBLIC_LIMIT, RateLimitConstants.PUBLIC_WINDOW_SECONDS),
+                        currentCount = rateLimitService.getCurrentCount("public:$clientIp"),
+                        remaining = maxOf(0L, RateLimitConstants.PUBLIC_LIMIT - rateLimitService.getCurrentCount("public:$clientIp")),
+                        window = RateLimitConstants.PUBLIC_WINDOW_SECONDS,
+                        limit = RateLimitConstants.PUBLIC_LIMIT
                     )
                 }
             }
         }
 
-        val allowed = rateLimitService.isAllowed(rateLimitKey, limit, window)
-        val currentCount = rateLimitService.getCurrentCount(rateLimitKey)
-        val remaining = maxOf(0L, limit - currentCount)
+        /* val allowed = rateLimitService.isAllowed(rateLimitKey, limit, window)
+         val currentCount = rateLimitService.getCurrentCount(rateLimitKey)
+         val remaining = maxOf(0L, limit - currentCount)*/
 
         // Always send these headers — clients use them to self-throttle
-        response.setHeader("X-RateLimit-Limit", limit.toString())
-        response.setHeader("X-RateLimit-Remaining", remaining.toString())
-        response.setHeader("X-RateLimit-Window-Seconds", window.toString())
+        response.setHeader("X-RateLimit-Limit", rateLimitInfo.limit.toString())
+        response.setHeader("X-RateLimit-Remaining", rateLimitInfo.remaining.toString())
+        response.setHeader("X-RateLimit-Window-Seconds", rateLimitInfo.window.toString())
 
-        if (!allowed) {
+        if (!rateLimitInfo.allowed) {
             handlerExceptionResolver.resolveException(
                 request,
                 response,
@@ -126,4 +168,13 @@ class RateLimitFilter(
             request.remoteAddr
         }
     }
+
 }
+
+private data class RateLimitInfo(
+    val allowed: Boolean,
+    val currentCount: Long,
+    val remaining: Long,
+    val window: Long,
+    val limit: Long
+)
