@@ -30,7 +30,7 @@ class ResponseWrapperAdvice(
         // Prevent double wrapping
         if (body is ApiResponse<*>) return body
 
-        // Skip wrapping for Swagger / OpenAPI endpoints (paths read from application.properties)
+        // Skip wrapping for Swagger / OpenAPI endpoints (paths read from application.yml)
         val path = request.uri.path
         if (swaggerProperties.publicPaths.any { path.startsWith(it.trimEnd('*').trimEnd('/')) }) return body
 

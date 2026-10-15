@@ -30,7 +30,7 @@ Nexus e-commerce MVP: a Spring Boot REST API (Kotlin) with JWT auth, role-based 
 ./gradlew flywayInfo                                # Flyway Gradle plugin; reads DB_URL / DB_USERNAME / DB_PASSWORD / DB_SCHEMA
 ```
 
-Local dev needs MySQL on `localhost:3306` with schema `ecommerce_dev` (credentials in `application-dev.properties`). Redis is not needed for cache in dev (`spring.cache.type=none`).
+Local dev needs MySQL on `localhost:3306` with schema `ecommerce_dev` (credentials in `application-dev.yml`). Redis is not needed for cache in dev (`spring.cache.type=none`).
 
 **Never run `flywayClean`** (clean is enabled in `build.gradle.kts`) and never point Flyway tasks at a non-local database.
 
@@ -87,9 +87,9 @@ Hard rules from `specs/constitution.md` (summarised, the file is authoritative):
 
 | | dev (default) | prod |
 |---|---|---|
-| DB | local MySQL `ecommerce_dev`, creds in `application-dev.properties` | `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `DB_SCHEMA` |
+| DB | local MySQL `ecommerce_dev`, creds in `application-dev.yml` | `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `DB_SCHEMA` |
 | Redis | not used for cache | required: `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`, `REDIS_SSL_ENABLED` |
-| JWT secret | fallback value in `application-dev.properties` | `JWT_SECRET` required (Base64, 256-bit), no fallback |
+| JWT secret | fallback value in `application-dev.yml` | `JWT_SECRET` required (Base64, 256-bit), no fallback |
 | Swagger | `/swagger-ui`, `/v3/api-docs` | disabled |
 | Email | `DevEmailSender` (logs only) | SMTP via `MAIL_*`; links built from `FRONTEND_URL`, sender from `MAIL_FROM` |
 | Logging | DEBUG for the app, SQL and bind params shown | INFO / WARN, SQL off |

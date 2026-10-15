@@ -96,7 +96,7 @@ Implement two password reset features: (1) Forgot Password endpoint allowing use
 
 ## Config Properties
 
-Add to both `application-dev.properties` and `application-prod.properties`:
+Add to both `application-dev.yml` and `application-prod.yml`:
 
 ```properties
 # ── Email / Password Reset ──────────────────────────────────────

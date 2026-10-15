@@ -37,7 +37,7 @@ Security configuration & public endpoints
 - `security/SecurityConfig.kt` contains shared beans. Two profile-specific filter chains:
   - `DevSecurityConfig` (`dev`): permits Swagger/UI + API-docs (paths obtained from `SwaggerProperties`) and ` /api/v1/auth/**` as public; relaxes frame options for H2 console.
   - `ProdSecurityConfig` (`prod`): permits only ` /api/v1/auth/**`; enforces HSTS and secure headers; wires `RateLimitFilter` before auth filter.
-- `application-dev.properties` enables Swagger and provides `swagger.public-paths` used by the dev chain.
+- `application-dev.yml` enables Swagger and provides `swagger.public-paths` used by the dev chain.
 
 Exception handler & error DTOs
 - `common/exception/GlobalExceptionHandler.kt`: central REST advice returning `ApiResponse<T>` with `success=false` and readable messages for validation errors, authentication errors, invalid refresh token, rate limits, DB errors, etc.
@@ -47,9 +47,9 @@ Flyway migrations (latest)
 - Migrations live under `src/main/resources/db/migration`. Present files: `V1`, `V2`, `V3`, `V4`, `V6`, `V7` — latest is `V7__add_version_to_products.sql` (adds `version` column). `V6__fix_refresh_tokens_schema.sql` aligned refresh token table with `BaseEntityAudit` (id primary key, unique refresh_token).
 
 Relevant config properties
-- `src/main/resources/application.properties` sets default profile to `dev`.
-- `application-dev.properties` includes defaults for `app.jwt.secret` (a base64 fallback key), `app.jwt.access-token-expiration-ms`, DB dev URL/creds, `spring.cache.type=none` (Redis disabled in dev), and Swagger settings.
-- `application-prod.properties` requires env vars for `JWT_SECRET`, DB and Redis settings; enables Redis cache and disables Swagger.
+- `src/main/resources/application.yml` sets default profile to `dev`.
+- `application-dev.yml` includes defaults for `app.jwt.secret` (a base64 fallback key), `app.jwt.access-token-expiration-ms`, DB dev URL/creds, `spring.cache.type=none` (Redis disabled in dev), and Swagger settings.
+- `application-prod.yml` requires env vars for `JWT_SECRET`, DB and Redis settings; enables Redis cache and disables Swagger.
 - No `spring.mail.*` properties or mail sender beans detected — there is no built-in mail service in the repository.
 
 Test setup

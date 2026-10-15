@@ -1,5 +1,7 @@
 package com.ecommerce.mvp
 
+import com.ecommerce.mvp.common.config.AppJwtProperties
+import com.ecommerce.mvp.common.config.AppMailProperties
 import com.ecommerce.mvp.common.config.SwaggerProperties
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -10,7 +12,11 @@ import org.springframework.scheduling.annotation.EnableScheduling
 @EnableJpaAuditing
 @EnableScheduling
 @SpringBootApplication
-@EnableConfigurationProperties(SwaggerProperties::class)
+@EnableConfigurationProperties(
+    SwaggerProperties::class,
+    AppJwtProperties::class,
+    AppMailProperties::class
+)
 class EcommerceApplication
 
 fun main(args: Array<String>) {

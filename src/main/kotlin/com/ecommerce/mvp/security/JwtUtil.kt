@@ -1,6 +1,6 @@
 package com.ecommerce.mvp.security
 
-import org.springframework.beans.factory.annotation.Value
+import com.ecommerce.mvp.common.config.AppJwtProperties
 import org.springframework.stereotype.Component
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
@@ -11,13 +11,12 @@ import java.security.Key
 import java.util.*
 
 @Component
-class JwtUtil {
+class JwtUtil(
+    private val appJwtProperties: AppJwtProperties
+) {
 
-    @Value("\${app.jwt.secret}")
-    private lateinit var secret: String
-
-    @Value("\${app.jwt.access-token-expiration-ms}")
-    private var accessTokenExpirationMs: Long = 900_000
+    private val secret: String = appJwtProperties.secret
+    private val accessTokenExpirationMs: Long = appJwtProperties.accessTokenExpirationMs
 
     fun getAccessTokenExpirationMs(): Long = accessTokenExpirationMs
 

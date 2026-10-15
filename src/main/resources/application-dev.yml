@@ -1,0 +1,95 @@
+# ==========================================
+# DEV Profile Configuration
+# Activated by: SPRING_PROFILES_ACTIVE=dev  (default)
+# ==========================================
+
+# ── Server ─────────────────────────────────────────────────────────────────────
+server:
+  port: 8080
+
+# ── Spring Framework Settings ──────────────────────────────────────────────────
+spring:
+  # ── Database ───────────────────────────────────────────────────────────────────
+  # Use a dedicated dev schema to keep data separate from prod
+  datasource:
+    url: jdbc:mysql://localhost:3306/ecommerce_dev?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: localhost@123456
+
+  # ── JPA / Hibernate ────────────────────────────────────────────────────────────
+  # update is convenient in dev – schema evolves with entity changes
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+
+  # ── Cache ──────────────────────────────────────────────────────────────────────
+  # Disable Redis cache in dev so no Redis instance is needed locally
+  cache:
+    type: none
+
+  # ── Redis connection (only needed if spring.cache.type is changed to redis locally) ──
+  data:
+    redis:
+      timeout: 2000ms
+      repositories:
+        enabled: false
+      host: localhost
+      port: 6379
+
+  # ── Flyway ─────────────────────────────────────────────────────────────────────
+  flyway:
+    enabled: true
+    schemas: ecommerce_dev
+
+# ── Logging ────────────────────────────────────────────────────────────────────
+logging:
+  level:
+    root: INFO
+    com:
+      ecommerce:
+        mvp: DEBUG
+    org:
+      hibernate:
+        SQL: DEBUG
+        orm:
+          jdbc:
+            bind: TRACE
+      springframework:
+        security: DEBUG
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%-5level) %clr([DEV]){cyan} %clr(${PID:- }){magenta} --- [%15.15t] %clr(%-40.40logger{39}){cyan} : %m%n"
+
+# ── Swagger / OpenAPI ──────────────────────────────────────────────────────────
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui
+    tagsSorter: alpha
+    operationsSorter: alpha
+    disable-swagger-default-url: true
+
+# ── Custom Application Configuration ───────────────────────────────────────────
+app:
+  # ── Security / JWT ─────────────────────────────────────────────────────────────
+  # Override via JWT_SECRET env var in production (must be Base64-encoded 256-bit key)
+  jwt:
+    secret: ${JWT_SECRET:5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437}
+    access-token-expiration-ms: ${JWT_ACCESS_TOKEN_EXPIRATION_MS:900000}
+    refresh-token-expiration-ms: ${JWT_REFRESH_TOKEN_EXPIRATION_MS:604800000}
+  # ── Email / Password Reset ─────────────────────────────────────────────────────
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}
+  mail:
+    from: ${MAIL_FROM:noreply@nexus.ecommerce}
+
+# Public swagger paths - used by SecurityConfig and ResponseWrapperAdvice
+swagger:
+  public-paths: ${springdoc.api-docs.path},${springdoc.api-docs.path}/**,${springdoc.api-docs.path}.yaml,${springdoc.swagger-ui.path}.html,${springdoc.swagger-ui.path}/**,/swagger-resources/**,/webjars/**

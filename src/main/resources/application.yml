@@ -4,8 +4,12 @@
 # Credentials and connection details belong in the profile-specific files.
 # Active profile: set via SPRING_PROFILES_ACTIVE env var or -Dspring.profiles.active=prod
 # ==========================================
-spring.application.name=ecommerce
-spring.profiles.active=dev
+spring:
+  application:
+    name: ecommerce
+  profiles:
+    active: dev
 
-# ── Banner ─────────────────────────────────────────────────────────────────────
-spring.main.banner-mode=OFF
+  # ── Banner ─────────────────────────────────────────────────────────────────────
+  main:
+    banner-mode: "OFF"

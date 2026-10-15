@@ -1,6 +1,6 @@
 package com.ecommerce.mvp.common.email
 
-import org.springframework.beans.factory.annotation.Value
+import com.ecommerce.mvp.common.config.AppMailProperties
 import org.springframework.context.annotation.Profile
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
@@ -10,12 +10,12 @@ import org.springframework.stereotype.Component
 @Profile("prod")
 class SmtpEmailSender(
     private val mailSender: JavaMailSender,
-    @Value("\${app.mail.from}") private val fromAddress: String
+    private val appMailProperties: AppMailProperties
 ) : EmailSender {
 
     override fun sendPasswordResetEmail(userEmail: String, rawToken: String, frontendUrl: String) {
         val message = SimpleMailMessage().apply {
-            setFrom(fromAddress)
+            setFrom(appMailProperties.from)
             setTo(userEmail)
             subject = "Reset your Nexus password"
             text = """
@@ -32,4 +32,3 @@ class SmtpEmailSender(
         mailSender.send(message)
     }
 }
-

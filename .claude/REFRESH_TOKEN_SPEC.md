@@ -142,8 +142,8 @@ Cron job (e.g., daily at 02:00) that deletes expired and revoked refresh tokens 
 | `JwtUtil.kt` | Add `generateAccessToken()` method; rename/deprecate `generateToken()`. Parameterize TTL from the two new config properties. |
 | `AuthController.kt` | `/login` returns updated DTO; add `/refresh` endpoint; `/logout` also revokes refresh token |
 | `LoginResponseDto.kt` | Add `refreshToken`, `tokenType`, `expiresIn`; remove `token` |
-| `application-dev.properties` | Add `access-token-expiration-ms` and `refresh-token-expiration-ms` |
-| `application-prod.properties` | Same two properties (no fallback for prod secret) |
+| `application-dev.yml` | Add `access-token-expiration-ms` and `refresh-token-expiration-ms` |
+| `application-prod.yml` | Same two properties (no fallback for prod secret) |
 | `TokenBlacklistService` / impls | No structural change — access token blacklisting stays as-is |
 
 ---

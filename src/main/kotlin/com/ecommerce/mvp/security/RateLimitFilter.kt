@@ -1,14 +1,12 @@
 package com.ecommerce.mvp.security
 
+import com.ecommerce.mvp.common.config.AppJwtProperties
 import com.ecommerce.mvp.common.exception.RateLimitException
 import io.jsonwebtoken.Jwts
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 import org.springframework.web.servlet.HandlerExceptionResolver
@@ -16,10 +14,12 @@ import org.springframework.web.servlet.HandlerExceptionResolver
 @Component
 class RateLimitFilter(
     private val rateLimitService: RateLimitService,
-    @Value("\${app.jwt.secret}") private val secretKey: String,
+    private val appJwtProperties: AppJwtProperties,
     @param:Qualifier("handlerExceptionResolver")
     private val handlerExceptionResolver: HandlerExceptionResolver
 ) : OncePerRequestFilter() {
+
+    private val secretKey: String = appJwtProperties.secret
 
     // These endpoints get the tight 5/min limit
     private val sensitiveEndpoints = listOf(

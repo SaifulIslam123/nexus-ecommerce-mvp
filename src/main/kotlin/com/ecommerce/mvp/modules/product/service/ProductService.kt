@@ -203,7 +203,7 @@ class ProductService(
                 redisTemplate.delete(productCacheKey)
                 redisTemplate.delete(productRecCacheKey)
 
-                /*// also attempt with the prod prefix used in application-prod.properties
+                /*// also attempt with the prod prefix used in application-prod.yml
                 redisTemplate.delete("ecommerce:$productCacheKey")
                 redisTemplate.delete("ecommerce:$productRecCacheKey")*/
             } catch (ex: Exception) {

@@ -154,8 +154,8 @@
 **Description:** Add email and password reset properties to configuration files.
 
 **Files to Modify:**
-- `src/main/resources/application-dev.properties`
-- `src/main/resources/application-prod.properties`
+- `src/main/resources/application-dev.yml`
+- `src/main/resources/application-prod.yml`
 - `.env.example`
 
 **Tests Required:**
@@ -165,7 +165,7 @@
 **Done Check:**
 - [ ] `app.frontend-url` property added with dev default `http://localhost:3000`
 - [ ] `app.mail.from` property added with dev default `noreply@nexus.ecommerce`
-- [ ] `spring.mail.host`, `spring.mail.port`, `spring.mail.username`, `spring.mail.password` in application-prod.properties
+- [ ] `spring.mail.host`, `spring.mail.port`, `spring.mail.username`, `spring.mail.password` in application-prod.yml
 - [ ] SMTP properties configured for authentication and TLS
 - [ ] `.env.example` updated with all new variables documented
 - [ ] Dev properties have sensible defaults; prod requires env vars
