@@ -1,0 +1,19 @@
+name: Guards
+on: pull_request
+jobs:
+  migrations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Existing migrations must not change
+        run: |
+          changed=$(git diff --name-status origin/${{ github.base_ref }}...HEAD -- src/main/resources/db/migration | grep -E '^[MDR]' || true)
+          if [ -n "$changed" ]; then echo "$changed"; echo "Do not edit existing migrations"; exit 1; fi
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: gitleaks/gitleaks-action@v2
+        env: { GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
