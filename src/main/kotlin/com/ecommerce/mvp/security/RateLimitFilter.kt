@@ -55,8 +55,8 @@ class RateLimitFilter(
                     "/api/v1/auth/forgot-password" -> {
                         val email = request.getParameter("email") ?: ""
                         val allowed = rateLimitService.isForgotPasswordAllowed(email, clientIp)
-                        val currentCountEmail = rateLimitService.getCurrentCount("forgot_password_email:$email")
-                        val currentCountIp = rateLimitService.getCurrentCount("forgot_password_ip:$clientIp")
+                        val currentCountEmail = rateLimitService.getForgotPasswordEmailCount(email)
+                        val currentCountIp = rateLimitService.getForgotPasswordIpCount(clientIp)
                         RateLimitInfo(
                             allowed = allowed,
                             currentCount = maxOf(currentCountEmail, currentCountIp),

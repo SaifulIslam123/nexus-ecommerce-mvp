@@ -67,20 +67,29 @@ class RateLimitService(
         emailLimit: Long,
         ipLimit: Long
     ): Boolean {
-        val normalizedEmail = email.trim().lowercase()
-        val normalizedIp = ip.trim()
-
         val emailAllowed = isAllowed(
-            key = "forgot-password:email:$normalizedEmail",
+            key = forgotPasswordEmailKey(email),
             limit = emailLimit,
             windowSeconds = RateLimitConstants.FORGOT_PASSWORD_WINDOW_SECONDS
         )
         val ipAllowed = isAllowed(
-            key = "forgot-password:ip:$normalizedIp",
+            key = forgotPasswordIpKey(ip),
             limit = ipLimit,
             windowSeconds = RateLimitConstants.FORGOT_PASSWORD_WINDOW_SECONDS
         )
 
         return emailAllowed && ipAllowed
     }
+
+    fun getForgotPasswordEmailCount(email: String): Long =
+        getCurrentCount(forgotPasswordEmailKey(email))
+
+    fun getForgotPasswordIpCount(ip: String): Long =
+        getCurrentCount(forgotPasswordIpKey(ip))
+
+    private fun forgotPasswordEmailKey(email: String): String =
+        "forgot-password:email:${email.trim().lowercase()}"
+
+    private fun forgotPasswordIpKey(ip: String): String =
+        "forgot-password:ip:${ip.trim()}"
 }
