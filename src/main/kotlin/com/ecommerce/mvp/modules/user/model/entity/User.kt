@@ -2,6 +2,7 @@ package com.ecommerce.mvp.modules.user.model.entity
 
 import com.ecommerce.mvp.common.entity.audit.BaseEntityAudit
 import com.ecommerce.mvp.modules.cart.model.entity.Cart
+import com.ecommerce.mvp.modules.courier.model.entity.Courier
 import com.ecommerce.mvp.modules.order.model.entity.Order
 import com.ecommerce.mvp.modules.role.model.entity.Role
 import jakarta.persistence.CascadeType
@@ -48,5 +49,8 @@ class User : BaseEntityAudit() {
 
     @OneToOne(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     var cart: Cart? = null
+
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    var courier: MutableSet<Courier>? = null
 
 }
