@@ -26,6 +26,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.*
 
 
@@ -36,7 +37,7 @@ class AuthController(
     private val userService: UserService,
     private val authenticationManager: AuthenticationManager,
     private val jwtUtil: JwtUtil,
-    private val passwordEncoder: BCryptPasswordEncoder,
+    private val passwordEncoder: PasswordEncoder,
     private val tokenBlacklistService: TokenBlacklistService,
     private val refreshTokenService: RefreshTokenService,
     private val authService: AuthService,

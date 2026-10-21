@@ -2,6 +2,8 @@ package com.ecommerce.mvp.modules.courier.model.entity
 
 import com.ecommerce.mvp.common.entity.audit.BaseEntityAudit
 import com.ecommerce.mvp.modules.order.model.entity.Order
+import com.ecommerce.mvp.modules.order.model.entity.Shipment
+import com.ecommerce.mvp.modules.user.model.entity.User
 import jakarta.persistence.*
 import java.time.Instant
 
@@ -9,15 +11,12 @@ import java.time.Instant
 @Table(name = "couriers")
 class Courier : BaseEntityAudit() {
 
-    @field:Column(nullable = false)
-    var shipmentDate: Instant? = null
+    @OneToOne
+    @JoinColumn(name = "shipment_id", unique = true)
+    var shipment: Shipment? = null
 
-    @Column(name = "tracking_id", nullable = false, unique = true)
-    var trackingId: String? = null
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    var user: User? = null
 
-    @Column(name = "order_id", nullable = false)
-    var orderId: Long? = null
-
-    @Column(name = "shipment_address", nullable = false)
-    var shipmentAddress: String? = null
 }

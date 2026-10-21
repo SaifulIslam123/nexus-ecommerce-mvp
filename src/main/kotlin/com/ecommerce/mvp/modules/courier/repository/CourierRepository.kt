@@ -8,9 +8,6 @@ import java.util.Optional
 @Repository
 interface CourierRepository : JpaRepository<Courier, Long> {
 
-    fun findByOrderId(orderId: Long): Optional<Courier>
 
-    fun existsByOrderId(orderId: Long): Boolean
 
-    fun existsByTrackingId(trackingId: String): Boolean
 }

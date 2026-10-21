@@ -1,6 +1,8 @@
 package com.ecommerce.mvp.modules.courier.model.dto
 
 import com.ecommerce.mvp.modules.courier.model.entity.Courier
+import com.ecommerce.mvp.modules.order.model.dto.ShipmentResponseDto
+import com.ecommerce.mvp.modules.order.model.dto.toResponseDto
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import java.time.Instant
@@ -21,16 +23,10 @@ data class CourierRequestDto(
 
 data class CourierResponseDto(
     val id: Long,
-    val trackingId: String?,
-    val orderId: Long?,
-    val createdDate: Instant?,
-    val modifiedDate: Instant?
+    val shipment: ShipmentResponseDto?,
 )
 
 fun Courier.toResponseDto() = CourierResponseDto(
     id = this.id ?: -1,
-    trackingId = this.trackingId,
-    orderId = this.orderId,
-    createdDate = this.createdDate,
-    modifiedDate = this.modifiedDate
+    shipment = this.shipment?.toResponseDto()
 )

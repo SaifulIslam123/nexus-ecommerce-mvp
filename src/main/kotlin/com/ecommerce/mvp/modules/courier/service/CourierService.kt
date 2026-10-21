@@ -64,6 +64,10 @@ class CourierService(
         val order = orderRepository.findById(orderId)
             .orElseThrow { ResourceNotFoundException("Order not found with id: $orderId") }
 
+        if (order.status == OrderStatus.OUT_FOR_DELIVERY) {
+            throw BusinessValidationException("Order $orderId is already being tracked as out for delivery")
+        }
+
         if (order.status != OrderStatus.SHIPPED) {
             throw BusinessValidationException(
                 "Order can only move to OUT_FOR_DELIVERY from SHIPPED status. Current status: ${order.status}"
@@ -73,22 +77,10 @@ class CourierService(
         val shipment = order.shipment
             ?: throw BusinessValidationException("Order $orderId has no shipment record")
 
-        if (courierRepository.existsByOrderId(orderId)) {
-            throw BusinessValidationException("Order $orderId is already being tracked as out for delivery")
-        }
-
         order.status = OrderStatus.OUT_FOR_DELIVERY
 
-        val addr = shipment.shipmentAddress
-        val addressString = if (addr != null) {
-            "${addr.street}, ${addr.city}, ${addr.zip}, ${addr.country}"
-        } else ""
-
         val courierRecord = Courier().apply {
-            this.orderId = orderId
-            this.trackingId = shipment.trackingId ?: TrackingIdGenerator.generateTrackingId()
-            this.shipmentDate = Instant.now()
-            this.shipmentAddress = addressString
+            this.shipment = shipment
         }
         courierRepository.save(courierRecord)
 
@@ -105,6 +97,10 @@ class CourierService(
         val order = orderRepository.findById(orderId)
             .orElseThrow { ResourceNotFoundException("Order not found with id: $orderId") }
 
+        if (order.status != OrderStatus.DELIVERED) {
+            throw BusinessValidationException("Order $orderId is already being tracked as out for delivery")
+        }
+
         if (order.status != OrderStatus.OUT_FOR_DELIVERY) {
             throw BusinessValidationException(
                 "Order can only move to DELIVERED from OUT_FOR_DELIVERY status. Current status: ${order.status}"
@@ -112,8 +108,6 @@ class CourierService(
         }
 
         order.status = OrderStatus.DELIVERED
-
-        courierRepository.findByOrderId(orderId).ifPresent { courierRepository.save(it) }
 
         return order.toResponseDto()
     }
