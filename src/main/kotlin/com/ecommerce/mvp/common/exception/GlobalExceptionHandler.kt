@@ -61,6 +61,7 @@ class GlobalExceptionHandler {
     @ExceptionHandler(AuthenticationException::class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     fun handleUnauthorized(ex: AuthenticationException): ApiResponse<Unit> {
+
         return ApiResponse(
             success = false,
             message = ex.message ?: "Authentication is required to access this resource"

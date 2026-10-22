@@ -26,7 +26,6 @@ class PasswordResetService(
     private val passwordResetTokenRepository: PasswordResetTokenRepository,
     private val userRepository: UserRepository,
     private val emailSender: EmailSender,
-    private val rateLimitService: RateLimitService,
     private val refreshTokenService: RefreshTokenService,
     private val passwordEncoder: PasswordEncoder,
     @param:Value("\${app.frontend-url:http://localhost:3000}") private val frontendUrl: String

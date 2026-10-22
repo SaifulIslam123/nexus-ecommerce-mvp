@@ -1,10 +1,12 @@
 package com.ecommerce.mvp.security
 
+import org.springframework.context.annotation.Profile
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.data.redis.core.script.RedisScript
 import org.springframework.stereotype.Service
 
 @Service
+@Profile("prod")
 class RateLimitService(
     private val redisTemplate: StringRedisTemplate
 ) {
