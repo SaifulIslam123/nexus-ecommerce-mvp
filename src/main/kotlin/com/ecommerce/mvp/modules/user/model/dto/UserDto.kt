@@ -4,9 +4,12 @@ import com.ecommerce.mvp.common.AppConstant.MAX_Address
 import com.ecommerce.mvp.modules.user.model.entity.Address
 import com.ecommerce.mvp.modules.user.model.entity.User
 import com.fasterxml.jackson.annotation.JsonProperty
+import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Size
 
 data class UserDto(
     var id: Long? = null,
@@ -20,10 +23,12 @@ data class UserDto(
     @field:NotBlank(message = "Password is required")
     @field:JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     var password: String? = null,
-    @field:NotNull(message = "Required user roles")
+    @field:Valid
+    @field:NotEmpty(message = "Required user roles")
     val userRoles: List<String>? = null,
-    @field:NotNull(message = "Address is required")
-    @field:jakarta.validation.constraints.Size(max = MAX_Address, message = "Maximum $MAX_Address addresses allowed")
+    @field:Valid
+    @field:NotEmpty(message = "Address list cannot be empty")
+    @field:Size(max = MAX_Address, message = "Maximum $MAX_Address addresses allowed")
     var address: List<AddressDto>? = null
 )
 
