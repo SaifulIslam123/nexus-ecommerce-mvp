@@ -73,7 +73,7 @@ class GlobalExceptionHandler {
     fun handleGeneric(ex: Exception): ApiResponse<Unit> {
         return ApiResponse(
             success = false,
-            message = "An unexpected error occurred"
+            message = ex.message ?: "An unexpected error occurred"
         )
     }
 

@@ -7,7 +7,6 @@ import com.ecommerce.mvp.modules.order.model.dto.toResponseDto
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
 import com.ecommerce.mvp.modules.product.service.ProductService
-import com.ecommerce.mvp.security.currentUserEntity
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest

@@ -1,11 +1,14 @@
 package com.ecommerce.mvp.modules.auth.service
 
+import com.ecommerce.mvp.common.exception.ResourceNotFoundException
 import com.ecommerce.mvp.modules.auth.model.AuthRequest
 import com.ecommerce.mvp.modules.auth.model.LoginResponseDto
 import com.ecommerce.mvp.modules.auth.model.RefreshRequest
 import com.ecommerce.mvp.modules.user.repository.UserRepository
 import com.ecommerce.mvp.security.AppSecurityUserDetails
 import com.ecommerce.mvp.security.JwtUtil
+import com.ecommerce.mvp.security.appSecurityUserDetails
+import com.ecommerce.mvp.security.currentUserEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -20,18 +23,23 @@ class AuthService(
     @Transactional
     fun login(request: AuthRequest): LoginResponseDto {
 
-        val userDetails = SecurityContextHolder.getContext().authentication.principal as AppSecurityUserDetails
 
-        val authorities = userDetails.authorities.map { it.authority }.toMutableList()
-        val accessToken = jwtUtil.generateAccessToken(request.userEmail!!, authorities)
+        appSecurityUserDetails?.let { user->
 
-        val refreshToken = refreshTokenService.createRefreshToken(userDetails)
+            val authorities = user.authorities.map { it.authority }.toMutableList()
+            val accessToken = jwtUtil.generateAccessToken(request.userEmail!!, authorities)
 
-        return LoginResponseDto(
-            accessToken = accessToken,
-            refreshToken = refreshToken,
-            expiresIn = jwtUtil.getAccessTokenExpirationMs() / 1000
-        )
+            val refreshToken = refreshTokenService.createRefreshToken(user)
+
+            return LoginResponseDto(
+                accessToken = accessToken,
+                refreshToken = refreshToken,
+                expiresIn = jwtUtil.getAccessTokenExpirationMs() / 1000
+            )
+        }
+
+        throw ResourceNotFoundException("Authenticated user not found")
+
     }
 
     @Transactional

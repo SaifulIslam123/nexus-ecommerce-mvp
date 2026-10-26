@@ -25,8 +25,10 @@ import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.web.bind.annotation.*
 
 
@@ -45,13 +47,19 @@ class AuthController(
 ) {
 
     @PostMapping("/login")
-    fun login(@Valid @RequestBody request: AuthRequest): LoginResponseDto {
-        authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken(request.userEmail, request.password)
-        )
+    fun login(httpServletRequest: HttpServletRequest, @Valid @RequestBody request: AuthRequest): LoginResponseDto {
 
-        return authService.login(request)
+        val authToken = UsernamePasswordAuthenticationToken(request.userEmail, request.password)
+        val authenticationResult = authenticationManager.authenticate(authToken)
 
+        if (authenticationResult.isAuthenticated) {
+
+            authToken.details = WebAuthenticationDetailsSource().buildDetails(httpServletRequest)
+            SecurityContextHolder.getContext().authentication = authToken
+            return authService.login(request)
+        }
+
+        throw RuntimeException("Invalid credentials")
     }
 
     @PostMapping("/register")

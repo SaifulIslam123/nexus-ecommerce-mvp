@@ -11,6 +11,12 @@ val currentUserEntity: User?
         return if (principal is AppSecurityUserDetails) principal.userEntity else null
     }
 
+val appSecurityUserDetails: AppSecurityUserDetails?
+    get() {
+        val principal = SecurityContextHolder.getContext().authentication?.principal
+        return principal as? AppSecurityUserDetails
+    }
+
 class AppSecurityUserDetails(userEntity: User, authorities: Collection<GrantedAuthority>) : UserDetails {
     // Wrap your actual JPA / database Entity here
     var userEntity: User
