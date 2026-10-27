@@ -28,7 +28,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.web.bind.annotation.*
 
 
@@ -47,15 +46,14 @@ class AuthController(
 ) {
 
     @PostMapping("/login")
-    fun login(httpServletRequest: HttpServletRequest, @Valid @RequestBody request: AuthRequest): LoginResponseDto {
+    fun login(@Valid @RequestBody request: AuthRequest): LoginResponseDto {
 
         val authToken = UsernamePasswordAuthenticationToken(request.userEmail, request.password)
         val authenticationResult = authenticationManager.authenticate(authToken)
 
         if (authenticationResult.isAuthenticated) {
 
-            authToken.details = WebAuthenticationDetailsSource().buildDetails(httpServletRequest)
-            SecurityContextHolder.getContext().authentication = authToken
+            SecurityContextHolder.getContext().authentication = authenticationResult
             return authService.login(request)
         }
 

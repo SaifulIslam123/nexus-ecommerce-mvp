@@ -17,17 +17,10 @@ val appSecurityUserDetails: AppSecurityUserDetails?
         return principal as? AppSecurityUserDetails
     }
 
-class AppSecurityUserDetails(userEntity: User, authorities: Collection<GrantedAuthority>) : UserDetails {
-    // Wrap your actual JPA / database Entity here
-    var userEntity: User
-        // Expose a getter to retrieve the full object in your services
-        get() = this.userEntity
+class AppSecurityUserDetails(
+    val userEntity: User,
     private val authorities: Collection<GrantedAuthority>
-
-    init {
-        this.userEntity = userEntity
-        this.authorities = authorities
-    }
+) : UserDetails {
 
     override fun getAuthorities(): Collection<GrantedAuthority> {
         return authorities
@@ -62,4 +55,3 @@ class AppSecurityUserDetails(userEntity: User, authorities: Collection<GrantedAu
         return userEntity.id ?: -1
     }
 }
-
