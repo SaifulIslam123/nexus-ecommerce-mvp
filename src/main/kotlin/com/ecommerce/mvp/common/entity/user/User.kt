@@ -1,4 +1,4 @@
-package com.ecommerce.mvp.modules.user.model.entity
+package com.ecommerce.mvp.common.entity.user
 
 import com.ecommerce.mvp.common.entity.audit.BaseEntityAudit
 import com.ecommerce.mvp.modules.cart.model.entity.Cart

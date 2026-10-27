@@ -1,14 +1,15 @@
-package com.ecommerce.mvp.modules.user.model.dto
+package com.ecommerce.mvp.common.dto
 
 import com.ecommerce.mvp.common.AppConstant.MAX_Address
-import com.ecommerce.mvp.modules.user.model.entity.Address
-import com.ecommerce.mvp.modules.user.model.entity.User
+import com.ecommerce.mvp.common.entity.user.Address
+import com.ecommerce.mvp.common.entity.user.User
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 
 data class UserDto(
@@ -62,19 +63,19 @@ fun User.toUserDto(): UserDto {
 data class AddressDto(
     var id: Long? = null,
     @field:NotBlank(message = "Street is required")
-    @field:jakarta.validation.constraints.Size(max = 255, message = "Street must not exceed 255 characters")
+    @field:Size(max = 255, message = "Street must not exceed 255 characters")
     val street: String?,
 
     @field:NotBlank(message = "City is required")
-    @field:jakarta.validation.constraints.Size(max = 100, message = "City must not exceed 100 characters")
+    @field:Size(max = 100, message = "City must not exceed 100 characters")
     val city: String?,
 
     @field:NotBlank(message = "Zip code is required")
-    @field:jakarta.validation.constraints.Pattern(regexp = "^[A-Za-z0-9\\-\\s]{3,10}$", message = "Invalid zip code format")
+    @field:Pattern(regexp = "^[A-Za-z0-9\\-\\s]{3,10}$", message = "Invalid zip code format")
     val zip: String?,
 
     @field:NotBlank(message = "Country is required")
-    @field:jakarta.validation.constraints.Size(max = 100, message = "Country must not exceed 100 characters")
+    @field:Size(max = 100, message = "Country must not exceed 100 characters")
     val country: String?
 )
 
@@ -89,11 +90,11 @@ fun Address.toAddressDto(): AddressDto {
 }
 
 data class UserProfileUpdateDto(
-    @field:jakarta.validation.constraints.Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
+    @field:Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
     val name: String? = null,
-    @field:jakarta.validation.constraints.Pattern(regexp = "^\\+?[0-9]{7,15}$", message = "Invalid phone number format")
+    @field:Pattern(regexp = "^\\+?[0-9]{7,15}$", message = "Invalid phone number format")
     val phone: String? = null,
-    @field:jakarta.validation.constraints.Size(max = MAX_Address, message = "Maximum $MAX_Address addresses allowed")
+    @field:Size(max = MAX_Address, message = "Maximum $MAX_Address addresses allowed")
     var address: List<AddressDto>? = null
 )
 

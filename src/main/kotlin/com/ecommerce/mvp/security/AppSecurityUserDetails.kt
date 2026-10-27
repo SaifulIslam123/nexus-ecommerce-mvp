@@ -1,6 +1,6 @@
 package com.ecommerce.mvp.security
 
-import com.ecommerce.mvp.modules.user.model.entity.User
+import com.ecommerce.mvp.common.entity.user.User
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails

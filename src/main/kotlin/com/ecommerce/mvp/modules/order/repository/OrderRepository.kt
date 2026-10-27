@@ -2,7 +2,7 @@ package com.ecommerce.mvp.modules.order.repository
 
 import com.ecommerce.mvp.modules.order.model.entity.Order
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
-import com.ecommerce.mvp.modules.user.model.entity.User
+import com.ecommerce.mvp.common.entity.user.User
 import jakarta.persistence.LockModeType
 import jakarta.persistence.QueryHint
 import jakarta.transaction.Transactional

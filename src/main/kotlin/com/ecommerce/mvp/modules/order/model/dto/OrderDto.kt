@@ -1,14 +1,14 @@
 package com.ecommerce.mvp.modules.order.model.dto
 
+import com.ecommerce.mvp.common.dto.AddressDto
+import com.ecommerce.mvp.common.dto.toAddressDto
 import com.ecommerce.mvp.modules.order.model.entity.Order
 import com.ecommerce.mvp.modules.order.model.entity.OrderItem
 import com.ecommerce.mvp.modules.order.model.entity.OrderStatus
 import com.ecommerce.mvp.modules.payment.model.entity.Payment
 import com.ecommerce.mvp.modules.order.model.entity.Shipment
 import com.ecommerce.mvp.modules.payment.model.entity.PaymentStatus
-import com.ecommerce.mvp.modules.user.model.dto.AddressDto
-import com.ecommerce.mvp.modules.user.model.dto.toAddressDto
-import jakarta.validation.constraints.NotBlank
+import com.ecommerce.mvp.common.entity.user.User
 import jakarta.validation.constraints.NotNull
 import java.math.BigDecimal
 import java.time.Instant

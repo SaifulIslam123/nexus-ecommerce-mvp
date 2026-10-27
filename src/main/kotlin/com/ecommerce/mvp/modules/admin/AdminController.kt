@@ -1,12 +1,10 @@
 package com.ecommerce.mvp.modules.admin
 
-import com.ecommerce.mvp.common.exception.ResourceNotFoundException
+import com.ecommerce.mvp.common.dto.UserDto
 import com.ecommerce.mvp.modules.admin.dto.AdminInfoDto
 import com.ecommerce.mvp.modules.admin.dto.DashboardStatsDto
 import com.ecommerce.mvp.modules.admin.service.DashboardService
-import com.ecommerce.mvp.modules.user.model.dto.UserDto
-import com.ecommerce.mvp.modules.user.repository.UserRepository
-import com.ecommerce.mvp.modules.user.service.UserService
+import com.ecommerce.mvp.modules.shopper.service.ShopperService
 import com.ecommerce.mvp.security.IsAdmin
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
@@ -23,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController
 @IsAdmin
 class AdminController(
     private val dashboardService: DashboardService,
-    private val userService: UserService,
+    private val shopperService: ShopperService,
 ) {
 
     /**
@@ -56,7 +54,7 @@ class AdminController(
         @RequestParam(defaultValue = "10") size: Int,
         @RequestParam(defaultValue = "id") sort: String,
         @RequestParam(defaultValue = "ASC") direction: String
-    ): Page<UserDto> = userService.getAllUsers(page, size, sort, direction)
+    ): Page<UserDto> = shopperService.getAllUsers(page, size, sort, direction)
 
     /**
      * GET /api/admin/users/{id}
@@ -66,7 +64,7 @@ class AdminController(
      * Responds with 404 if the user does not exist.
      */
     @GetMapping("/users/{id}")
-    fun getUserById(@PathVariable id: Long): UserDto  =  userService.getUserById(id)
+    fun getUserById(@PathVariable id: Long): UserDto  =  shopperService.getUserById(id)
 
     /**
      * DELETE /api/admin/users/{id}
@@ -79,7 +77,7 @@ class AdminController(
      */
     @DeleteMapping("/users/{id}")
     fun deleteUser(@PathVariable id: Long): ResponseEntity<Unit> {
-        userService.deleteUser(id)
+        shopperService.deleteUser(id)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 

@@ -3,7 +3,7 @@ package com.ecommerce.mvp.modules.courier.model.entity
 import com.ecommerce.mvp.common.entity.audit.BaseEntityAudit
 import com.ecommerce.mvp.modules.order.model.entity.Order
 import com.ecommerce.mvp.modules.order.model.entity.Shipment
-import com.ecommerce.mvp.modules.user.model.entity.User
+import com.ecommerce.mvp.common.entity.user.User
 import jakarta.persistence.*
 import java.time.Instant
 

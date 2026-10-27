@@ -6,7 +6,7 @@ import com.ecommerce.mvp.modules.admin.dto.LowStockProductDto
 import com.ecommerce.mvp.modules.admin.dto.TopProductDto
 import com.ecommerce.mvp.modules.order.repository.OrderRepository
 import com.ecommerce.mvp.modules.product.repository.ProductRepository
-import com.ecommerce.mvp.modules.user.repository.UserRepository
+import com.ecommerce.mvp.modules.shopper.repository.ShopperRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
@@ -17,11 +17,11 @@ private const val TOP_PRODUCTS_LIMIT = 5
 class DashboardService(
     private val orderRepository: OrderRepository,
     private val productRepository: ProductRepository,
-    private val userRepository: UserRepository
+    private val shopperRepository: ShopperRepository
 ) {
     fun getDashboardStats(): DashboardStatsDto {
         val totalOrders = orderRepository.count()
-        val totalCustomers = userRepository.count()
+        val totalCustomers = shopperRepository.count()
         val totalProducts = productRepository.countByIsActiveTrue()
         val totalRevenue: BigDecimal = orderRepository.sumTotalRevenue()
         val orderStatusBreakdown: Map<String, Long> = orderRepository
@@ -61,7 +61,7 @@ class DashboardService(
         val email = SecurityContextHolder.getContext().authentication?.name
             ?: throw ResourceNotFoundException("Authenticated admin not found")
 
-        val admin = userRepository.findByUserEmail(email)
+        val admin = shopperRepository.findByUserEmail(email)
             ?: throw ResourceNotFoundException("Admin user not found for email: $email")
 
         return AdminInfoDto(

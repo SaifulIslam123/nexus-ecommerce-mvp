@@ -3,12 +3,10 @@ package com.ecommerce.mvp.modules.auth.service
 import com.ecommerce.mvp.common.email.EmailSender
 import com.ecommerce.mvp.common.exception.BusinessValidationException
 import com.ecommerce.mvp.common.exception.InvalidPasswordResetTokenException
-import com.ecommerce.mvp.common.exception.RateLimitException
 import com.ecommerce.mvp.common.response.ApiResponse
 import com.ecommerce.mvp.modules.auth.model.entity.PasswordResetToken
 import com.ecommerce.mvp.modules.auth.repository.PasswordResetTokenRepository
-import com.ecommerce.mvp.modules.user.repository.UserRepository
-import com.ecommerce.mvp.security.RateLimitService
+import com.ecommerce.mvp.modules.shopper.repository.ShopperRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -24,7 +22,7 @@ import java.util.Base64
 @Service
 class PasswordResetService(
     private val passwordResetTokenRepository: PasswordResetTokenRepository,
-    private val userRepository: UserRepository,
+    private val shopperRepository: ShopperRepository,
     private val emailSender: EmailSender,
     private val refreshTokenService: RefreshTokenService,
     private val passwordEncoder: PasswordEncoder,
@@ -47,8 +45,8 @@ class PasswordResetService(
             throw RateLimitException("Rate limit exceeded. Please try again later.")
         }*/
 
-        val user = userRepository.findByUserEmail(normalizedEmail)
-            ?: userRepository.findAll().firstOrNull { it.email.equals(normalizedEmail, ignoreCase = true) }
+        val user = shopperRepository.findByUserEmail(normalizedEmail)
+            ?: shopperRepository.findAll().firstOrNull { it.email.equals(normalizedEmail, ignoreCase = true) }
 
         if (user != null) {
             passwordResetTokenRepository.markAllUserTokensAsUsed(user.id ?: 0L, Instant.now())

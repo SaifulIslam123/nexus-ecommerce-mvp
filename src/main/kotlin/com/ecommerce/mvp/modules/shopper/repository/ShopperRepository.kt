@@ -1,12 +1,12 @@
-package com.ecommerce.mvp.modules.user.repository
+package com.ecommerce.mvp.modules.shopper.repository
 
-import com.ecommerce.mvp.modules.user.model.entity.User
+import com.ecommerce.mvp.common.entity.user.User
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
 
 @Repository
-interface UserRepository : JpaRepository<User, Long> {
+interface ShopperRepository : JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u WHERE u.email = ?1")
     fun findByUserEmail(email: String?): User?

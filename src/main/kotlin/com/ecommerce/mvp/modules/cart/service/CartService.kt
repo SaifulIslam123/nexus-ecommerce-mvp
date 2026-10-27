@@ -10,14 +10,14 @@ import com.ecommerce.mvp.modules.cart.model.entity.CartItem
 import com.ecommerce.mvp.modules.cart.repository.CartItemRepository
 import com.ecommerce.mvp.modules.cart.repository.CartRepository
 import com.ecommerce.mvp.modules.product.repository.ProductRepository
-import com.ecommerce.mvp.modules.user.repository.UserRepository
+import com.ecommerce.mvp.modules.shopper.repository.ShopperRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 class CartService(
-    private val userRepository: UserRepository,
+    private val shopperRepository: ShopperRepository,
     private val productRepository: ProductRepository,
     private val cartRepository: CartRepository,
     private val cartItemRepository: CartItemRepository
@@ -28,7 +28,7 @@ class CartService(
         val email = SecurityContextHolder.getContext().authentication?.name
             ?: throw ResourceNotFoundException("Authenticated user not found")
 
-        val user = userRepository.findByUserEmail(email)
+        val user = shopperRepository.findByUserEmail(email)
             ?: throw ResourceNotFoundException("User not found with email: $email")
 
         //val userCart = user.cart//cartRepository.findByUserEmail(email)
@@ -60,7 +60,7 @@ class CartService(
     fun addItemToCart(requestDto: CartItemRequestDto): CartResponseDto {
 
         val email = SecurityContextHolder.getContext().authentication?.name
-        val user = userRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
+        val user = shopperRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
         user.cart?.let { userCart ->
 
             requestDto.productId?.let { productId ->

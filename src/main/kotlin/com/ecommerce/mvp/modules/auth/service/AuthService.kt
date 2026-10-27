@@ -4,18 +4,15 @@ import com.ecommerce.mvp.common.exception.ResourceNotFoundException
 import com.ecommerce.mvp.modules.auth.model.AuthRequest
 import com.ecommerce.mvp.modules.auth.model.LoginResponseDto
 import com.ecommerce.mvp.modules.auth.model.RefreshRequest
-import com.ecommerce.mvp.modules.user.repository.UserRepository
-import com.ecommerce.mvp.security.AppSecurityUserDetails
+import com.ecommerce.mvp.modules.shopper.repository.ShopperRepository
 import com.ecommerce.mvp.security.JwtUtil
 import com.ecommerce.mvp.security.appSecurityUserDetails
-import com.ecommerce.mvp.security.currentUserEntity
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 class AuthService(
-    private val userRepository: UserRepository,
+    private val shopperRepository: ShopperRepository,
     private val refreshTokenService: RefreshTokenService,
     private val jwtUtil: JwtUtil,
 ) {

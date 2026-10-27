@@ -1,7 +1,7 @@
 package com.ecommerce.mvp.modules.cart.model.entity
 
 import com.ecommerce.mvp.common.entity.audit.BaseEntityAudit
-import com.ecommerce.mvp.modules.user.model.entity.User
+import com.ecommerce.mvp.common.entity.user.User
 import jakarta.persistence.*
 import lombok.ToString
 

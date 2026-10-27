@@ -1,5 +1,6 @@
 package com.ecommerce.mvp.modules.auth.controller
 
+import com.ecommerce.mvp.common.dto.UserDto
 import com.ecommerce.mvp.common.response.ApiResponse
 import com.ecommerce.mvp.modules.auth.model.AuthRequest
 import com.ecommerce.mvp.modules.auth.model.ForgotPasswordRequest
@@ -10,8 +11,7 @@ import com.ecommerce.mvp.modules.auth.model.ResetPasswordRequest
 import com.ecommerce.mvp.modules.auth.service.AuthService
 import com.ecommerce.mvp.modules.auth.service.PasswordResetService
 import com.ecommerce.mvp.modules.auth.service.RefreshTokenService
-import com.ecommerce.mvp.modules.user.model.dto.UserDto
-import com.ecommerce.mvp.modules.user.service.UserService
+import com.ecommerce.mvp.modules.shopper.service.ShopperService
 import com.ecommerce.mvp.security.JwtUtil
 import com.ecommerce.mvp.security.TokenBlacklistService
 import io.swagger.v3.oas.annotations.Operation
@@ -26,7 +26,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.*
 
@@ -35,7 +34,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/v1/auth")
 class AuthController(
-    private val userService: UserService,
+    private val shopperService: ShopperService,
     private val authenticationManager: AuthenticationManager,
     private val jwtUtil: JwtUtil,
     private val passwordEncoder: PasswordEncoder,
@@ -62,7 +61,7 @@ class AuthController(
 
     @PostMapping("/register")
     fun register(@Valid @RequestBody request: UserDto): UserDto {
-        return userService.registerUser(request.apply {
+        return shopperService.registerUser(request.apply {
             password = passwordEncoder.encode(password)
         })
     }

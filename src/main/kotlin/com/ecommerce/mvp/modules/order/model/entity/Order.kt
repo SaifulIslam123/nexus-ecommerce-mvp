@@ -2,8 +2,7 @@ package com.ecommerce.mvp.modules.order.model.entity
 
 import com.ecommerce.mvp.common.entity.audit.BaseEntityAudit
 import com.ecommerce.mvp.modules.payment.model.entity.Payment
-import com.ecommerce.mvp.modules.user.model.entity.Address
-import com.ecommerce.mvp.modules.user.model.entity.User
+import com.ecommerce.mvp.common.entity.user.User
 import jakarta.persistence.*
 import java.math.BigDecimal
 import java.time.Instant

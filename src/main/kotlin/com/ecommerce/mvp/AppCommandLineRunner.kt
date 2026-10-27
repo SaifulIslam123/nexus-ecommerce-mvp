@@ -1,12 +1,10 @@
 package com.ecommerce.mvp
 
 import com.ecommerce.mvp.common.seeder.CategoryTagProductDataSeederService
-import com.ecommerce.mvp.modules.order.service.OrderService
 import com.ecommerce.mvp.modules.product.service.ProductService
 import com.ecommerce.mvp.modules.role.service.RoleService
-import com.ecommerce.mvp.modules.user.service.UserService
+import com.ecommerce.mvp.modules.shopper.service.ShopperService
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.CommandLineRunner
 import org.springframework.stereotype.Component
 
@@ -17,7 +15,7 @@ class AppCommandLineRunner : CommandLineRunner {
     private lateinit var productService: ProductService
 
     @Autowired
-    private lateinit var userService: UserService
+    private lateinit var shopperService: ShopperService
 
     @Autowired
     private lateinit var roleService: RoleService

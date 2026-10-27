@@ -1,14 +1,18 @@
-package com.ecommerce.mvp.modules.user.service
+package com.ecommerce.mvp.modules.shopper.service
 
 import com.ecommerce.mvp.common.AppConstant.MAX_Address
 import com.ecommerce.mvp.common.AppConstant.MIN_Address
+import com.ecommerce.mvp.common.dto.AddressDto
+import com.ecommerce.mvp.common.dto.UserDto
+import com.ecommerce.mvp.common.dto.UserProfileUpdateDto
+import com.ecommerce.mvp.common.dto.toEntity
+import com.ecommerce.mvp.common.dto.toUserDto
+import com.ecommerce.mvp.common.entity.user.Address
 import com.ecommerce.mvp.common.exception.BusinessValidationException
 import com.ecommerce.mvp.common.exception.ResourceNotFoundException
 import com.ecommerce.mvp.modules.role.model.entity.Role
-import com.ecommerce.mvp.modules.user.model.dto.AddressDto
-import com.ecommerce.mvp.modules.user.model.dto.UserDto
-import com.ecommerce.mvp.modules.user.model.dto.toEntity
-import com.ecommerce.mvp.modules.user.repository.UserRepository
+
+import com.ecommerce.mvp.modules.shopper.repository.ShopperRepository
 import com.ecommerce.mvp.modules.role.repository.RoleRepository
 import jakarta.annotation.PostConstruct
 import org.springframework.data.domain.Page
@@ -16,16 +20,13 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import com.ecommerce.mvp.modules.user.model.dto.UserProfileUpdateDto
-import com.ecommerce.mvp.modules.user.model.dto.toUserDto
-import com.ecommerce.mvp.modules.user.model.entity.Address
 import org.springframework.security.core.context.SecurityContextHolder
 import java.time.LocalDateTime
 import java.util.Collections
 
 @Service
-class UserService(
-    private val userRepository: UserRepository,
+class ShopperService(
+    private val shopperRepository: ShopperRepository,
     private val roleRepository: RoleRepository,
 ) {
     var dbRoleList: MutableList<Role> = Collections.emptyList();
@@ -38,7 +39,7 @@ class UserService(
     @Transactional
     fun registerUser(userDto: UserDto): UserDto {
 
-        if (userRepository.existsByEmail(userDto.email!!)) {
+        if (shopperRepository.existsByEmail(userDto.email!!)) {
             throw BusinessValidationException("Email is already in use")
         }
 
@@ -72,7 +73,7 @@ class UserService(
             }?.toMutableSet() ?: mutableSetOf()
             it.userRoles = requestRoleList.toMutableSet()
         }
-        val savedUser = userRepository.save(user)
+        val savedUser = shopperRepository.save(user)
 
         return userDto.also {
             it.id = savedUser.id
@@ -81,7 +82,7 @@ class UserService(
 
     fun getCurrentUserProfile(): UserDto {
         val email = SecurityContextHolder.getContext().authentication?.name
-        val user = userRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
+        val user = shopperRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
 
         return user.toUserDto()
     }
@@ -89,7 +90,7 @@ class UserService(
     @Transactional
     fun updateCurrentUserProfile(updateDto: UserProfileUpdateDto): UserDto {
         val email = SecurityContextHolder.getContext().authentication?.name
-        val user = userRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
+        val user = shopperRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
 
         updateDto.name?.takeIf { it.isNotBlank() }?.let { user.name = it }
         updateDto.phone?.takeIf { it.isNotBlank() }?.let { user.phone = it }
@@ -119,7 +120,7 @@ class UserService(
     @Transactional
     fun addAddress(addressRequestDto: AddressDto): UserDto {
         val email = SecurityContextHolder.getContext().authentication?.name
-        val user = userRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
+        val user = shopperRepository.findByUserEmail(email) ?: throw ResourceNotFoundException("User not found")
 
         if (user.addresses.size >= MAX_Address) {
             throw BusinessValidationException("Maximum $MAX_Address addresses allowed. Please remove an existing address before adding a new one.")
@@ -134,7 +135,7 @@ class UserService(
         }
 
         user.addresses.add(address)
-        val savedUser = userRepository.save(user)
+        val savedUser = shopperRepository.save(user)
 
         return savedUser.toUserDto()
     }
@@ -142,7 +143,7 @@ class UserService(
     @Transactional
     fun deleteAddress(addressId: Long) {
         val email = SecurityContextHolder.getContext().authentication?.name
-        val user = userRepository.findByUserEmailWithAddresses(email)
+        val user = shopperRepository.findByUserEmailWithAddresses(email)
         user?.let {
             user.addresses.takeIf { it.isNotEmpty() }?.let {
 
@@ -168,7 +169,7 @@ class UserService(
      */
     fun getAllUsers(page: Int = 0, size: Int = 10, sort: String = "id", direction: String = "ASC"): Page<UserDto> {
         val pageable = PageRequest.of(page, size, Sort.Direction.valueOf(direction.uppercase()), sort)
-        return userRepository.findAll(pageable).map { it.toUserDto() }
+        return shopperRepository.findAll(pageable).map { it.toUserDto() }
     }
 
     /**
@@ -176,7 +177,7 @@ class UserService(
      * Throws [ResourceNotFoundException] if the user does not exist.
      */
     fun getUserById(id: Long): UserDto {
-        val user = userRepository.findById(id)
+        val user = shopperRepository.findById(id)
             .orElseThrow { ResourceNotFoundException("User not found with id: $id") }
         return user.toUserDto()
     }
@@ -188,10 +189,10 @@ class UserService(
      */
     @Transactional
     fun deleteUser(id: Long) {
-        if (!userRepository.existsById(id)) {
+        if (!shopperRepository.existsById(id)) {
             throw ResourceNotFoundException("User not found with id: $id")
         }
-        userRepository.deleteById(id)
+        shopperRepository.deleteById(id)
     }
 
 }

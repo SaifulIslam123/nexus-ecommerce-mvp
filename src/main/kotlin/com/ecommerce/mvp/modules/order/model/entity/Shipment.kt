@@ -1,7 +1,8 @@
 package com.ecommerce.mvp.modules.order.model.entity
 
 import com.ecommerce.mvp.common.entity.audit.BaseEntityAudit
-import com.ecommerce.mvp.modules.user.model.entity.Address
+import com.ecommerce.mvp.common.entity.user.Address
+
 import jakarta.persistence.*
 import java.time.Instant
 
